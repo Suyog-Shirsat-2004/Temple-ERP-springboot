@@ -1,162 +1,57 @@
-﻿# Temple-ERP-Java
+﻿# Temple ERP – Enterprise Resource Planning System
 
-**Live Project (1st link):** [https://smile-costume-salaries-himself.trycloudflare.com](https://smile-costume-salaries-himself.trycloudflare.com) *(live via temporary Cloudflare tunnel from local app `http://localhost:5000`; link works while the app and tunnel are running. For a permanent public live URL, deploy to Render/Railway/Koyeb/Fly.io/Azure with MongoDB Atlas — see [Deploy / Live Link](#deploy--live-link).)*
+<h2>🚀 Live Project Demo</h2>
 
-**Local Live:** [http://localhost:5000/](http://localhost:5000/) (running locally)
+**[🌐 CLICK HERE TO OPEN LIVE TEMPLE ERP PROJECT](https://smile-costume-salaries-himself.trycloudflare.com)**
 
-Java Spring Boot based Temple ERP System for managing Darshan Passes, Room Bookings, Donations, Restaurant Orders, Payments, and Admin Operations.
+*Note: This is a temporary Cloudflare Tunnel link. It works only while the local application and tunnel are running.*
 
-- **GitHub Repository:** [https://github.com/suyog-shirsat2004/Temple-ERP-Java](https://github.com/suyog-shirsat2004/Temple-ERP-Java)
-- **Project Report (PDF):** [`java-project-temple-erp.pdf`](java-project-temple-erp.pdf)
-- **Detailed Docs:** [`java-project-temple-erp.md`](java-project-temple-erp.md)
+**Local Live:** [http://localhost:5000/](http://localhost:5000/) *(when running locally)*
 
-> **Project basis:** Developed from the *Temple ERP System* academic project specification (2025–2026). The original specification/sample stack referenced PHP/MySQL/WAMP; this repository is a **complete Java-based implementation** of the same Temple ERP concept and modules, extended with additional UI, PDF, email, and performance improvements.
+---
 
-## Project Details
+## Project Overview
 
-| Item | Details |
-|---|---|
-| Project | Temple ERP System (Java Project) |
-| Developed By | Shirsat Suyog Madhav; Shinde Kiran Uttam |
+Temple ERP (Enterprise Resource Planning) is a Java Spring Boot-based web application designed to digitize and simplify temple management operations. It provides a centralized platform for devotees and administrators to manage temple services efficiently.
 
-## Overview
-
-In the digital era, temples manage devotee services such as darshan passes, room bookings, donations, food/Annakshetra services, payments, and feedback. Manual processes can be slow, error-prone, and difficult to track. **Temple ERP** provides a centralized web-based platform to automate and manage these activities efficiently for devotees and administrators.
-
-**Objectives**
-- Manage temple activities and devotee services from a single platform
-- Reduce manual work and improve accuracy/speed
-- Maintain secure, organized records in MongoDB
-- Provide a user-friendly interface for devotees and administrators
-- Enable online darshan passes, room bookings, donations, restaurant/Annakshetra orders, and feedback
-- Generate and deliver styled PDF passes/receipts/tokens (and email them when configured)
-
-## Features / Modules
-
-### Devotee (User)
-- **Authentication & account:** register, login, forgot/reset password, profile view/update.
-- **Profile:** update name/email/mobile/address/gender and profile photo/logo (click avatar/icon or upload), single-field/partial updates supported, validation and clear error messages.
-- **Darshan Passes:** apply for pass, view status/history, view/download token/PDF.
-- **Room Booking:** book rooms, view bookings/status, view/download booking token/PDF.
-- **Donations:** submit donations (with payment details as applicable), view receipts/history, download donation receipt PDF.
-- **Restaurant / Annakshetra:** browse menu, place orders/payments, view order/token, download token PDF.
-- **Feedback & contact:** submit feedback/contact messages.
-- **Notifications:** view notifications and delete selected/all/individual notifications.
-
-### Admin Operations
-- **Dashboard & monitoring:** overview, login records/activity.
-- **Darshan management:** pass requests, pass types, approve/reject/update, PDF/token actions.
-- **Room management:** rooms and booking requests, approve/reject/update, token/PDF actions.
-- **Donations & payments:** donation/payment records and approvals, receipt PDF actions.
-- **Restaurant:** menu/items and orders, approve/reject/status updates, token/PDF actions (download original generated PDF, same as emailed).
-- **Users:** view/manage user records and status.
-- **Feedback/Contact/Notifications:** review and manage records.
-- **Email settings:** configure SMTP/mail settings (DB `mail_settings` preferred over properties when configured).
-
-### Key Implementation Highlights
-- **Faster submissions & admin actions:** PDF generation and email sending run asynchronously in background where applicable.
-- **Darshan Pass–styled PDFs:** donation receipt, restaurant token, and room booking token PDFs match the colorful pass format with temple logo support (e.g. `images/temple/icon symbol.png`) and fallbacks.
-- **PDF optimization:** embedded images normalized/resized/compressed (target under ~5 MB where possible); undecodable non-SVG images handled safely.
-- **Email delivery:** improved SMTP handling (Gmail/App Password), prefers DB `MailSetting` over `application.properties`.
-- **Notifications:** owner-scoped select, bulk, and single delete (`/notifications`).
-- **Profile:** avatar-click photo/logo update, partial/single-field updates, clearer validation/error reporting.
-- **Accounts:** multiple accounts can share the same email (startup drops unique `users.email` index; `spring.data.mongodb.auto-index-creation=false`). Username remains unique.
-- **Admin downloads:** original generated PDFs available (same as emailed), e.g. restaurant token `/restaurant/token/{tokenId}/pdf`.
+### Key Modules & Features
+- **Darshan Passes:** Apply, track, approve/reject, and generate/download pass PDFs/tokens.
+- **Room Bookings:** Book temple rooms, manage booking status, and generate/download booking tokens/PDFs.
+- **Donations & Payments:** Submit and manage donations/payments with receipts and PDF generation.
+- **Restaurant / Annakshetra Orders:** Browse menu, place orders, manage orders, and generate/download order tokens/PDFs.
+- **Admin Operations:** Dashboard and management for users, passes, bookings, rooms, donations, restaurant/menu/orders, feedback/contact, notifications, login activity, and email settings.
+- **User Services:** Registration/login, profile management (photo/logo & details), notifications, feedback/contact, and service history.
+- **System Highlights:** Styled PDF generation (Darshan Pass format with logo), email delivery (SMTP/Gmail App Password), async processing for faster actions, and responsive web pages.
 
 ## Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Language | Java 17+ |
-| Framework | Spring Boot 3.x, Spring Web MVC, Spring Security |
-| View/UI | Thymeleaf, HTML, CSS, JavaScript, Bootstrap/icons |
-| Database | MongoDB (Spring Data MongoDB) |
-| PDF | openhtmltopdf + Thymeleaf HTML render templates |
-| Email | Spring Mail / Jakarta Mail (SMTP, Gmail App Password) |
-| Build Tool | Maven (`mvnw`, `mvnw.cmd`) |
-| Deployment | JAR / Docker (`Dockerfile` included) |
+- **Backend:** Java 17+, Spring Boot 3.x, Spring Web MVC, Spring Security
+- **Frontend:** Thymeleaf, HTML, CSS, JavaScript, Bootstrap/icons
+- **Database:** MongoDB (Spring Data MongoDB)
+- **PDF & Email:** openhtmltopdf, Spring Mail / Jakarta Mail
+- **Build/Deploy:** Maven (`mvnw`/`mvnw.cmd`), JAR, Docker
 
-## Project Structure
+## Project Links
 
-- `src/main/java/com/temple/erp/` — controllers (`web`, `api`, admin), services, repositories, models, config, security, DTO/util
-- `src/main/resources/templates/` — Thymeleaf pages (`admin/`, `fragments/`, `pdf/`)
-- `src/main/resources/templates/pdf/` — PDF render templates (`pass-render.html`, `donation-receipt-render.html`, `restaurant-token-render.html`, `booking-token-render.html`)
-- `src/main/resources/static/` — static web assets
-- `images/` — project images served by the app (e.g. `/images/temple/**`)
-- `src/main/resources/application.properties` — configuration
-- `java-project-temple-erp.md` — detailed documentation
-- `java-project-temple-erp.pdf` — updated project report
+- **Live Project:** https://smile-costume-salaries-himself.trycloudflare.com
+- **GitHub Repository:** https://github.com/suyog-shirsat2004/Temple-ERP-Java
+- **Project Report:** [View PDF](https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.pdf)
+- **Detailed Documentation:** [Read Documentation](https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.md)
 
-## MongoDB Collections (core)
+## Run Locally
 
-`users`, `loginrecords`, `darshanpasses`, `passtypes`, `donations`, `rooms`, `roombookings`, `restaurantitems`, `restaurantorders`, `feedbacks`, `contacts`, `notifications`, `mail_settings` (see `model/` and repositories).
-
-## Setup & Run (Local)
-
-### Prerequisites
-- Java 17+
-- Maven (or included wrapper)
-- MongoDB (local or URI)
-
-### Configure
-Edit `src/main/resources/application.properties` or set environment variables:
-- `server.port=${PORT:5000}` (default `5000`)
-- `spring.data.mongodb.uri=${MONGO_URI:mongodb://localhost:27017/temple_erp}`
-- `spring.data.mongodb.auto-index-creation=false`
-- Mail (optional): `app.mail.enabled`, `app.mail.from`, `spring.mail.*` / DB `mail_settings` (Gmail: 2FA + App Password)
-
-> **Security:** do not commit real credentials. Prefer env vars or admin-managed DB settings.
-
-### Run
 ```bash
-# Windows
+# Prerequisites: Java 17+, Maven (or wrapper), MongoDB
+# Configure MONGO_URI / mail settings in src/main/resources/application.properties or environment variables
+
 .\mvnw.cmd spring-boot:run
-
-# macOS/Linux
-./mvnw spring-boot:run
+# Open: http://localhost:5000
 ```
 
-### Build JAR
-```bash
-.\mvnw.cmd -DskipTests clean package
-java -jar target/*.jar
-```
+Build: `.\mvnw.cmd -DskipTests clean package` → `java -jar target/*.jar` (or use included `Dockerfile`).
 
-Open: `http://localhost:5000`
+## Academic Project – 2026–27
 
-### Docker
-```bash
-docker build -t temple-erp-java .
-docker run -p 5000:5000 -e MONGO_URI="mongodb://..." temple-erp-java
-```
+Developed as an academic project for the 2026–27 academic year.
 
-## Deploy / Live Link
-
-**Current Live (temporary tunnel):** [https://smile-costume-salaries-himself.trycloudflare.com](https://smile-costume-salaries-himself.trycloudflare.com) (requires local app + tunnel to remain running)
-
-**Permanent Live Project:** _Deploy and publish a stable URL here (recommended)._
-
-1. Create MongoDB database (e.g. **MongoDB Atlas**) and set `MONGO_URI`.
-2. Deploy to a Java/Docker platform (**Render / Railway / Koyeb / Fly.io / Azure App Service**):
-   - Build: `.\mvnw.cmd -DskipTests clean package`
-   - Start: `java -jar target/*.jar` or deploy via `Dockerfile`
-   - Env vars: `MONGO_URI`, `PORT` (if required), mail vars as needed
-3. Verify pages/routes, PDFs, uploads, and email settings.
-4. Replace the **Live Project** placeholder at the top of this README and in the GitHub repo description/website.
-
-## Important Notes
-
-- **Restart/rebuild** after Java/template changes; regenerate PDFs to get latest styling/logo/compression.
-- **Duplicate emails:** allowed; startup attempts to drop unique `users.email` index. If E11000 occurs, drop index manually (`db.users.getIndexes()` / `db.users.dropIndex(...)`) and restart.
-- **Email:** `EmailService` prefers DB `MailSetting`; Gmail requires App Password. Check logs on send failures.
-
-## Repository & References
-
-- **GitHub:** [https://github.com/suyog-shirsat2004/Temple-ERP-Java](https://github.com/suyog-shirsat2004/Temple-ERP-Java)
-- **Report:** [`java-project-temple-erp.pdf`](java-project-temple-erp.pdf)
-- **Docs:** [`java-project-temple-erp.md`](java-project-temple-erp.md)
-- Temple ERP System — Java Spring Boot, Thymeleaf, MongoDB implementation
-
-## License / Usage
-
-Academic project implementation. Use and adapt as permitted by your institution/project guidelines.
+**Developed By:** Shirsat Suyog Madhav; Shinde Kiran Uttam
