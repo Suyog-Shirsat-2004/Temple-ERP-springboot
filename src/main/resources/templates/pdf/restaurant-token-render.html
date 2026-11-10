@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Restaurant Order Token</title>
+  <style>
+    @page { size: A4; margin: 10mm; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin:0; padding:0; font-family: "Nirmala UI", "Noto Sans Devanagari", "Mangal", "Noto Sans", Georgia, "Times New Roman", serif; color:#2b2416; background:#ead9b8; font-size:12px; }
+    .page { width:100%; border:3px solid #c8a24a; background:#fff7e6; padding:0; position:relative; overflow:hidden; }
+    .head { background:#7a1f1f; color:#fff; padding:14px 16px 12px; border-bottom:5px solid #d4af37; }
+    .head-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    .head-table td { vertical-align:middle; }
+    .head-logo-cell { width:120px; text-align:left; }
+    .head-spacer-cell { width:120px; }
+    .head-center-cell { text-align:center; }
+    .brand-logo img { width:100px; height:100px; object-fit:contain; background:#fff3d6; border:3px solid #f0c75e; border-radius:50%; padding:6px; display:block; }
+    .head .temple-name { font-size:30px; font-weight:700; letter-spacing:.5px; margin:0; line-height:1.15; color:#fffaf0; }
+    .head .sub { font-size:16px; font-weight:700; color:#fff3c4; margin:6px 0 0; letter-spacing:.3px; }
+    .head .mantra { font-size:13px; color:#fff8dc; margin-top:8px; font-weight:700; letter-spacing:.4px; }
+    .status-row { text-align:center; margin:10px 0 6px; }
+    .pill { display:inline-block; padding:6px 16px; border-radius:20px; font-weight:700; font-size:12px; border:1px solid #ccc; }
+    .pill.ok { background:linear-gradient(180deg,#dcfce7,#bbf7d0); color:#166534; border-color:#22c55e; }
+    .pill.pending { background:linear-gradient(180deg,#fef9c3,#fde68a); color:#854d0e; border-color:#eab308; }
+    .pill.bad { background:linear-gradient(180deg,#fee2e2,#fecaca); color:#991b1b; border-color:#ef4444; }
+    .watermark { text-align:center; margin:6px 12px 0; padding:10px 12px; border:3px solid; font-weight:800; letter-spacing:.08em; }
+    .watermark.ok { color:#166534; border-color:#22c55e; background:linear-gradient(90deg,#ecfdf5,#fef9c3,#ecfdf5); }
+    .watermark.pending { color:#92400e; border-color:#eab308; background:linear-gradient(90deg,#fffbeb,#fff7ed,#fffbeb); }
+    .watermark.bad { color:#991b1b; border-color:#ef4444; background:linear-gradient(90deg,#fef2f2,#fff7ed,#fef2f2); }
+    .banner { margin:10px 12px; padding:9px 10px; border:1px solid; border-radius:6px; font-size:11.5px; }
+    .banner.ok { background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
+    .banner.pending { background:#fffbeb; color:#92400e; border-color:#fde68a; }
+    .banner.bad { background:#fef2f2; color:#991b1b; border-color:#fecaca; }
+    .identity { margin:10px 12px; border:2px solid #d4af37; background:#fff3db; padding:10px; }
+    .id-table { width:100%; border-collapse:collapse; }
+    .id-table td { vertical-align:top; }
+    .photo-box { width:120px; text-align:center; border:2px solid #c8a24a; background:#fffaf0; padding:8px; }
+    .photo-box .lbl { font-size:9px; font-weight:700; color:#7a1f1f; text-transform:uppercase; margin-bottom:6px; }
+    .photo-box img { width:100px; height:130px; object-fit:cover; border:1px solid #d6bc7a; background:#fff; }
+    .photo-ph { width:100px; height:130px; border:1px solid #d6bc7a; background:#fff; color:#94a3b8; line-height:130px; text-align:center; margin:0 auto; font-size:11px; }
+    .main-info { padding:0 10px; }
+    .k { font-size:10px; font-weight:700; color:#7a5a1a; text-transform:uppercase; }
+    .token-id { font-size:18px; font-weight:700; color:#3f2a0a; margin:2px 0 6px; word-break:break-all; }
+    .line { margin:2px 0; color:#3f2a0a; }
+    .note { margin-top:6px; padding:7px 8px; background:#fff8e8; border:1px dashed #d6bc7a; color:#6b5316; font-size:11px; }
+    .total-box { width:170px; border:2px solid #22c55e; background:#f0fdf4; padding:10px; text-align:center; }
+    .total-box.pending { border-color:#eab308; background:#fffbeb; }
+    .total-box.bad { border-color:#ef4444; background:#fff5f5; }
+    .total-box .tl { font-size:9px; font-weight:700; text-transform:uppercase; color:#166534; }
+    .total-box.pending .tl { color:#854d0e; } .total-box.bad .tl { color:#991b1b; }
+    .total-box .amt { font-size:22px; font-weight:800; margin-top:6px; color:#14532d; }
+    .total-box.pending .amt { color:#713f12; } .total-box.bad .amt { color:#7f1d1d; }
+    .section { margin:10px 12px 4px; font-size:13px; font-weight:700; color:#fffaf0; border-bottom:2px solid #d4af37; padding:7px 10px 5px; background:#8b2323; border-radius:4px 4px 0 0; }
+    .items { margin:0 12px 10px; }
+    table.items-t { width:100%; border-collapse:collapse; }
+    table.items-t th, table.items-t td { border:1px solid #d6bc7a; padding:7px 8px; text-align:left; }
+    table.items-t th { background:#7a1f1f; color:#fff3c4; font-size:10px; text-transform:uppercase; }
+    table.items-t td { background:#fffaf0; font-weight:700; color:#2c2416; }
+    .grid { margin:0 12px 10px; }
+    table.fields { width:100%; border-collapse:collapse; }
+    table.fields td { border:1px solid #d6bc7a; padding:7px 8px; vertical-align:top; width:33.33%; background:#fffaf0; }
+    table.fields .label { display:block; font-size:9px; font-weight:700; color:#7a1f1f; text-transform:uppercase; margin-bottom:2px; }
+    table.fields .val { font-size:12px; font-weight:700; color:#2c2416; word-break:break-word; }
+    .foot { margin:8px 12px 12px; padding:10px 8px; border-top:3px solid #d4af37; background:#7a1f1f; color:#fff3c4; text-align:center; font-size:11px; border-radius:0 0 6px 6px; }
+  </style>
+</head>
+<body th:with="o=${order},
+               s=${o != null and o.status != null ? #strings.toLowerCase(o.status) : 'pending'},
+               isApproved=${s=='confirmed' or s=='approved' or s=='preparing' or s=='ready' or s=='completed'},
+               isRejected=${s=='rejected' or s=='cancelled'},
+               displayName=${orderUser != null and orderUser.name != null ? orderUser.name : (o != null and o.name != null ? o.name : '-')},
+               displayPhone=${o != null and o.phone != null and !#strings.isEmpty(o.phone) ? o.phone : (orderUser != null and orderUser.mobile != null ? orderUser.mobile : '-')},
+               tokenId=${o != null ? (o.orderId != null ? o.orderId : o.id) : '-'}">
+<div class="page" th:if="${o != null}">
+  <div class="head">
+    <table class="head-table">
+      <tr>
+        <td class="head-logo-cell">
+          <div class="brand-logo" th:if="${orderLogoSrc != null}"><img th:src="${orderLogoSrc}" alt="Temple Logo"/></div>
+        </td>
+        <td class="head-center-cell">
+          <div class="temple-name">Shri Trimbakeshwar</div>
+          <div class="temple-name" style="font-size:26px;">Jyotirlinga Temple</div>
+          <div class="sub">Restaurant Order Token Pass &#183; Temple ERP</div>
+          <div class="mantra">&#2384; Annakshetra &#160;|&#160; Trimbak, Nashik, Maharashtra</div>
+        </td>
+        <td class="head-spacer-cell"></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="status-row">
+    <span class="pill" th:classappend="${isApproved} ? ' ok' : (${isRejected} ? ' bad' : ' pending')"
+          th:text="${isApproved ? 'APPROVED / TOKEN GENERATED' : (isRejected ? 'REJECTED BY ADMIN' : 'PENDING ADMIN APPROVAL')}">Status</span>
+  </div>
+
+  <div class="watermark ok" th:if="${isApproved}">TOKEN GENERATED<br/><span style="font-size:13px;letter-spacing:.12em;color:#15803d">ORDER APPROVED</span></div>
+  <div class="watermark pending" th:if="${!isApproved and !isRejected}">PENDING APPROVAL<br/><span style="font-size:13px;letter-spacing:.12em;color:#a16207">AWAITING ADMIN</span></div>
+  <div class="watermark bad" th:if="${isRejected}">ORDER REJECTED<br/><span style="font-size:13px;letter-spacing:.12em;color:#b91c1c">TOKEN NOT VALID</span></div>
+
+  <div class="banner ok" th:if="${isApproved}"><strong>Order approved/updated by admin.</strong> Show this token at the restaurant counter if required.</div>
+  <div class="banner pending" th:if="${!isApproved and !isRejected}"><strong>Pending admin approval.</strong> Order details are shown below. Token becomes valid after admin approval/update.</div>
+  <div class="banner bad" th:if="${isRejected}"><strong>Order rejected/cancelled.</strong> This token is not valid. Please contact administration if needed.</div>
+
+  <div class="identity">
+    <table class="id-table"><tr>
+      <td style="width:120px;">
+        <div class="photo-box">
+          <div class="lbl">User Photo</div>
+          <img th:if="${orderPhotoSrc != null}" th:src="${orderPhotoSrc}" alt="Photo"/>
+          <div class="photo-ph" th:if="${orderPhotoSrc == null}">Photo</div>
+        </div>
+      </td>
+      <td class="main-info">
+        <div class="k">Order / Token ID</div>
+        <div class="token-id" th:text="${tokenId}">-</div>
+        <div class="line"><strong>Name:</strong> <span th:text="${displayName}">-</span></div>
+        <div class="line"><strong>Phone:</strong> <span th:text="${displayPhone}">-</span></div>
+        <div class="note" th:text="${isApproved ? 'This order has been approved/updated by admin. Show this token at the restaurant counter if required.' : (isRejected ? 'This order was rejected by admin.' : 'Order details are shown below. Token becomes valid after admin approval/update.')}">Note</div>
+      </td>
+      <td style="width:170px;vertical-align:middle;">
+        <div class="total-box" th:classappend="${isRejected} ? ' bad' : (${isApproved} ? '' : ' pending')">
+          <div class="tl">Grand Total</div>
+          <div style="font-size:10px;font-weight:700;color:#355a46;margin-top:4px;">Restaurant Order Token</div>
+          <div class="amt">&#8377;<span th:text="${o.totalAmount != null ? #numbers.formatDecimal(o.totalAmount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div>
+          <div style="margin-top:6px;font-size:10px;font-weight:700;color:#355a46;" th:text="${o.paymentStatus != null ? o.paymentStatus : '-'}">-</div>
+        </div>
+      </td>
+    </tr></table>
+  </div>
+
+  <div class="section">Order Items</div>
+  <div class="items">
+    <table class="items-t">
+      <thead><tr><th>Item</th><th style="width:70px;text-align:center">Qty</th><th style="width:120px;text-align:right">Price</th><th style="width:130px;text-align:right">Line Total</th></tr></thead>
+      <tbody>
+        <tr th:each="i : ${o.items}">
+          <td th:text="${i.name}">Item</td>
+          <td style="text-align:center" th:text="${i.qty != null ? i.qty : 1}">1</td>
+          <td style="text-align:right">&#8377;<span th:text="${i.price != null ? #numbers.formatDecimal(i.price, 1, 'COMMA', 2, 'POINT') : '0.00'}">0.00</span></td>
+          <td style="text-align:right">&#8377;<span th:text="${#numbers.formatDecimal((i.price != null ? i.price : 0) * (i.qty != null ? i.qty : 1), 1, 'COMMA', 2, 'POINT')}">0.00</span></td>
+        </tr>
+        <tr th:if="${o.items == null or #lists.isEmpty(o.items)}"><td colspan="4" style="color:#64748b">-</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">Token Details</div>
+  <div class="grid">
+    <table class="fields">
+      <tr>
+        <td><span class="label">Order ID</span><div class="val" th:text="${tokenId}">-</div></td>
+        <td><span class="label">Status</span><div class="val" th:text="${o.status != null ? o.status : '-'}">-</div></td>
+        <td><span class="label">Payment Method</span><div class="val" th:text="${o.paymentMethod != null ? o.paymentMethod : '-'}">-</div></td>
+      </tr>
+      <tr>
+        <td><span class="label">Payment Status</span><div class="val" th:text="${o.paymentStatus != null ? o.paymentStatus : '-'}">-</div></td>
+        <td><span class="label">Order Date</span><div class="val" th:text="${o.orderDate != null ? o.orderDate : '-'}">-</div></td>
+        <td><span class="label">Order Time</span><div class="val" th:text="${o.orderTime != null ? o.orderTime : '-'}">-</div></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="foot">&#2384; &#160;&#183;&#160; Shri Trimbakeshwar Jyotirlinga Temple, Nashik &#160;&#183;&#160; Temple ERP</div>
+</div>
+<div th:if="${o == null}" style="padding:20px;font-family:Georgia,serif">Order token not found.</div>
+</body>
+</html>

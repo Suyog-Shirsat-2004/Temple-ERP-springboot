@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Temple News - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<div style="font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f8fafc 0%,#e2e8f0 100%);min-height:100vh;overflow-x:hidden">
+  <div style="background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);padding:80px 0 120px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:url('/images/temple/icon-symbol.webp') no-repeat center;background-size:250px;opacity:.1;animation:float 6s ease-in-out infinite"></div>
+    <div style="position:relative;z-index:1">
+      <h1 style="color:#ffd700;font-size:3rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,.3);margin-bottom:15px;animation:slideInDown .8s ease-out"><i class="fas fa-newspaper" style="margin-right:20px"></i>Temple News</h1>
+      <p style="color:rgba(255,255,255,.95);font-size:1.2rem;animation:slideInUp .8s ease-out">Latest updates and announcements from Trimbakeshwar Temple</p>
+    </div>
+    <div style="position:absolute;bottom:-50px;left:0;right:0;height:100px;background:linear-gradient(to top,#f8fafc,transparent)"></div>
+  </div>
+
+  <div style="position:relative;z-index:10;padding-bottom:80px">
+    <div style="margin-top:-50px;margin-bottom:40px;text-align:center">
+      <button class="nfilter active" data-filter="all" onclick="filterNews('all',this)" style="background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);border:2px solid transparent;color:#fff;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-globe" style="margin-right:8px"></i>All News</button>
+      <button class="nfilter" data-filter="events" onclick="filterNews('events',this)" style="background:#fff;border:2px solid transparent;color:#1e3c72;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-calendar-alt" style="margin-right:8px"></i>Events</button>
+      <button class="nfilter" data-filter="announcements" onclick="filterNews('announcements',this)" style="background:#fff;border:2px solid transparent;color:#1e3c72;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-bullhorn" style="margin-right:8px"></i>Announcements</button>
+      <button class="nfilter" data-filter="donations" onclick="filterNews('donations',this)" style="background:#fff;border:2px solid transparent;color:#1e3c72;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-donate" style="margin-right:8px"></i>Donations</button>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(news)}">
+      <div style="display:flex;align-items:center;gap:15px;margin-bottom:35px;padding:0 20px">
+        <h2 style="color:#1e3c72;font-size:1.8rem;font-weight:700;margin:0;display:flex;align-items:center;gap:12px"><i class="fas fa-bullhorn" style="color:#ff6b35"></i> Latest News</h2>
+        <div style="flex:1;height:3px;background:linear-gradient(135deg,#ff6b35,#f7931e);border-radius:2px"></div>
+      </div>
+      <div id="newsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:30px;padding:0 20px">
+        <div th:each="n : ${news}" class="news-card" data-category="events"
+             th:with="imgRaw=${n.image},
+                      imgSrc=${imgRaw == null or #strings.isEmpty(imgRaw) ? null : (#strings.startsWith(imgRaw,'http') or #strings.startsWith(imgRaw,'/') ? imgRaw : (#strings.startsWith(imgRaw,'uploads/') or #strings.startsWith(imgRaw,'images/') ? '/' + imgRaw : (#strings.contains(imgRaw,'/') ? '/uploads/' + imgRaw : '/images/img/' + imgRaw)))}"
+             th:attr="data-headline=${n.title},data-content=${n.content},data-date=${n.publishedAt}" onclick="openNewsModal(this)" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.1);transition:all .4s;height:100%;position:relative;cursor:pointer">
+          <div style="height:220px;position:relative;overflow:hidden;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center">
+            <img th:if="${imgSrc != null}" th:src="${imgSrc}" th:alt="${n.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1" onerror="this.style.display='none'"/>
+            <i class="fas fa-newspaper" style="font-size:4rem;color:rgba(255,255,255,.5)"></i>
+          </div>
+          <div style="padding:25px;position:relative;z-index:2">
+            <span style="display:inline-block;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:5px 15px;border-radius:20px;font-size:.75rem;font-weight:600;margin-bottom:12px"><i class="fas fa-tag" style="margin-right:6px"></i> News</span>
+            <h3 style="color:#1e3c72;font-size:1.3rem;font-weight:700;margin-bottom:12px;line-height:1.4" th:text="${n.title}">Headline</h3>
+            <p style="color:#666;font-size:.95rem;line-height:1.7;margin-bottom:20px" th:text="${#strings.abbreviate(n.content != null ? n.content : 'Latest temple news...', 120)}">Content</p>
+            <a href="javascript:void(0)" style="display:inline-flex;align-items:center;gap:8px;color:#ff6b35;text-decoration:none;font-weight:600">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(news)}" style="text-align:center;padding:80px 20px;background:#fff;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.1);margin:0 20px">
+      <i class="fas fa-newspaper" style="font-size:5rem;color:#ddd;margin-bottom:25px;display:block;animation:float 3s ease-in-out infinite"></i>
+      <h4 style="color:#666;font-size:1.5rem;margin-bottom:10px">No News Available</h4>
+      <p style="color:#999">Latest updates and announcements will appear here.</p>
+      <a th:href="@{/}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:12px 28px;border-radius:25px;font-weight:600;text-decoration:none;margin-top:20px"><i class="fas fa-home"></i> Go to Home</a>
+    </div>
+  </div>
+</div>
+
+<div id="newsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:20px;width:90%;max-width:700px;max-height:80vh;overflow:auto">
+    <div style="background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:20px 25px;display:flex;justify-content:space-between;align-items:center">
+      <h5 id="nmTitle" style="margin:0;font-weight:700"></h5>
+      <button onclick="document.getElementById('newsModal').style.display='none'" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:35px;height:35px;border-radius:50%;cursor:pointer;font-size:1.2rem">&times;</button>
+    </div>
+    <div style="padding:25px">
+      <div style="text-align:center;margin-bottom:20px"><small style="color:#666"><i class="fas fa-calendar-day" style="margin-right:6px"></i><span id="nmDate"></span></small></div>
+      <div id="nmBody" style="font-size:1.1rem;line-height:1.8"></div>
+    </div>
+    <div style="padding:0 25px 25px"><button onclick="document.getElementById('newsModal').style.display='none'" style="width:100%;padding:12px;background:#f1f5f9;color:#64748b;border:none;border-radius:12px;font-weight:600;cursor:pointer">Close</button></div>
+  </div>
+</div>
+
+<footer style="background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;padding:50px;text-align:center;position:relative">
+  <div style="position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(135deg,#ff6b35,#f7931e)"></div>
+  <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" style="width:60px;height:60px;margin-bottom:20px;border-radius:50%"/>
+  <p style="color:#ffd700;font-weight:700;font-size:1.3rem;margin-bottom:15px">ॐ नमः शिवाय</p>
+  <p style="margin:0">© 2026 Shri Trimbakeshwar Temple. All rights reserved.</p>
+</footer>
+
+<style>
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes slideInDown{from{opacity:0;transform:translateY(-50px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInUp{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}
+.news-card:hover{transform:translateY(-12px) scale(1.01);box-shadow:0 25px 60px rgba(255,107,53,.25)}
+</style>
+<script>
+function filterNews(cat,btn){document.querySelectorAll('.nfilter').forEach(b=>{b.style.background='#fff';b.style.color='#1e3c72'});btn.style.background='linear-gradient(135deg,#ff6b35 0%,#f7931e 100%)';btn.style.color='#fff';document.querySelectorAll('.news-card').forEach(c=>{c.style.display=(cat==='all'||c.dataset.category===cat)?'':'none'});}
+function openNewsModal(el){document.getElementById('nmTitle').textContent=el.dataset.headline||'';document.getElementById('nmDate').textContent=el.dataset.date||'Recent';document.getElementById('nmBody').innerHTML=(el.dataset.content||'Details coming soon...').replace(/\n/g,'<br/>');document.getElementById('newsModal').style.display='flex';}
+</script>
+</body>
+</html>

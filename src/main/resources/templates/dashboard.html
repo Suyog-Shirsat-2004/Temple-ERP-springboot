@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Dashboard - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="dash-wrap">
+  <div class="container">
+    <div class="welcome-card">
+      <h2><span style="font-size:34px;vertical-align:middle;margin-right:8px">🕉️</span> Welcome, <span th:text="${userName}">Devotee</span>!</h2>
+      <p style="margin:0;opacity:.95">Book darshan passes, donate online, and stay updated with temple events.</p>
+    </div>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:30px">
+      <div class="card text-center service-card">
+        <div class="icon-circle saffron" style="width:70px;height:70px;font-size:26px"><i class="fas fa-ticket-alt"></i></div>
+        <h4 style="color:#333;margin-bottom:8px">Book Darshan</h4>
+        <p style="color:#666;margin-bottom:16px">Book your darshan pass online</p>
+        <a class="btn" th:href="@{/passes/new}"><i class="fas fa-plus"></i> Book Now</a>
+      </div>
+      <div class="card text-center service-card">
+        <div class="icon-circle saffron" style="width:70px;height:70px;font-size:26px"><i class="fas fa-donate"></i></div>
+        <h4 style="color:#333;margin-bottom:8px">Donate</h4>
+        <p style="color:#666;margin-bottom:16px">Contribute to temple development</p>
+        <a class="btn" th:href="@{/donations}"><i class="fas fa-plus"></i> Donate Now</a>
+      </div>
+      <div class="card text-center service-card">
+        <div class="icon-circle saffron" style="width:70px;height:70px;font-size:26px"><i class="fas fa-calendar-alt"></i></div>
+        <h4 style="color:#333;margin-bottom:8px">Events</h4>
+        <p style="color:#666;margin-bottom:16px">View upcoming temple events</p>
+        <a class="btn" th:href="@{/events}">View Events</a>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head"><i class="fas fa-ticket-alt"></i> &nbsp;My Darshan Bookings</div>
+      <div class="section-body">
+        <table class="table" style="margin:0;border-radius:0;box-shadow:none">
+          <thead><tr><th>Booking ID</th><th>Date</th><th>Time</th><th>Persons</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr th:each="p : ${passes}">
+              <td th:text="${p.passId != null ? p.passId : p.id}"></td>
+              <td th:text="${p.visitDate}"></td>
+              <td th:text="${p.visitTime}"></td>
+              <td th:text="${p.noOfPersons}"></td>
+              <td><span class="badge" th:classappend="${p.status != null ? p.status : ''}" th:text="${p.status != null ? p.status : '-'}"></span></td>
+              <td><a class="btn sm outline" th:href="@{/passes/{id}(id=${p.passId != null ? p.passId : p.id})}">View</a></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(passes)}">
+              <td colspan="6" style="padding:30px;text-align:center;color:#666">No bookings yet. <a th:href="@{/passes/new}" style="color:#ff6600;font-weight:600">Book your darshan pass now!</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px">
+      <div class="section-card">
+        <div class="section-head"><i class="fas fa-donate"></i> &nbsp;Recent Donations</div>
+        <div class="section-body padded">
+          <div th:each="d : ${donations}" style="padding:8px 0;border-bottom:1px solid #eee">
+            <strong th:text="${d.receiptNo != null ? d.receiptNo : 'Receipt'}"></strong> — ₹<span th:text="${d.amount != null ? d.amount : 0}"></span> <span class="badge" th:classappend="${d.paymentStatus != null ? d.paymentStatus : ''}" th:text="${d.paymentStatus != null ? d.paymentStatus : '-'}"></span>
+          </div>
+          <div th:if="${#lists.isEmpty(donations)}" style="color:#666">No donations yet. <a th:href="@{/donations}">Donate</a></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-head"><i class="fas fa-hotel"></i> &nbsp;Recent Room Bookings</div>
+        <div class="section-body padded">
+          <div th:each="b : ${bookings}" style="padding:8px 0;border-bottom:1px solid #eee">
+            <strong th:text="${b.bookingId != null ? b.bookingId : 'Booking'}"></strong> — <span th:text="${b.roomType != null ? b.roomType : '-'}"></span> <span class="badge" th:classappend="${b.bookingStatus != null ? b.bookingStatus : ''}" th:text="${b.bookingStatus != null ? b.bookingStatus : '-'}"></span>
+          </div>
+          <div th:if="${#lists.isEmpty(bookings)}" style="color:#666">No bookings yet. <a th:href="@{/bookings/new}">Book a room</a></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-head"><i class="fas fa-utensils"></i> &nbsp;Recent Orders</div>
+        <div class="section-body padded">
+          <div th:each="o : ${orders}" style="padding:8px 0;border-bottom:1px solid #eee">
+            <strong th:text="${o.orderId != null ? o.orderId : 'Order'}"></strong> — ₹<span th:text="${o.totalAmount != null ? o.totalAmount : 0}"></span> <span class="badge" th:classappend="${o.status != null ? o.status : ''}" th:text="${o.status != null ? o.status : '-'}"></span>
+          </div>
+          <div th:if="${#lists.isEmpty(orders)}" style="color:#666">No orders yet. <a th:href="@{/restaurant}">Order now</a></div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:18px;text-align:center">
+      <a class="btn" th:href="@{/notifications}"><i class="fas fa-bell"></i> Notifications (<span th:text="${unreadCount}">0</span>)</a>
+      <a class="btn outline" th:href="@{/profile}" style="margin-left:8px"><i class="fas fa-user"></i> Profile</a>
+      <a class="btn outline" th:href="@{/passes/history}" style="margin-left:8px">My Passes</a>
+      <a class="btn outline" th:href="@{/bookings/history}" style="margin-left:8px">My Bookings</a>
+      <a class="btn outline" th:href="@{/restaurant/history}" style="margin-left:8px">My Orders</a>
+    </p>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

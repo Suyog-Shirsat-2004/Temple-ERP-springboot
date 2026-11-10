@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Restaurant Order Token - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page token-page" style="padding:18px 0 36px;background:linear-gradient(180deg,#f6fbf7 0%, #eaf4ee 100%);min-height:calc(100vh - 120px)">
+  <th:block th:replace="~{fragments/restaurant-token-card :: restaurantTokenCard}"></th:block>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:if="${param.print != null}" th:inline="javascript">
+  window.addEventListener('load', function(){ setTimeout(function(){ window.print(); }, 250); });
+</script>
+</body>
+</html>

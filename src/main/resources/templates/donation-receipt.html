@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Donation Receipt - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page receipt-page" style="padding:18px 0 36px;background:linear-gradient(180deg,#f6fbf7 0%, #eaf4ee 100%);min-height:calc(100vh - 120px)">
+  <th:block th:replace="~{fragments/donation-receipt-card :: donationReceiptCard}"></th:block>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+  (function(){ try { var params = new URLSearchParams(window.location.search); if (params.get('print') === '1') setTimeout(function(){ window.print(); }, 350); } catch(e) {} })();
+</script>
+</body>
+</html>

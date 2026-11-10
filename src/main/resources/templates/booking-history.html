@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My Bookings')}"></head>
+<body>
+<style>
+  .bh-wrap{max-width:1180px}
+  .bh-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+  .bh-head h2{margin:0;font-size:1.6rem;font-weight:800;color:#1e293b}
+  .bh-head p{margin:4px 0 0;color:#64748b}
+  .bh-panel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 10px 24px rgba(15,23,42,.05);overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .bh-table{width:100%;min-width:980px;border-collapse:separate;border-spacing:0;margin:0}
+  .bh-table th,.bh-table td{padding:12px 12px;border-bottom:1px solid #edf2f7;text-align:left;vertical-align:top;font-size:14px}
+  .bh-table th{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:800}
+  .bh-table tbody tr:hover{background:#fafcff}
+  .bh-table tbody tr:last-child td{border-bottom:none}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;text-transform:capitalize;white-space:nowrap}
+  .pill-green{background:#dcfce7 !important;color:#166534 !important;border-color:#86efac !important}
+  .pill-yellow{background:#fef9c3 !important;color:#854d0e !important;border-color:#fde047 !important}
+  .pill-red{background:#fee2e2 !important;color:#991b1b !important;border-color:#fca5a5 !important}
+  .token-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:7px 11px;border-radius:9px;font-size:12px;font-weight:700;background:#7a1f1f;color:#fff}
+  .token-btn:hover{background:#651818;color:#fff}
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page bh-wrap">
+  <div class="bh-head">
+    <div>
+      <h2><i class="fas fa-bed" style="color:#ff6b35;margin-right:8px"></i>My Room Bookings</h2>
+      <p>View payment and admin approval status. Green = Paid/Approved, Yellow = Pending, Red = Rejected.</p>
+    </div>
+    <a class="btn sm" th:href="@{/bookings/new}" style="white-space:nowrap"><i class="fas fa-plus"></i> New Booking</a>
+  </div>
+  <div class="alert ok" th:if="${success}" th:text="${success}"></div>
+
+  <div class="bh-panel">
+    <table class="bh-table">
+      <thead><tr><th>Booking ID</th><th>Guest</th><th>Room Type</th><th>Check-in</th><th>Check-out</th><th>Total</th><th>Payment Method</th><th>Payment</th><th>Status</th><th>Token</th></tr></thead>
+      <tbody>
+        <tr th:each="b : ${bookings}"
+            th:with="ps=${b.paymentStatus != null ? #strings.toLowerCase(b.paymentStatus) : ''},
+                     bs=${b.bookingStatus != null ? #strings.toLowerCase(b.bookingStatus) : 'pending'},
+                     payPaid=${ps=='paid' or ps=='completed' or ps=='success'},
+                     payPending=${!payPaid},
+                     isApproved=${bs=='approved' or bs=='confirmed'},
+                     isRejected=${bs=='rejected' or bs=='cancelled'},
+                     isPendingStatus=${!isApproved and !isRejected},
+                     tokenReady=${true}">
+          <td th:text="${b.bookingId != null ? b.bookingId : b.id}" style="font-weight:800;color:#1e293b">-</td>
+          <td th:text="${b.guestName != null ? b.guestName : '-'}">-</td>
+          <td th:text="${b.roomType != null ? b.roomType : '-'}">-</td>
+          <td th:text="${b.checkIn != null ? b.checkIn : '-'}">-</td>
+          <td th:text="${b.checkOut != null ? b.checkOut : '-'}">-</td>
+          <td th:text="${'₹' + #numbers.formatDecimal((b.totalAmount != null ? b.totalAmount : 0), 1, 'COMMA', 2, 'POINT')}" style="font-weight:800;color:#166534">₹0.00</td>
+          <td th:text="${b.paymentMethod != null and !#strings.isEmpty(b.paymentMethod) ? b.paymentMethod : '-'}">-</td>
+          <td>
+            <span class="pill" th:classappend="${payPaid} ? ' pill-green' : ' pill-yellow'">
+              <i class="fas" th:classappend="${payPaid} ? ' fa-check-circle' : ' fa-clock'"></i>
+              <span th:text="${payPaid} ? 'Paid' : (${b.paymentStatus != null and !#strings.isEmpty(b.paymentStatus)} ? ${b.paymentStatus} : 'Pending')">-</span>
+            </span>
+          </td>
+          <td>
+            <span class="pill" th:classappend="${isApproved} ? ' pill-green' : (${isRejected} ? ' pill-red' : ' pill-yellow')">
+              <i class="fas" th:classappend="${isApproved} ? ' fa-check-circle' : (${isRejected} ? ' fa-times-circle' : ' fa-hourglass-half')"></i>
+              <span th:text="${isApproved} ? 'Approved' : (${isRejected} ? 'Rejected' : 'Pending')">-</span>
+            </span>
+            <div th:if="${payPaid and isPendingStatus}" style="font-size:11px;color:#92400e;margin-top:4px;font-weight:600">Waiting for admin approval</div>
+          </td>
+          <td>
+            <a th:href="@{'/bookings/token/' + ${b.bookingId != null ? b.bookingId : b.id}}" class="token-btn"><i class="fas fa-ticket-alt"></i> <span th:text="${isApproved ? 'View / Download' : 'View / Print'}">View / Download</span></a>
+            <div th:if="${!isApproved and !isRejected}" style="font-size:11px;color:#92400e;margin-top:4px;font-weight:600">Pending approval (PDF emailed)</div>
+            <div th:if="${isRejected}" style="font-size:11px;color:#991b1b;margin-top:4px;font-weight:600">Rejected</div>
+          </td>
+        </tr>
+        <tr th:if="${bookings == null or #lists.isEmpty(bookings)}"><td colspan="10" style="padding:24px;text-align:center;color:#64748b">No bookings found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<th:block th:fragment="donationReceiptCard">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap');
+  .receipt-page { padding: 18px 0 36px; background: linear-gradient(180deg,#f6fbf7 0%, #eaf4ee 100%); min-height: calc(100vh - 120px); }
+  .temple-receipt { max-width: 920px; margin: 0 auto; position: relative; overflow: hidden; background: #fffdf8; border-radius: 10px; box-shadow: 0 22px 60px rgba(16,66,40,.14); border: 2px solid #7aa889; }
+  .temple-receipt::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(122,168,137,.45); border-radius: 6px; pointer-events: none; }
+  .ornament { color:#7aa889; letter-spacing:.25em; font-size:12px; text-align:center; margin: 2px 0 0; opacity:.95; }
+  .receipt-head { background: linear-gradient(135deg, #14532d 0%, #166534 40%, #0f766e 100%); color: #fff; padding: 22px 26px 18px; text-align: center; position: relative; }
+  .receipt-head::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:10px; background: linear-gradient(90deg, transparent, rgba(220,252,231,.7), transparent); }
+  .brand-row { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+  .brand-row img { width:64px; height:64px; object-fit:contain; background:rgba(240,253,244,.12); border:1px solid rgba(220,252,231,.45); border-radius:50%; padding:6px; }
+  .receipt-head h1 { margin:0; font-family:'Cinzel', Georgia, serif; font-size:1.55rem; font-weight:800; letter-spacing:.04em; text-shadow:0 1px 2px rgba(0,0,0,.2); }
+  .receipt-head .sub { margin:4px 0 0; font-family:'Cormorant Garamond', Georgia, serif; font-size:1.15rem; color:#dcfce7; }
+  .receipt-head .mantra { margin-top:8px; font-size:.92rem; color:rgba(240,253,244,.95); }
+  .status-ribbon { margin-top:14px; display:flex; justify-content:center; }
+  .seal { display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:999px; font-weight:800; font-size:.82rem; letter-spacing:.06em; text-transform:uppercase; border:1px solid rgba(255,255,255,.35); }
+  .seal.completed { background:#ecfdf5; color:#065f46; border-color:#86efac; }
+  .seal.pending { background:#fffbeb; color:#92400e; border-color:#fcd34d; }
+  .seal.failed { background:#fef2f2; color:#991b1b; border-color:#fca5a5; }
+  .receipt-body { padding: 20px 26px 22px; }
+  .identity-panel { display:grid; grid-template-columns: 150px 1fr; gap:18px; align-items:stretch; background: linear-gradient(180deg,#f7fff9,#fff); border:1px solid #cfe3d6; border-radius:10px; padding:16px; margin-bottom:16px; }
+  .photo-frame { background:#fff; border:1px solid #9fc7b0; border-radius:8px; padding:8px; text-align:center; box-shadow: inset 0 0 0 3px #f3fbf6; }
+  .photo-frame .label { font-size:10px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; font-family:'Cinzel', Georgia, serif; }
+  .photo-frame img { width:118px; height:132px; object-fit:cover; border-radius:4px; border:1px solid #cfe3d6; background:#f8fafc; display:block; margin:0 auto; }
+  .photo-fallback { width:118px; height:132px; border-radius:4px; border:1px solid #cfe3d6; background:linear-gradient(180deg,#f8fafc,#eef2f7); color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:42px; margin:0 auto; }
+  .id-main { display:flex; flex-direction:column; justify-content:center; }
+  .receipt-id-label { font-size:11px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.08em; font-family:'Cinzel', Georgia, serif; }
+  .receipt-id { font-size:1.45rem; font-weight:800; color:#14532d; font-family:'Cinzel', Georgia, serif; margin:2px 0 6px; word-break:break-all; }
+  .id-sub { color:#355a46; font-size:1rem; margin:2px 0; }
+  .id-sub strong { color:#14532d; }
+  .receipt-note { margin-top:10px; padding:10px 12px; background:#ecfdf5; border:1px dashed #86efac; border-radius:8px; color:#166534; font-size:.92rem; }
+  .banner { margin: 0 0 16px; border-radius:10px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; font-size:.95rem; }
+  .completed-banner { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .pending-banner { background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+  .section-title { font-family:'Cinzel', Georgia, serif; color:#14532d; font-size:1rem; margin: 4px 0 10px; display:flex; align-items:center; gap:10px; }
+  .section-title::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,#86efac,transparent); }
+  .receipt-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+  .receipt-field { background:#fff; border:1px solid #d7e9df; border-radius:8px; padding:11px 13px; }
+  .receipt-field label { display:block; font-size:10px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .receipt-field div { font-size:1rem; font-weight:700; color:#16302a; word-break:break-word; }
+  .amount-highlight { background:linear-gradient(135deg,#14532d,#0f766e); color:#fff; border-radius:10px; padding:14px 16px; margin:14px 0; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .amount-highlight .amt { font-size:1.7rem; font-weight:800; font-family:'Cinzel', Georgia, serif; }
+  .receipt-footer { padding:14px 26px 20px; border-top:1px solid #d7e9df; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; color:#355a46; font-size:.92rem; background:linear-gradient(180deg,#fffdf8,#f3fbf6); }
+  .footer-blessing { font-family:'Cormorant Garamond', Georgia, serif; font-size:1.08rem; font-weight:600; }
+  .btn-print { background:#166534; color:#fff; border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer; }
+  .btn-classic { display:inline-flex; align-items:center; gap:6px; text-decoration:none; border-radius:8px; padding:10px 14px; font-weight:700; }
+  @media (max-width: 640px) { .identity-panel { grid-template-columns: 1fr; } .photo-frame img, .photo-fallback { width:110px; height:124px; } .receipt-head h1 { font-size:1.25rem; } }
+  @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } nav, footer, .no-print { display:none !important; } body, .receipt-page { background:#f4f7f2 !important; } .temple-receipt { box-shadow:none; max-width:100%; } .container.page { max-width:100%; padding:0; } }
+  .pdf-mode .temple-receipt { box-shadow:none; }
+</style>
+
+<div th:if="${donation == null}" class="alert err" style="max-width:920px;margin:0 auto">Donation receipt not found.</div>
+<div th:if="${donation != null}" class="temple-receipt" th:classappend="${pdfMode == true} ? ' pdf-mode' : ''"
+     th:with="isCompleted=${donation.paymentStatus != null and (#strings.equalsIgnoreCase(donation.paymentStatus,'completed') or #strings.equalsIgnoreCase(donation.paymentStatus,'complete') or #strings.equalsIgnoreCase(donation.paymentStatus,'paid') or #strings.equalsIgnoreCase(donation.paymentStatus,'success'))},
+              photoRaw=${donorProfilePic},
+              photoUrlResolved=${donationPhotoSrc != null ? donationPhotoSrc : (photoRaw != null and !#strings.isEmpty(photoRaw) ? (#strings.startsWith(photoRaw,'/') or #strings.startsWith(photoRaw,'http') or #strings.startsWith(photoRaw,'data:') or #strings.startsWith(photoRaw,'file:') ? photoRaw : '/uploads/profile/' + photoRaw) : null)},
+              displayName=${donorUser != null and donorUser.name != null ? donorUser.name : donation.name},
+              displayEmail=${donorUser != null and donorUser.email != null ? donorUser.email : donation.email},
+              displayPhone=${donation.phone != null and !#strings.isEmpty(donation.phone) ? donation.phone : (donorUser != null ? donorUser.mobile : null)},
+              logoUrl=${donationLogoSrc != null ? donationLogoSrc : '/images/temple/icon-symbol.webp'}">
+  <div class="receipt-head">
+    <div class="brand-row">
+      <img th:src="${logoUrl}" alt="Temple Emblem"/>
+      <div>
+        <h1>Shri Trimbakeshwar Jyotirlinga Temple</h1>
+        <div class="sub">Official Donation Receipt &#183; Temple ERP</div>
+      </div>
+    </div>
+    <div class="mantra">ॐ नमः शिवाय &#160;|&#160; Trimbak, Nashik, Maharashtra</div>
+    <div class="ornament">&#10022; &#10022; &#10022;</div>
+    <div class="status-ribbon">
+      <div class="seal" th:classappend="${isCompleted ? ' completed' : (donation.paymentStatus != null and (#strings.equalsIgnoreCase(donation.paymentStatus,'failed') or #strings.equalsIgnoreCase(donation.paymentStatus,'rejected')) ? ' failed' : ' pending')}">
+        <i class="fas" th:if="${pdfMode != true}" th:classappend="${isCompleted ? ' fa-check-circle' : ' fa-hourglass-half'}"></i>
+        <span th:text="${isCompleted} ? 'Completed / Receipt Generated' : (donation.paymentStatus != null ? donation.paymentStatus : 'Pending')">Status</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="receipt-body">
+    <div class="banner completed-banner" th:if="${isCompleted}">
+      <i class="fas fa-check-circle" th:if="${pdfMode != true}" style="font-size:20px;margin-top:1px"></i>
+      <div><strong>Donation completed.</strong> This is your official generated receipt. You can print or save/download it for your records.</div>
+    </div>
+    <div class="banner pending-banner" th:if="${!isCompleted}">
+      <i class="fas fa-hourglass-half" th:if="${pdfMode != true}" style="font-size:20px;margin-top:1px"></i>
+      <div><strong>Payment/status not completed.</strong> Receipt details are shown below; download is available when status is complete.</div>
+    </div>
+
+    <div class="identity-panel">
+      <div class="photo-frame">
+        <div class="label">Donor Photo</div>
+        <img th:if="${photoUrlResolved != null}" th:src="${photoUrlResolved}" alt="Donor profile photo"/>
+        <div class="photo-fallback" th:if="${photoUrlResolved == null}" style="display:flex"><i class="fas fa-user" th:if="${pdfMode != true}"></i><span th:if="${pdfMode == true}">Photo</span></div>
+      </div>
+      <div class="id-main">
+        <div class="receipt-id-label">Receipt Number</div>
+        <div class="receipt-id" th:text="${donation.receiptNo != null ? donation.receiptNo : donation.id}">RECEIPT</div>
+        <div class="id-sub"><strong>Donor:</strong> <span th:text="${displayName != null ? displayName : '-'}">-</span></div>
+        <div class="id-sub"><strong>Email:</strong> <span th:text="${displayEmail != null and !#strings.isEmpty(displayEmail) ? displayEmail : '-'}">-</span></div>
+        <div class="id-sub"><strong>Phone:</strong> <span th:text="${displayPhone != null and !#strings.isEmpty(displayPhone) ? displayPhone : '-'}">-</span></div>
+        <div class="receipt-note"><i class="fas fa-hand-holding-heart" th:if="${pdfMode != true}"></i> Thank you for your contribution to Shri Trimbakeshwar Temple.</div>
+      </div>
+    </div>
+
+    <div class="amount-highlight">
+      <div>
+        <div style="font-size:12px;opacity:.9;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Donation Amount</div>
+        <div th:text="${donation.donationType != null ? donation.donationType : 'Donation'}">Donation</div>
+      </div>
+      <div class="amt">₹<span th:text="${donation.amount != null ? #numbers.formatDecimal(donation.amount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div>
+    </div>
+
+    <div class="section-title"><i class="fas fa-scroll" th:if="${pdfMode != true}"></i> Receipt / Donor Details</div>
+    <div class="receipt-grid">
+      <div class="receipt-field"><label>Receipt No</label><div th:text="${donation.receiptNo != null ? donation.receiptNo : '-'}">-</div></div>
+      <div class="receipt-field"><label>Donor Name</label><div th:text="${displayName != null ? displayName : '-'}">-</div></div>
+      <div class="receipt-field"><label>Email</label><div th:text="${displayEmail != null and !#strings.isEmpty(displayEmail) ? displayEmail : '-'}">-</div></div>
+      <div class="receipt-field"><label>Phone</label><div th:text="${displayPhone != null and !#strings.isEmpty(displayPhone) ? displayPhone : '-'}">-</div></div>
+      <div class="receipt-field" th:if="${donorUser != null}"><label>Gender</label><div th:text="${donorUser.gender != null and !#strings.isEmpty(donorUser.gender) ? donorUser.gender : '-'}">-</div></div>
+      <div class="receipt-field" th:if="${donorUser != null}"><label>Username</label><div th:text="${donorUser.username != null ? donorUser.username : '-'}">-</div></div>
+      <div class="receipt-field" th:if="${donorUser != null}" style="grid-column:1/-1"><label>Address</label><div th:text="${donorUser.address != null and !#strings.isEmpty(donorUser.address) ? donorUser.address : '-'}">-</div></div>
+      <div class="receipt-field"><label>Amount</label><div>₹<span th:text="${donation.amount != null ? #numbers.formatDecimal(donation.amount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div></div>
+      <div class="receipt-field"><label>Donation Type</label><div th:text="${donation.donationType != null ? donation.donationType : '-'}">-</div></div>
+      <div class="receipt-field"><label>Payment Method</label><div th:text="${donation.paymentMethod != null ? donation.paymentMethod : '-'}">-</div></div>
+      <div class="receipt-field"><label>Payment Status</label><div><span class="badge" th:classappend="${donation.paymentStatus}" th:text="${donation.paymentStatus != null ? donation.paymentStatus : '-'}">-</span></div></div>
+      <div class="receipt-field"><label>Donation Date</label><div th:text="${donation.donationDate != null ? donation.donationDate : (donation.createdAt != null ? donation.createdAt : '-')}">-</div></div>
+      <div class="receipt-field" style="grid-column:1/-1"><label>Notes / Message</label><div th:text="${donation.notes != null and !#strings.isEmpty(donation.notes) ? donation.notes : '-'}">-</div></div>
+    </div>
+  </div>
+
+  <div class="receipt-footer">
+    <div class="footer-blessing">ॐ नमः शिवाय &#160;&#183;&#160; Shri Trimbakeshwar Temple, Nashik</div>
+    <div class="no-print" th:if="${pdfMode != true}" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a th:href="@{'/donations/receipt/' + (${donation.receiptNo} != null ? ${donation.receiptNo} : ${donation.id}) + '/pdf'}" class="btn-print" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px"><i class="fas fa-file-pdf"></i> Download PDF</a>
+      <button type="button" class="btn-classic" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;cursor:pointer" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <a th:href="@{/donations}" class="btn-classic" style="background:#dcfce7;color:#166534;border:1px solid #86efac">My Donations</a>
+    </div>
+  </div>
+</div>
+</th:block>
+</body>
+</html>

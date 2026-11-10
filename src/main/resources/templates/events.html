@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Events - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<div style="font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f8fafc 0%,#e2e8f0 100%);min-height:100vh;overflow-x:hidden">
+  <div style="background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);padding:80px 0 120px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:url('/images/temple/icon-symbol.webp') no-repeat center;background-size:250px;opacity:.1;animation:float 6s ease-in-out infinite"></div>
+    <div style="position:relative;z-index:1">
+      <h1 style="color:#ffd700;font-size:3rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,.3);margin-bottom:15px;animation:slideInDown .8s ease-out"><i class="fas fa-calendar" style="margin-right:20px"></i>Events</h1>
+      <p style="color:rgba(255,255,255,.95);font-size:1.2rem;animation:slideInUp .8s ease-out">Discover upcoming events and gatherings at Trimbakeshwar Temple</p>
+    </div>
+    <div style="position:absolute;bottom:-50px;left:0;right:0;height:100px;background:linear-gradient(to top,#f8fafc,transparent)"></div>
+  </div>
+
+  <div style="position:relative;z-index:10;padding-bottom:80px">
+    <div style="margin-top:-50px;margin-bottom:40px;text-align:center">
+      <button class="efilter" onclick="filterEvents('all',this)" style="background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);border:2px solid transparent;color:#fff;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-globe" style="margin-right:8px"></i>All Events</button>
+      <button class="efilter" onclick="filterEvents('upcoming',this)" style="background:#fff;border:2px solid transparent;color:#1e3c72;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-clock" style="margin-right:8px"></i>Upcoming</button>
+      <button class="efilter" onclick="filterEvents('ongoing',this)" style="background:#fff;border:2px solid transparent;color:#1e3c72;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-play-circle" style="margin-right:8px"></i>Ongoing</button>
+      <button class="efilter" onclick="filterEvents('completed',this)" style="background:#fff;border:2px solid transparent;color:#1e3c72;padding:12px 24px;border-radius:50px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:5px"><i class="fas fa-check-circle" style="margin-right:8px"></i>Completed</button>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(events)}" id="eventsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:30px;padding:0 20px">
+      <div th:each="e : ${events}" class="event-card"
+           th:with="imgRaw=${e.image},
+                    imgSrc=${imgRaw == null or #strings.isEmpty(imgRaw) ? null : (#strings.startsWith(imgRaw,'http') or #strings.startsWith(imgRaw,'/') ? imgRaw : (#strings.startsWith(imgRaw,'uploads/') or #strings.startsWith(imgRaw,'images/') ? '/' + imgRaw : (#strings.contains(imgRaw,'/') ? '/uploads/' + imgRaw : '/images/img/' + imgRaw)))}"
+           th:attr="data-status=${e.status},data-name=${e.title},data-date=${e.eventDate},data-time=${e.eventTime},data-desc=${e.description},data-location='Temple Complex'"
+           onclick="openEventModal(this)" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.1);transition:all .4s;height:100%;position:relative;cursor:pointer">
+        <div style="height:220px;position:relative;overflow:hidden;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center">
+          <img th:if="${imgSrc != null}" th:src="${imgSrc}" th:alt="${e.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1" onerror="this.style.display='none'"/>
+          <i class="fas fa-calendar" style="font-size:4rem;color:rgba(255,255,255,.5)"></i>
+          <span th:style="${e.status=='ongoing' ? 'background:linear-gradient(135deg,#22c55e,#16a34a)' : (e.status=='completed' ? 'background:linear-gradient(135deg,#6b7280,#4b5563)' : 'background:linear-gradient(135deg,#3b82f6,#2563eb)')}"
+                style="position:absolute;top:15px;right:15px;padding:8px 18px;border-radius:25px;font-size:.8rem;font-weight:700;text-transform:uppercase;box-shadow:0 4px 15px rgba(0,0,0,.2);color:#fff">
+            <i th:class="${e.status=='ongoing' ? 'fas fa-play' : (e.status=='completed' ? 'fas fa-check' : 'fas fa-clock')}" style="margin-right:6px"></i>
+            <span th:text="${#strings.capitalize(e.status != null ? e.status : 'upcoming')}">Upcoming</span>
+          </span>
+        </div>
+        <div style="padding:25px">
+          <div style="display:flex;align-items:center;gap:10px;color:#ff6b35;font-weight:600;font-size:.9rem;margin-bottom:12px"><i class="fas fa-calendar-day"></i> <span th:text="${e.eventDate}">Date</span></div>
+          <h3 style="color:#1e3c72;font-size:1.4rem;font-weight:700;margin-bottom:12px;line-height:1.4" th:text="${e.title}">Event</h3>
+          <p style="color:#666;font-size:.95rem;line-height:1.7;margin-bottom:20px" th:text="${#strings.abbreviate(e.description != null ? e.description : 'Stay tuned for this event...', 100)}">Desc</p>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:15px;border-top:1px solid #eee">
+            <div style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:#888"><i class="fas fa-clock" style="color:#ff6b35"></i> <span th:text="${e.eventTime != null ? e.eventTime : '6:00 AM'}"></span></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:#888"><i class="fas fa-map-marker-alt" style="color:#ff6b35"></i> Temple Complex</div>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;padding:10px 20px;border-radius:25px;font-weight:600;margin-top:15px">View Details <i class="fas fa-arrow-right"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(events)}" style="text-align:center;padding:80px 20px;background:#fff;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.1);margin:0 20px">
+      <i class="fas fa-calendar-times" style="font-size:5rem;color:#ddd;margin-bottom:25px;display:block;animation:float 3s ease-in-out infinite"></i>
+      <h4 style="color:#666;font-size:1.5rem;margin-bottom:10px">No Upcoming Events</h4>
+      <p style="color:#999">Check back soon for upcoming events at Trimbakeshwar Temple</p>
+      <a th:href="@{/festivals}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:12px 28px;border-radius:25px;font-weight:600;text-decoration:none;margin-top:20px"><i class="fas fa-star"></i> View Festivals</a>
+    </div>
+  </div>
+</div>
+
+<div id="eventModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:20px;width:90%;max-width:700px;max-height:80vh;overflow:auto">
+    <div style="background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:20px 25px;display:flex;justify-content:space-between;align-items:center">
+      <h5 id="emTitle" style="margin:0;font-weight:700"></h5>
+      <button onclick="document.getElementById('eventModal').style.display='none'" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:35px;height:35px;border-radius:50%;cursor:pointer;font-size:1.2rem">&times;</button>
+    </div>
+    <div style="padding:25px">
+      <div style="text-align:center;margin-bottom:20px">
+        <span id="emStatus" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;padding:8px 18px;border-radius:25px;font-size:.8rem;font-weight:700;text-transform:uppercase"></span>
+        <div style="color:#666;margin-top:10px"><i class="fas fa-calendar-day" style="margin-right:5px"></i><span id="emDate"></span></div>
+      </div>
+      <div style="font-size:1.1rem;line-height:1.8">
+        <p><strong><i class="fas fa-info-circle" style="margin-right:8px;color:#3b82f6"></i>Description:</strong></p>
+        <p id="emDesc"></p><hr/>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+          <p><i class="fas fa-clock" style="margin-right:8px;color:#f59e0b"></i><strong>Time:</strong> <span id="emTime"></span></p>
+          <p><i class="fas fa-map-marker-alt" style="margin-right:8px;color:#ef4444"></i><strong>Location:</strong> <span id="emLoc"></span></p>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 25px 25px;display:flex;gap:15px">
+      <button onclick="document.getElementById('eventModal').style.display='none'" style="flex:1;padding:12px;background:#f1f5f9;color:#64748b;border:none;border-radius:12px;font-weight:600;cursor:pointer">Close</button>
+      <a th:href="@{/passes/new}" style="flex:1;padding:12px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:12px;font-weight:600;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fas fa-ticket-alt"></i> Register Now</a>
+    </div>
+  </div>
+</div>
+
+<footer style="background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;padding:50px;text-align:center;position:relative">
+  <div style="position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(135deg,#ff6b35,#f7931e)"></div>
+  <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" style="width:60px;height:60px;margin-bottom:20px;border-radius:50%"/>
+  <p style="color:#ffd700;font-weight:700;font-size:1.3rem;margin-bottom:15px">ॐ नमः शिवाय</p>
+  <p style="margin:0">© 2026 Shri Trimbakeshwar Temple. All rights reserved.</p>
+</footer>
+<style>
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes slideInDown{from{opacity:0;transform:translateY(-50px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInUp{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}
+.event-card:hover{transform:translateY(-12px) scale(1.01);box-shadow:0 25px 60px rgba(255,107,53,.25)}
+</style>
+<script>
+function filterEvents(st,btn){document.querySelectorAll('.efilter').forEach(b=>{b.style.background='#fff';b.style.color='#1e3c72'});btn.style.background='linear-gradient(135deg,#ff6b35 0%,#f7931e 100%)';btn.style.color='#fff';document.querySelectorAll('.event-card').forEach(c=>{c.style.display=(st==='all'||c.dataset.status===st)?'':'none'});}
+function openEventModal(el){document.getElementById('emTitle').textContent=el.dataset.name||'';document.getElementById('emDate').textContent=el.dataset.date||'';document.getElementById('emDesc').textContent=el.dataset.desc||'Details coming soon...';document.getElementById('emTime').textContent=el.dataset.time||'6:00 AM';document.getElementById('emLoc').textContent=el.dataset.location||'Temple Complex';var s=(el.dataset.status||'upcoming');document.getElementById('emStatus').textContent=s.charAt(0).toUpperCase()+s.slice(1);document.getElementById('eventModal').style.display='flex';}
+</script>
+</body>
+</html>

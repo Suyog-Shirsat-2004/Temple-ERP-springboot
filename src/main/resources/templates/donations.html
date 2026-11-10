@@ -1,0 +1,72 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Donations')}"></head><body>
+<style>
+  body { background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); min-height: 100vh; }
+  @keyframes formUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes qrScan { 0%{ top:8%; opacity:.2 } 50%{ opacity:.95 } 100%{ top:78%; opacity:.2 } }
+  @keyframes qrPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(34,197,94,.18) } 50%{ box-shadow:0 0 0 10px rgba(34,197,94,.06) } }
+  .anim-form { animation: formUp .5s ease both; }
+  .qr-pay { display:none; margin-top:12px; padding:14px; border:1px solid #d1fae5; background:linear-gradient(180deg,#f0fdf4,#ffffff); border-radius:16px; }
+  .qr-box { position:relative; width:190px; max-width:100%; margin:10px auto 6px; padding:10px; background:#fff; border-radius:14px; border:1px solid #e5e7eb; animation: qrPulse 2.2s ease-in-out infinite; }
+  .qr-box img { width:100%; display:block; border-radius:8px; }
+  .qr-scan-line { position:absolute; left:10px; right:10px; height:3px; border-radius:3px; background:linear-gradient(90deg,transparent,rgba(34,197,94,.95),transparent); box-shadow:0 0 12px rgba(34,197,94,.55); animation: qrScan 2.4s ease-in-out infinite; pointer-events:none; }
+  .pay-select:focus, .field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:#93c5fd; box-shadow:0 0 0 3px rgba(59,130,246,.12); transition: box-shadow .2s ease, border-color .2s ease; }
+  .btn { transition: transform .15s ease, box-shadow .2s ease; }
+  .btn:hover { transform: translateY(-1px); }
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page"><h2 style="margin-bottom:4px">Donations</h2>
+  <p style="color:#64748b;margin-top:0">Support temple seva and development. Choose a payment method (UPI/QR/Cash).</p>
+  <div class="alert ok" th:if="${success}" th:text="${success}"></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+    <form class="form card anim-form" th:action="@{/donations}" method="post">
+      <h3 style="margin-top:0;color:#1e293b"><i class="fas fa-donate" style="color:#f59e0b"></i> Make a Donation</h3>
+      <div class="field"><label>Amount (₹)</label><input type="number" name="amount" min="1" step="0.01" required/></div>
+      <div class="field"><label>Donation Type</label><select name="donation_type"><option>General Donation</option><option>Special Donation</option><option>Annadanam</option><option>Pooja</option></select></div>
+      <div class="field"><label>Payment Method</label>
+        <select id="paymentMethod" name="payment_method" class="pay-select" onchange="toggleQr('paymentMethod','qrPay')">
+          <option value="UPI QR">UPI / QR (Scan)</option>
+          <option value="UPI">UPI</option>
+          <option value="Cash">Cash</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div id="qrPay" class="qr-pay" style="display:block">
+        <strong style="color:#166534"><i class="fas fa-qrcode"></i> Scan QR to Pay</strong>
+        <div style="font-size:13px;color:#475569;margin-top:2px">Open your UPI app, scan the QR, complete payment, then submit this form.</div>
+        <div class="qr-box"><span class="qr-scan-line"></span><img th:src="@{/images/pay/QR.jpeg}" src="/images/pay/QR.jpeg" alt="Payment QR"/></div>
+        <div style="text-align:center;font-size:12px;color:#64748b">Temple ERP secure payment (QR)</div>
+      </div>
+      <div class="field"><label>Message (optional)</label><textarea name="message" rows="2" placeholder="Optional note"></textarea></div>
+      <button class="btn" type="submit"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+    </form>
+    <div class="anim-form" style="animation-delay:.06s">
+      <div class="card" style="margin-bottom:12px"><strong>Total Donated:</strong> ₹<span th:text="${total}">0</span></div>
+      <table class="table"><thead><tr><th>Receipt</th><th>Amount</th><th>Type</th><th>Status</th><th>Action</th></tr></thead><tbody>
+        <tr th:each="d : ${donations}">
+          <td th:text="${d.receiptNo}"></td>
+          <td th:text="${'₹' + d.amount}"></td>
+          <td th:text="${d.donationType}"></td>
+          <td><span class="badge" th:classappend="${d.paymentStatus}" th:text="${d.paymentStatus}"></span></td>
+          <td>
+            <a th:if="${d.paymentStatus != null and (#strings.equalsIgnoreCase(d.paymentStatus,'completed') or #strings.equalsIgnoreCase(d.paymentStatus,'complete') or #strings.equalsIgnoreCase(d.paymentStatus,'paid') or #strings.equalsIgnoreCase(d.paymentStatus,'success'))}"
+               th:href="@{'/donations/receipt/' + ${d.receiptNo != null ? d.receiptNo : d.id}}" class="btn" style="padding:6px 10px;font-size:12px;display:inline-flex;align-items:center;gap:6px"><i class="fas fa-receipt"></i> View / Download</a>
+            <span th:if="${!(d.paymentStatus != null and (#strings.equalsIgnoreCase(d.paymentStatus,'completed') or #strings.equalsIgnoreCase(d.paymentStatus,'complete') or #strings.equalsIgnoreCase(d.paymentStatus,'paid') or #strings.equalsIgnoreCase(d.paymentStatus,'success')))}" style="color:#64748b;font-size:12px">—</span>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(donations)}"><td colspan="5">No donations yet.</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+function toggleQr(selectId, qrId){
+  var v=(document.getElementById(selectId)||{}).value||'';
+  var show=v.indexOf('QR')>-1 || v.toUpperCase()==='UPI';
+  var el=document.getElementById(qrId);
+  if(el) el.style.display=show?'block':'none';
+}
+document.addEventListener('DOMContentLoaded', function(){ toggleQr('paymentMethod','qrPay'); });
+</script>
+</body></html>

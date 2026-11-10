@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Temple Updates - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page">
+  <div class="card" style="margin-bottom:16px;text-align:center">
+    <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" style="width:56px;height:56px;object-fit:contain;margin:0 auto 8px" onerror="this.style.display='none'"/>
+    <h1 style="margin:0"><i class="fas fa-bullhorn"></i> Temple Updates</h1>
+    <p style="margin:8px 0 0;color:var(--muted,#64748b)">Festivals, events, and announcements (parity with temple_erp)</p>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <strong>Filter:</strong>
+    <a class="btn" th:classappend="${selectedType=='all'} ? ' active' : ''" th:href="@{/temple-updates}">All</a>
+    <a class="btn" th:classappend="${selectedType=='festival'} ? ' active' : ''" th:href="@{/temple-updates(type='festival')}">Festivals</a>
+    <a class="btn" th:classappend="${selectedType=='event'} ? ' active' : ''" th:href="@{/temple-updates(type='event')}">Events</a>
+    <a class="btn" th:classappend="${selectedType=='announcement'} ? ' active' : ''" th:href="@{/temple-updates(type='announcement')}">Announcements</a>
+    <a class="btn" th:classappend="${selectedType=='notice'} ? ' active' : ''" th:href="@{/temple-updates(type='notice')}">Notices</a>
+    <a class="btn" th:classappend="${selectedType=='general'} ? ' active' : ''" th:href="@{/temple-updates(type='general')}">General</a>
+  </div>
+
+  <div class="alert info" th:if="${#lists.isEmpty(updates)}">
+    No updates found. Check <a th:href="@{/events}">Events</a>, <a th:href="@{/festivals}">Festivals</a>, or <a th:href="@{/news}">News</a> for the latest information.
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px" th:if="${!#lists.isEmpty(updates)}">
+    <div class="card" th:each="u : ${updates}">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+        <span class="badge" th:text="${u.updateType != null ? u.updateType : 'general'}">general</span>
+        <span class="badge" th:if="${u.isFeatured}">featured</span>
+        <span class="badge" th:text="${u.status}">active</span>
+      </div>
+      <h3 th:text="${u.title}" style="margin-top:0">Title</h3>
+      <p style="color:var(--muted,#64748b);margin:4px 0" th:if="${u.eventDate != null}">
+        <i class="fas fa-calendar"></i> <span th:text="${u.eventDate}"></span>
+        <span th:if="${u.eventEndDate != null}"> - <span th:text="${u.eventEndDate}"></span></span>
+      </p>
+      <p th:text="${u.shortDescription != null and !#strings.isEmpty(u.shortDescription) ? u.shortDescription : (#strings.abbreviate(u.description, 180))}">Description</p>
+      <details th:if="${u.description != null and !#strings.isEmpty(u.description)}">
+        <summary style="cursor:pointer;color:var(--primary,#6366f1)">Read more</summary>
+        <p th:text="${u.description}" style="margin-top:8px"></p>
+      </details>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

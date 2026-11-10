@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Festivals')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('festivals')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content">
+      <h1 style="font-size:24px;font-weight:800;color:#1e293b;margin:0 0 8px">Festival Management</h1>
+      <p style="margin:0 0 16px;color:#64748b">Add and manage temple festivals (admin access). Festivals appear on <code>/festivals</code>.</p>
+      <div th:if="${success}" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:12px;padding:12px 16px;margin-bottom:14px" th:text="${success}"></div>
+      <div th:if="${error}" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;margin-bottom:14px" th:text="${error}"></div>
+
+
+      <div class="panel" style="margin-bottom:18px;padding:14px 16px;background:linear-gradient(180deg,#fffdf8,#fff7ed);border:1px solid #fde68a">
+        <h2 style="font-size:15px;font-weight:800;color:#7c2d12;margin:0 0 10px"><i class="fas fa-images" style="color:#f59e0b"></i> Images — select device upload or added images (all content)</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+          <div style="flex:1;min-width:260px">
+            <div style="font-size:12px;font-weight:700;color:#92400e;margin:0 0 8px">Available (images/img)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+              <div th:each="img : ${staticContentImages}" style="text-align:center">
+                <img th:src="@{'/images/img/' + ${img}}" th:alt="${img}" style="width:96px;height:64px;object-fit:cover;border-radius:8px;border:2px solid #fcd34d;display:block" onerror="this.style.opacity='.3'"/>
+                <span style="font-size:10px;color:#92400e;word-break:break-all;max-width:96px;display:block" th:text="${img}"></span>
+              </div>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:#92400e;margin:0 0 8px">Added / Uploaded (all content)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <div th:each="img : ${uploadedContentImages}" style="text-align:center">
+                <img th:src="@{'/uploads/' + ${img}}" th:alt="${img}" style="width:96px;height:64px;object-fit:cover;border-radius:8px;border:2px solid #86efac;display:block" onerror="this.style.opacity='.3'"/>
+                <span style="font-size:10px;color:#166534;word-break:break-all;max-width:96px;display:block" th:text="${img}"></span>
+              </div>
+              <div th:if="${uploadedContentImages == null or #lists.isEmpty(uploadedContentImages)}" style="font-size:13px;color:#92400e">No uploaded images yet. Use upload form or add form below.</div>
+            </div>
+          </div>
+          <form th:action="@{/admin/festivals/image/upload}" method="post" enctype="multipart/form-data" style="background:#fff;border:1px solid #fde68a;border-radius:12px;padding:12px;min-width:240px">
+            <div style="font-size:12px;font-weight:800;color:#7c2d12;margin-bottom:8px"><i class="fas fa-upload"></i> Upload Image (device)</div>
+            <input type="file" name="image_file" accept="image/jpeg,image/png,image/gif,image/webp" required style="width:100%;font-size:13px;margin-bottom:8px"/>
+            <button type="submit" style="background:#ea580c;color:#fff;border:none;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer;width:100%">Upload &amp; Add</button>
+            <div style="font-size:11px;color:#92400e;margin-top:6px">Added images are available on all content pages.</div>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px;padding:18px">
+        <h2 style="font-size:16px;font-weight:800;color:#1e293b;margin:0 0 12px"><i class="fas fa-plus-circle" style="color:#2563eb"></i> Add Festival</h2>
+        <form th:action="@{/admin/festivals/add}" method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;align-items:end">
+          <div style="grid-column:span 2"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Festival Name *</label><input name="name" required placeholder="e.g. Mahashivratri" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Date</label><input type="date" name="event_date" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Time</label><input name="event_time" placeholder="e.g. 5:00 AM" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Status</label><select name="status" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"><option value="active">active</option><option value="inactive">inactive</option><option value="upcoming">upcoming</option></select></div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Select Added/Available Image</label>
+            <select name="image_select" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px;background:#fff">
+              <option value="">-- None / Use upload or URL --</option>
+              <optgroup label="Added/Uploaded (all content)" th:if="${uploadedContentImages != null and !#lists.isEmpty(uploadedContentImages)}">
+                <option th:each="img : ${uploadedContentImages}" th:value="${img}" th:text="${img}"></option>
+              </optgroup>
+              <optgroup label="Available (images/img)">
+                <option th:each="img : ${staticContentImages}" th:value="${img}" th:text="${img}"></option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Upload Image (device)</label>
+            <input type="file" name="image_file" accept="image/jpeg,image/png,image/gif,image/webp" style="width:100%;padding:8px 10px;border:1px solid #d8e0ea;border-radius:10px;background:#fff"/>
+          </div>
+          <div style="grid-column:span 2"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Image URL/path (optional fallback)</label><input name="image" placeholder="/images/img/mahashivratra.jpg or https://..." style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+          <div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Description</label><textarea name="description" rows="3" placeholder="Festival description..." style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px;resize:vertical"></textarea></div>
+          <div><button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;width:100%"><i class="fas fa-save"></i> Add Festival</button></div>
+        </form>
+      </div>
+
+      <div class="panel" style="padding:0;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch">
+        <table class="table" style="margin:0;box-shadow:none;border-radius:0;min-width:980px;width:100%">
+          <thead><tr><th>Image</th><th>Name &amp; Description</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <th:block th:each="f,stat : ${festivals}" th:with="imgRaw=${f.image}, imgSrc=${imgRaw == null or #strings.isEmpty(imgRaw) ? null : (#strings.startsWith(imgRaw,'http') or #strings.startsWith(imgRaw,'/') ? imgRaw : '/uploads/' + imgRaw)}">
+              <tr>
+                <td style="width:84px;vertical-align:top">
+                  <img th:if="${imgSrc != null}" th:src="${imgSrc}" alt="Festival" style="width:72px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+                  <div th:style="${imgSrc != null} ? 'display:none;width:72px;height:52px;border-radius:8px;border:1px dashed #cbd5e1;color:#94a3b8;align-items:center;justify-content:center;background:#f8fafc' : 'display:flex;width:72px;height:52px;border-radius:8px;border:1px dashed #cbd5e1;color:#94a3b8;align-items:center;justify-content:center;background:#f8fafc'"><i class="fas fa-image"></i></div>
+                  <div th:if="${imgRaw != null and !#strings.isEmpty(imgRaw)}" style="font-size:10px;color:#64748b;word-break:break-all;margin-top:4px;max-width:72px" th:text="${imgRaw}"></div>
+                </td>
+                <td style="vertical-align:top">
+                  <div th:text="${f.name}" style="font-weight:700;color:#1e293b"></div>
+                  <div th:text="${f.description != null and !#strings.isEmpty(f.description) ? f.description : '—'}" style="font-size:12px;color:#475569;margin-top:4px;white-space:pre-wrap;max-width:320px"></div>
+                </td>
+                <td th:text="${f.eventDate}" style="vertical-align:top"></td>
+                <td th:text="${f.eventTime}" style="vertical-align:top"></td>
+                <td style="vertical-align:top"><span class="badge" th:classappend="${f.status}" th:text="${f.status}"></span></td>
+                <td style="vertical-align:top;white-space:nowrap">
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+                    <button type="button" onclick="var r=this.closest('tr').nextElementSibling;if(r){r.style.display=(r.style.display==='table-row'?'none':'table-row');}" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer"><i class="fas fa-edit"></i> Edit</button>
+                    <form th:action="@{'/admin/festivals/' + ${f.id} + '/delete'}" method="post" onsubmit="return confirm('Delete this festival?');" style="display:inline;margin:0">
+                      <button type="submit" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer"><i class="fas fa-trash"></i> Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              <tr th:id="${'edit-fest-' + stat.index}" style="display:none;background:#f8fafc">
+                <td colspan="6" style="padding:14px 16px">
+                  <form th:action="@{'/admin/festivals/' + ${f.id} + '/update'}" method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end;background:#fff;border:1px solid #d8e0ea;border-radius:12px;padding:14px">
+                    <div style="grid-column:1/-1;font-weight:800;color:#1e293b;margin-bottom:2px"><i class="fas fa-pen" style="color:#2563eb"></i> Update Festival (all details)</div>
+                    <div style="grid-column:span 2"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Festival Name *</label><input name="name" th:value="${f.name}" required style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+                    <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Date</label><input type="date" name="event_date" th:value="${f.eventDate}" style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+                    <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Time</label><input name="event_time" th:value="${f.eventTime}" style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+                    <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Status</label>
+                      <select name="status" style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px">
+                        <option value="active" th:selected="${f.status == 'active'}">active</option>
+                        <option value="inactive" th:selected="${f.status == 'inactive'}">inactive</option>
+                        <option value="upcoming" th:selected="${f.status == 'upcoming'}">upcoming</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Select Added/Available Image</label>
+                      <select name="image_select" style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px;background:#fff">
+                        <option value="">-- Keep current / use upload or URL --</option>
+                        <optgroup label="Added/Uploaded (all content)" th:if="${uploadedContentImages != null and !#lists.isEmpty(uploadedContentImages)}">
+                          <option th:each="img : ${uploadedContentImages}" th:value="${img}" th:text="${img}" th:selected="${imgRaw != null and (imgRaw == img or imgRaw == '/uploads/' + img)}"></option>
+                        </optgroup>
+                        <optgroup label="Available (images/img)">
+                          <option th:each="img : ${staticContentImages}" th:value="${img}" th:text="${img}" th:selected="${imgRaw != null and (imgRaw == img or imgRaw == '/images/img/' + img)}"></option>
+                        </optgroup>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Upload New Image (device)</label>
+                      <input type="file" name="image_file" accept="image/jpeg,image/png,image/gif,image/webp" style="width:100%;padding:8px 10px;border:1px solid #d8e0ea;border-radius:10px;background:#fff"/>
+                    </div>
+                    <div style="grid-column:span 2"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Image URL/path (optional)</label><input name="image" th:value="${imgRaw}" placeholder="/images/img/... or https://..." style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+                    <div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Description (all details)</label><textarea name="description" rows="3" th:text="${f.description}" style="width:100%;padding:9px 11px;border:1px solid #d8e0ea;border-radius:10px;resize:vertical"></textarea></div>
+                    <div style="grid-column:1/-1;font-size:12px;color:#64748b"><i class="fas fa-info-circle"></i> Leave image fields unchanged to keep the current image. Upload/select/URL will replace it.</div>
+                    <div><button type="submit" style="background:#16a34a;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;width:100%"><i class="fas fa-save"></i> Save Update</button></div>
+                  </form>
+                </td>
+              </tr>
+            </th:block>
+            <tr th:if="${#lists.isEmpty(festivals)}"><td colspan="6" style="padding:24px;color:#64748b;text-align:center">No festivals yet. Use the form above to add festivals (admin access).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

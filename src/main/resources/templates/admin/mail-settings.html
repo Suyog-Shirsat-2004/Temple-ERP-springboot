@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Email Settings')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('mail-settings')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:#1e293b;margin:0 0 6px"><i class="fas fa-envelope-open-text" style="color:#2563eb"></i> Email Settings (Admin)</h1>
+          <p style="margin:0;color:#64748b">Configure Gmail/SMTP so <strong>pass and token PDFs</strong> are sent <strong>directly</strong> to the user’s profile email on creation/approval. Settings are saved in the database (no restart required).</p>
+        </div>
+        <div th:if="${mailSetting != null and mailSetting.enabled}" style="background:#ecfdf5;color:#065f46;border:1px solid #86efac;border-radius:999px;padding:8px 12px;font-weight:800;font-size:13px"><i class="fas fa-check-circle"></i> Email Enabled</div>
+        <div th:if="${mailSetting == null or !mailSetting.enabled}" style="background:#fffbeb;color:#92400e;border:1px solid #fde047;border-radius:999px;padding:8px 12px;font-weight:800;font-size:13px"><i class="fas fa-exclamation-triangle"></i> Email Disabled</div>
+      </div>
+
+      <div th:if="${success}" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:12px;padding:12px 16px;margin-bottom:14px" th:text="${success}"></div>
+      <div th:if="${error}" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;margin-bottom:14px" th:text="${error}"></div>
+
+      <div class="panel" style="padding:18px;margin-bottom:16px;background:linear-gradient(180deg,#f8fbff,#fff);border:1px solid #dbeafe">
+        <h2 style="font-size:16px;font-weight:800;color:#1e293b;margin:0 0 10px"><i class="fas fa-info-circle" style="color:#2563eb"></i> Gmail setup (important)</h2>
+        <ul style="margin:0;padding-left:18px;color:#334155;line-height:1.7">
+          <li>Use a <strong>Gmail App Password</strong>, not your normal Gmail password.</li>
+          <li>Google Account → Security → enable <strong>2-Step Verification</strong> → <strong>App passwords</strong> → create password → paste below.</li>
+          <li>PDFs are sent to the <strong>user profile email/Gmail</strong> (profile first). Ensure users have a valid email in <code>/profile</code>.</li>
+          <li>Leave <strong>App Password</strong> blank when editing if you want to keep the currently saved password.</li>
+        </ul>
+      </div>
+
+      <form th:action="@{/admin/mail-settings}" method="post" class="panel" style="padding:18px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;align-items:end">
+          <div style="grid-column:1/-1;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+            <input id="enabled" type="checkbox" name="enabled" value="true" th:checked="${mailSetting != null and mailSetting.enabled}" style="width:18px;height:18px;accent-color:#2563eb"/>
+            <label for="enabled" style="font-weight:800;color:#1e293b;cursor:pointer">Enable email sending (send pass/token PDFs directly)</label>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Gmail / Sender Username *</label>
+            <input name="username" th:value="${mailSetting != null ? mailSetting.username : ''}" placeholder="yourgmail@gmail.com" autocomplete="username" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Gmail App Password * <span style="font-weight:600;color:#64748b">(blank = keep saved)</span></label>
+            <input type="password" name="password" placeholder="16-character App Password" autocomplete="new-password" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">From Email</label>
+            <input name="fromEmail" th:value="${mailSetting != null ? mailSetting.fromEmail : ''}" placeholder="usually same as Gmail" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">SMTP Host</label>
+            <input name="host" th:value="${mailSetting != null and mailSetting.host != null ? mailSetting.host : 'smtp.gmail.com'}" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">SMTP Port</label>
+            <input type="number" name="port" th:value="${mailSetting != null and mailSetting.port != null ? mailSetting.port : 587}" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Test Recipient Email (for test send)</label>
+            <input type="email" name="testEmail" placeholder="recipient@gmail.com (or leave blank to use sender)" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center">
+          <button type="submit" name="action" value="save" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Save Settings</button>
+          <button type="submit" name="action" value="test" style="background:#059669;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer"><i class="fas fa-paper-plane"></i> Save &amp; Send Test Email</button>
+          <a th:href="@{/admin/passes}" style="display:inline-flex;align-items:center;gap:6px;color:#475569;text-decoration:none;font-weight:700;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px;background:#fff"><i class="fas fa-ticket-alt"></i> Go to Passes</a>
+        </div>
+
+        <div style="margin-top:14px;font-size:12px;color:#64748b;line-height:1.6">
+          <strong>Security note:</strong> the App Password is stored in the database to allow automatic sending. Protect admin access and your database. For higher security, you can use environment variables in <code>application.properties</code> instead.
+          <div th:if="${mailSetting != null and mailSetting.updatedAt != null}" style="margin-top:4px">Last updated: <span th:text="${mailSetting.updatedAt}"></span><span th:if="${mailSetting.updatedBy != null}" th:text="${' by ' + mailSetting.updatedBy}"></span></div>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('About Temple - Temple ERP')}"></head>
+<body>
+<style>
+  @keyframes kumbhFadeUp { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: translateY(0); } }
+  @keyframes kumbhGlow { 0%,100% { box-shadow: 0 8px 24px rgba(245,158,11,.12); } 50% { box-shadow: 0 12px 30px rgba(245,158,11,.22); } }
+  .kumbh-anim { animation: kumbhFadeUp .7s ease both; }
+  .kumbh-d1 { animation-delay: .05s; } .kumbh-d2 { animation-delay: .12s; } .kumbh-d3 { animation-delay: .18s; } .kumbh-d4 { animation-delay: .24s; }
+  .kumbh-highlight { animation: kumbhFadeUp .7s ease .1s both, kumbhGlow 3s ease-in-out 1s infinite; }
+  .kumbh-timeline-item { border-left: 3px solid #f59e0b; padding: 10px 14px; margin: 0 0 10px 6px; background: #fffbeb; border-radius: 0 10px 10px 0; transition: transform .2s ease, background .2s ease; }
+  .kumbh-timeline-item:hover { transform: translateX(3px); background:#fff7ed; }
+  .kumbh-badge { display:inline-block; background:linear-gradient(135deg,#f59e0b,#ea580c); color:#fff; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; margin-right:6px; }
+  .kumbh-snan { background:#fff; border:1px solid #fde68a; border-radius:12px; padding:12px; height:100%; }
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page">
+  <div class="card kumbh-anim" style="margin-bottom:16px;padding:0;overflow:hidden">
+    <img th:src="@{/images/about/trimbakeshwar.jpg}" alt="Shri Trimbakeshwar Temple" style="width:100%;height:280px;object-fit:cover;display:block" onerror="this.src='/images/img/Trimbakeshwar-Jyotirling.jpg'"/>
+    <div style="padding:18px;text-align:center">
+      <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" style="width:64px;height:64px;object-fit:contain;margin:0 auto 8px" onerror="this.style.display='none'"/>
+      <h1 style="margin:0">About Shri Trimbakeshwar Temple</h1>
+      <p style="margin:8px 0 0;color:var(--muted,#64748b)">Discover the divine legacy of Lord Shiva's sacred abode (content aligned with temple_erp)</p>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+    <div class="card kumbh-anim kumbh-d1">
+      <img th:src="@{/images/about/inside.jpg}" alt="Temple interior" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:10px"/>
+      <h3><i class="fas fa-history"></i> Temple History</h3>
+      <p>Trimbakeshwar is one of the most sacred temples in India, dedicated to Lord Shiva, standing as a testament of divine devotion and ancient architectural brilliance.</p>
+      <ul>
+        <li>One of the 12 Jyotirlinga temples</li>
+        <li>Located in Nashik, Maharashtra</li>
+        <li>Renowned for its spiritual and cultural heritage</li>
+      </ul>
+    </div>
+    <div class="card kumbh-anim kumbh-d2">
+      <img th:src="@{/images/about/Trimbakweshwar_Temple_Entrance.jpg}" alt="Temple entrance" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:10px" onerror="this.style.display='none'"/>
+      <h3><i class="fas fa-pray"></i> Sacred Deity</h3>
+      <p>The presiding deity is Lord Trimbakeshwar, an avatar of Lord Shiva. The Jyotirlinga holds immense spiritual significance for devotees worldwide.</p>
+      <ul>
+        <li>Lord Shiva as the main deity</li>
+        <li>The lingam represents the cosmic pillar (Stambha)</li>
+        <li>A center of faith, rituals, and devotion</li>
+      </ul>
+    </div>
+    <div class="card kumbh-anim kumbh-d3">
+      <img th:src="@{/images/img/mahashivratra.jpg}" alt="Mahashivratri" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:10px" onerror="this.src='/images/img/chaitra.jpg'"/>
+      <h3><i class="fas fa-star"></i> Major Festivals</h3>
+      <ul>
+        <li><strong>Mahashivratri</strong> - Celebrated with great devotion</li>
+        <li><strong>Shravan Month</strong> - Monsoon celebrations</li>
+        <li><strong>Navratri</strong> - Nine divine nights</li>
+        <li><strong>Kartik Poornima</strong> - Full moon devotion</li>
+      </ul>
+    </div>
+    <div class="card kumbh-anim kumbh-d4">
+      <img th:src="@{/images/img/garv-griha.jpg}" alt="Temple rituals" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:10px"/>
+      <h3><i class="fas fa-hands"></i> Pooja Services</h3>
+      <ul>
+        <li><strong>Rudrabhishek</strong> - Sacred ritual</li>
+        <li><strong>Mahashivratri Pooja</strong> - Night vigil</li>
+        <li><strong>Laghu Rudra</strong> - Special ceremony</li>
+        <li><strong>Daily Sevas</strong> - Regular offerings</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Kumbh Mela detailed section -->
+  <div class="card kumbh-highlight" style="margin-top:18px;border:1px solid #fde68a">
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+      <div>
+        <span class="kumbh-badge">Simhastha Kumbh Mela</span>
+        <h2 style="margin:8px 0 4px;font-size:1.6rem"><i class="fas fa-om" style="color:#ea580c"></i> Nashik–Trimbakeshwar Kumbh Mela 2026–2028</h2>
+        <p style="margin:0;color:#475569">A multi-year sacred gathering at Nashik (Ramkund/Panchvati ghats) and Trimbakeshwar (Kushavarta Kund), spanning <strong>October 31, 2026</strong> to <strong>July 24, 2028</strong> (about 21 months) with the core ritual cycle in 2026–2027 and major Amrit (Shahi) Snan dates in <strong>August–September 2027</strong>.</p>
+      </div>
+      <img th:src="@{/images/img/kumbh.jpg}" alt="Kumbh Mela" style="width:220px;max-width:100%;height:130px;object-fit:cover;border-radius:12px;border:1px solid #fde68a"/>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:14px">
+      <div class="kumbh-snan kumbh-anim"><strong>Festival span</strong><div>31 Oct 2026 – 24 Jul 2028</div></div>
+      <div class="kumbh-snan kumbh-anim kumbh-d1"><strong>Peak ritual window</strong><div>August–September 2027</div></div>
+      <div class="kumbh-snan kumbh-anim kumbh-d2"><strong>Key Snan locations</strong><div>Ramkund, Panchvati, Kushavarta Kund (Trimbakeshwar)</div></div>
+      <div class="kumbh-snan kumbh-anim kumbh-d3"><strong>Planning note</strong><div>Check NTKMA &amp; local Panchang for exact Muhurat timings</div></div>
+    </div>
+  </div>
+
+  <div class="card kumbh-anim" style="margin-top:16px">
+    <h3><i class="fas fa-water" style="color:#0ea5e9"></i> Major Amrit (Shahi) Snan &amp; Auspicious Snan Dates — 2027</h3>
+    <p style="color:#64748b;margin-top:0">Peak crowd period: <strong>August–September 2027</strong>. Dates are for pilgrim planning; confirm final Muhurat/arrangements with authorities.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+      <div class="kumbh-snan"><span class="kumbh-badge">2 Aug 2027</span><strong>First Shahi (Amrit) Snan</strong><div style="font-size:14px;color:#475569;margin-top:4px">Marks the official start of Kumbh Mela activities. Largest Naga Sadhu procession; massive crowds at Ramkund and Trimbakeshwar.</div></div>
+      <div class="kumbh-snan"><span class="kumbh-badge">19 Aug 2027</span><strong>Shravan Purnima Snan</strong><div style="font-size:14px;color:#475569;margin-top:4px">Trimbakeshwar — heavy footfall at Kushavarta Kund.</div></div>
+      <div class="kumbh-snan"><span class="kumbh-badge">31 Aug 2027</span><strong>Second Shahi (Amrit) Snan</strong><div style="font-size:14px;color:#475569;margin-top:4px">Shravan Amavasya — major Akhada processions and holy dips.</div></div>
+      <div class="kumbh-snan"><span class="kumbh-badge">2 Sep 2027</span><strong>Bhadrapad Amavasya Snan</strong><div style="font-size:14px;color:#475569;margin-top:4px">Highly auspicious; large-scale crowd management.</div></div>
+      <div class="kumbh-snan"><span class="kumbh-badge">11 Sep 2027</span><strong>Third Shahi (Amrit) Snan (Ramkund)</strong><div style="font-size:14px;color:#475569;margin-top:4px">Bhadrapada Ekadashi — one of the most important bathing days.</div></div>
+      <div class="kumbh-snan"><span class="kumbh-badge">12 Sep 2027</span><strong>Shahi Snan at Trimbakeshwar</strong><div style="font-size:14px;color:#475569;margin-top:4px">Major Shaiva Akhada procession; millions gather at Kushavarta Kund.</div></div>
+      <div class="kumbh-snan"><span class="kumbh-badge">17 Sep 2027</span><strong>Bhadrapad Purnima Snan</strong><div style="font-size:14px;color:#475569;margin-top:4px">Full-moon bathing; expanded medical and safety services.</div></div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px">
+    <div class="card kumbh-anim kumbh-d1">
+      <h3><i class="fas fa-calendar-alt"></i> Preparation Timeline (Oct 2026 – Jun 2027)</h3>
+      <div class="kumbh-timeline-item"><strong>October 2026</strong> — Construction of Akhada camps and tent cities begins; major infrastructure work (roads, parking zones, lighting, water systems).</div>
+      <div class="kumbh-timeline-item"><strong>November 2026</strong> — Final allocation of Akhada camp zones; cleaning drives at Ramkund, Trimbakeshwar, Panchvati ghats; drainage and sanitation upgrades near Snan areas.</div>
+      <div class="kumbh-timeline-item"><strong>December 2026</strong> — 30–40% of tent city infrastructure completed; temporary electrical line installation begins.</div>
+      <div class="kumbh-timeline-item"><strong>January 2027</strong> — Traffic management plan implemented; CCTV installation and lighting upgrades; final preparation of Akhada Marg and ghat entry routes.</div>
+      <div class="kumbh-timeline-item"><strong>February 2027</strong> — Naga Sadhu diksha preparations begin; Snan schedules allocated to Akhadas; water and mobile toilet facilities become operational.</div>
+      <div class="kumbh-timeline-item"><strong>March 2027</strong> — Pandal, rest house, and medical tent construction begins; yatri camps nearly complete; fire-safety and disaster-management teams deployed.</div>
+      <div class="kumbh-timeline-item"><strong>April 2027</strong> — PM–CM level monitoring and surveillance; dedicated zones for foreign travelers and media; trial runs for major Shahi Snan processions.</div>
+      <div class="kumbh-timeline-item"><strong>May 2027</strong> — Grand entry of Akhadas into the Kumbh area; tight security deployment and crowd-control units activated.</div>
+      <div class="kumbh-timeline-item"><strong>June 2027</strong> — Full-scale religious and administrative activity expansion; significant increase in pilgrim footfall.</div>
+    </div>
+    <div class="card kumbh-anim kumbh-d2">
+      <h3><i class="fas fa-route"></i> Oct–Dec 2027 &amp; Closing Phase (2028)</h3>
+      <div class="kumbh-timeline-item"><strong>October 2027</strong> — Auspicious Snan yog at Ramkund and Panchvati; controlled entry/exit routes at ghats.</div>
+      <div class="kumbh-timeline-item"><strong>November 2027</strong> — Maha Yagna and Ratri Diksha ceremonies; cultural programs and devotional performances.</div>
+      <div class="kumbh-timeline-item"><strong>December 2027</strong> — Continued tirthyatras across Nashik and Trimbakeshwar; holy dips and temple darshan remain open.</div>
+      <div class="kumbh-timeline-item"><strong>January 2028</strong> — Makarsankranti dips; additional arrangements.</div>
+      <div class="kumbh-timeline-item"><strong>February 2028</strong> — Expanded crowd; essential services continue.</div>
+      <div class="kumbh-timeline-item"><strong>March 2028</strong> — Purnima Snan; Hanuman Jayanti fairs at Ramkund.</div>
+      <div class="kumbh-timeline-item"><strong>April 2028</strong> — Chaitra Purnima — Antim Pramukh Snan (final major bath).</div>
+      <div class="kumbh-timeline-item"><strong>May–June 2028</strong> — Akhadas depart; administrative dismantling and restoration.</div>
+      <div class="kumbh-timeline-item" style="background:#fff1f2;border-left-color:#ef4444"><strong>24 July 2028 — Closure</strong> — Guru exits Simha Rashi; Kumbh officially concludes.</div>
+      <div class="alert info" style="margin-top:12px"><strong>Key takeaways for pilgrims:</strong> Major Snan dates (2, 19, 31 Aug; 2, 11, 12, 17 Sep 2027). Best quieter window: late 2026–early 2027 before peak footfall. Always verify exact Muhurat/entry rules with NTKMA and local authorities.</div>
+    </div>
+  </div>
+
+  <div class="card kumbh-anim" style="margin-top:16px">
+    <h3><i class="fas fa-images"></i> Temple Heritage Gallery (images/about)</h3>
+    <p style="color:#64748b;margin-top:0">Sacred views, inscriptions, and temple premises.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+      <figure style="margin:0"><img th:src="@{/images/about/trimbakeshwar.jpg}" alt="Trimbakeshwar" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Temple view</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/inside.jpg}" alt="Inside temple" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Inside temple</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/Trimbakweshwar_Temple_Entrance.jpg}" alt="Entrance" style="width:100%;height:130px;object-fit:cover;border-radius:10px" onerror="this.parentElement.style.display='none'"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Entrance</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/Shilalekh1.jpg}" alt="Shilalekh 1" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Shilalekh</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/shilalekh2.jpg}" alt="Shilalekh 2" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Shilalekh</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/shilalekh3.jpg}" alt="Shilalekh 3" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Shilalekh</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/shilalekh4.JPG}" alt="Shilalekh 4" style="width:100%;height:130px;object-fit:cover;border-radius:10px" onerror="this.src='/images/about/shilalekh4.jpg'"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Shilalekh</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/image1.jpg}" alt="Temple" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Temple</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/image2.jpg}" alt="Temple" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Temple</figcaption></figure>
+      <figure style="margin:0"><img th:src="@{/images/about/image3.jpg}" alt="Temple" style="width:100%;height:130px;object-fit:cover;border-radius:10px"/><figcaption style="font-size:12px;color:#475569;margin-top:4px">Temple</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="card kumbh-anim" style="margin-top:16px">
+    <h3><i class="fas fa-users"></i> Temple Trust &amp; Administration (images/about)</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;text-align:center">
+      <div><img th:src="@{/images/about/Chairman-Sir.jpg}" alt="Chairman" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Chairman</div></div>
+      <div><img th:src="@{/images/about/Secretary-Madam.jpg}" alt="Secretary" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Secretary</div></div>
+      <div><img th:src="@{/images/about/Bhutada-Madam.jpg}" alt="Trustee" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Trustee</div></div>
+      <div><img th:src="@{/images/about/Kailas-Ghule-Sir.jpg}" alt="Trustee" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Trustee</div></div>
+      <div><img th:src="@{/images/about/Manoj-Thete-Trustee.webp}" alt="Trustee" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Trustee</div></div>
+      <div><img th:src="@{/images/about/Satyapriya-Shukla.jpg}" alt="Member" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Member</div></div>
+      <div><img th:src="@{/images/about/shri-purshottam.png}" alt="Member" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Member</div></div>
+      <div><img th:src="@{/images/about/shri-swapnil.jpg}" alt="Member" style="width:100%;height:150px;object-fit:cover;border-radius:12px"/><div style="font-size:13px;font-weight:600;margin-top:6px">Member</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3><i class="fas fa-file-pdf"></i> Download Information</h3>
+    <p>Important documents from the temple_erp resources.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <a class="btn" th:href="@{/images/arati.pdf}" target="_blank" rel="noopener"><i class="fas fa-download"></i> Aarti PDF</a>
+      <a class="btn" th:href="@{/images/HERITAGE_GUIDELINES_FOR_TRAYAMBAKESHWAR.pdf}" target="_blank" rel="noopener"><i class="fas fa-book-open"></i> Heritage Guidelines</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3><i class="fas fa-link"></i> Quick Links</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <a class="btn" th:href="@{/passes/new}"><i class="fas fa-ticket-alt"></i> Book Darshan</a>
+      <a class="btn" th:href="@{/bookings/new}"><i class="fas fa-hotel"></i> Room Booking</a>
+      <a class="btn" th:href="@{/donations}"><i class="fas fa-donate"></i> Donations</a>
+      <a class="btn" th:href="@{/festivals}"><i class="fas fa-star"></i> Festivals</a>
+      <a class="btn" th:href="@{/services}"><i class="fas fa-th-large"></i> Services</a>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

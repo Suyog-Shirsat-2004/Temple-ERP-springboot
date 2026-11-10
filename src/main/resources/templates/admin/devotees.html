@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Devotees')}"></head>
+<body>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+  .devotee-page { font-family: 'Poppins', system-ui, sans-serif; }
+  .devotee-hero {
+    position: relative; overflow: hidden; border-radius: 18px; padding: 22px 24px; margin: 0 0 18px;
+    background: radial-gradient(900px 320px at 8% 0%, rgba(255,220,150,.22), transparent 60%),
+                radial-gradient(600px 260px at 100% 20%, rgba(255,255,255,.10), transparent 60%),
+                linear-gradient(135deg, #7a1f1f 0%, #8b2323 35%, #b45309 100%);
+    color: #fff; box-shadow: 0 14px 34px rgba(122,31,31,.18);
+    border: 1px solid rgba(255,236,179,.22);
+  }
+  .devotee-hero::after { content:""; position:absolute; inset:0; pointer-events:none; opacity:.14;
+    background-image: radial-gradient(rgba(255,236,179,.9) 1px, transparent 1px); background-size:18px 18px; }
+  .devotee-hero h1 { margin:0; font-family:'Cinzel', Georgia, serif; font-size:1.75rem; font-weight:800; letter-spacing:.02em; position:relative; }
+  .devotee-hero p { margin:6px 0 0; color:#ffefc2; font-size:.98rem; position:relative; }
+  .devotee-stats { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; position:relative; }
+  .d-chip { display:inline-flex; align-items:center; gap:8px; background:rgba(255,253,248,.14); border:1px solid rgba(255,236,179,.28); color:#fff8e6; padding:8px 12px; border-radius:999px; font-size:13px; font-weight:600; backdrop-filter: blur(2px); }
+  .d-chip strong { color:#fff; font-size:14px; }
+  .devotee-panel {
+    padding:0; overflow-x:auto; overflow-y:visible; -webkit-overflow-scrolling:touch;
+    border-radius:16px; border:1px solid #ead9b6; background:#fffdf8;
+    box-shadow: 0 10px 26px rgba(70,45,12,.08);
+  }
+  .devotee-table { margin:0; box-shadow:none; border-radius:0; min-width:720px; width:100%; border-collapse:separate; border-spacing:0; }
+  .devotee-table thead th {
+    background: linear-gradient(180deg, #fff8e8 0%, #f7ecd2 100%);
+    color:#6b3a10; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.05em;
+    padding:14px 14px; border-bottom:1px solid #ead9b6; text-align:left; font-family:'Poppins',sans-serif;
+  }
+  .devotee-table tbody td { padding:13px 14px; border-bottom:1px solid #f3e8d4; color:#2c2416; font-size:14px; vertical-align:middle; }
+  .devotee-table tbody tr:hover { background: linear-gradient(90deg, rgba(255,247,230,.75), rgba(255,253,248,.95)); }
+  .devotee-table tbody tr:last-child td { border-bottom:none; }
+  .dev-name { font-weight:700; color:#3b2716; display:flex; align-items:center; gap:10px; }
+  .dev-avatar { width:34px; height:34px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg,#f59e0b,#d97706); color:#fff; font-weight:800; font-size:13px; box-shadow:0 4px 10px rgba(217,119,6,.18); flex:0 0 auto; }
+  .dev-email { color:#475569; }
+  .dev-mobile { color:#334155; font-weight:600; }
+  .dev-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; font-size:12px; font-weight:700; text-transform:capitalize; border:1px solid #e2e8f0; background:#f8fafc; color:#334155; }
+  .dev-badge.active, .dev-badge.Active { background:#ecfdf5; color:#065f46; border-color:#86efac; }
+  .dev-badge.inactive, .dev-badge.Inactive, .dev-badge.blocked, .dev-badge.Blocked { background:#fef2f2; color:#991b1b; border-color:#fca5a5; }
+  .dev-empty { padding:28px 18px !important; text-align:center; color:#6b5316; background:linear-gradient(180deg,#fffdf8,#fff8e8); }
+  .dev-empty i { display:block; font-size:28px; color:#d6bc7a; margin-bottom:8px; }
+</style>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('devotees')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content devotee-page">
+      <section class="devotee-hero">
+        <h1><i class="fas fa-users" style="margin-right:8px;color:#ffefc2"></i>Devotee Management</h1>
+        <p>View and manage registered devotees with a clear, temple-inspired admin overview.</p>
+        <div class="devotee-stats">
+          <span class="d-chip"><i class="fas fa-user-friends"></i> Total Devotees: <strong th:text="${devotees != null ? #lists.size(devotees) : 0}">0</strong></span>
+          <span class="d-chip"><i class="fas fa-om"></i> Shri Trimbakeshwar Temple</span>
+        </div>
+      </section>
+
+      <div class="devotee-panel">
+        <table class="devotee-table">
+          <thead><tr><th>Devotee</th><th>Email</th><th>Mobile</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr th:each="d : ${devotees}">
+              <td>
+                <div class="dev-name">
+                  <span class="dev-avatar" th:text="${d.name != null and !#strings.isEmpty(d.name) ? #strings.substring(d.name,0,1) : 'D'}">D</span>
+                  <span th:text="${d.name != null ? d.name : '-'}">-</span>
+                </div>
+              </td>
+              <td class="dev-email" th:text="${d.email != null ? d.email : '-'}">-</td>
+              <td class="dev-mobile" th:text="${d.mobile != null and !#strings.isEmpty(d.mobile) ? d.mobile : '-'}">-</td>
+              <td><span class="dev-badge" th:classappend="${d.status}" th:text="${d.status != null ? d.status : '-'}">-</span></td>
+            </tr>
+            <tr th:if="${devotees == null or #lists.isEmpty(devotees)}">
+              <td colspan="4" class="dev-empty"><i class="fas fa-users-slash"></i>No devotees found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

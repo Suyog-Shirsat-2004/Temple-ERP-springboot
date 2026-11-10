@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Create Account - Temple ERP')}"></head>
+<body>
+<div style="min-height:100vh;background:linear-gradient(135deg,#0f766e 0%, #0f766e 38%, #f59e0b 100%);position:relative;overflow-x:hidden;overflow-y:auto">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px 20px;position:relative;z-index:1">
+    <div style="background:rgba(255,253,248,.985);border-radius:24px;box-shadow:0 28px 60px -14px rgba(15,23,42,.45), 0 0 0 1px rgba(255,255,255,.18);overflow:hidden;width:100%;max-width:500px;animation:slideUp .8s ease;backdrop-filter:blur(2px)">
+      <div style="background:linear-gradient(135deg,#0f766e 0%, #f59e0b 100%);padding:35px 30px;text-align:center;position:relative;overflow:hidden">
+        <h1 style="color:#fff;font-weight:700;font-size:26px;margin-bottom:5px;text-shadow:2px 2px 4px rgba(0,0,0,.2);position:relative"><i class="fas fa-user-plus"></i> Create Account</h1>
+        <p style="color:rgba(255,255,255,.95);font-size:14px;margin:0;position:relative">Join Temple ERP - Start your spiritual journey</p>
+      </div>
+      <div style="padding:35px 30px">
+        <div th:if="${error}" style="background:rgba(252,129,129,.15);color:#c53030;border:1px solid rgba(252,129,129,.3);border-radius:12px;padding:15px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px" role="alert"><i class="fas fa-exclamation-circle" style="font-size:20px;margin-top:1px"></i><span th:text="${error}"></span></div>
+        <div th:if="${success}" style="background:rgba(72,187,120,.15);color:#276749;border:1px solid rgba(72,187,120,.3);border-radius:12px;padding:15px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px" role="alert"><i class="fas fa-check-circle" style="font-size:20px;margin-top:1px"></i><span th:text="${success}"></span></div>
+        <form th:action="@{/register}" method="post">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div style="margin-bottom:20px">
+              <label style="color:#4a5568;font-weight:500;margin-bottom:8px;display:block">First Name</label>
+              <div style="position:relative"><input type="text" name="first_name" placeholder="First name" required style="width:100%;padding:14px 15px 14px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;background:#f8fafc"/><i class="fas fa-user" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#667eea;font-size:16px;pointer-events:none"></i></div>
+            </div>
+            <div style="margin-bottom:20px">
+              <label style="color:#4a5568;font-weight:500;margin-bottom:8px;display:block">Last Name</label>
+              <div style="position:relative"><input type="text" name="last_name" placeholder="Last name" required style="width:100%;padding:14px 15px 14px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;background:#f8fafc"/><i class="fas fa-user" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#667eea;font-size:16px;pointer-events:none"></i></div>
+            </div>
+          </div>
+          <div style="margin-bottom:20px"><label style="color:#4a5568;font-weight:500;margin-bottom:8px;display:block">Email Address</label><div style="position:relative"><input type="email" name="email" placeholder="Enter your email (e.g. name@example.com)" required maxlength="120" pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}" title="Enter a valid email address" style="width:100%;padding:14px 15px 14px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;background:#f8fafc"/><i class="fas fa-envelope" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#667eea;font-size:16px;pointer-events:none"></i></div></div>
+          <div style="margin-bottom:20px"><label style="color:#4a5568;font-weight:500;margin-bottom:8px;display:block">Username</label><div style="position:relative"><input type="text" name="username" placeholder="Choose a username" required style="width:100%;padding:14px 15px 14px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;background:#f8fafc"/><i class="fas fa-at" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#667eea;font-size:16px;pointer-events:none"></i></div></div>
+          <div style="margin-bottom:20px">
+            <label style="color:#4a5568;font-weight:500;margin-bottom:8px;display:block">Password</label>
+            <div style="position:relative">
+              <input id="regPw" type="password" name="password" placeholder="Create a password" required minlength="6" style="width:100%;padding:14px 46px 14px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;background:#f8fafc"/>
+              <i class="fas fa-lock" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#667eea;font-size:16px;pointer-events:none"></i>
+              <button type="button" aria-label="Show password" title="Show/Hide password" onclick="var i=document.getElementById('regPw'),c=this.querySelector('i');var show=i.type==='password';i.type=show?'text':'password';if(c){c.className=show?'fas fa-eye-slash':'fas fa-eye';}this.setAttribute('aria-label',show?'Hide password':'Show password');" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;padding:4px;line-height:1"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <div style="margin-bottom:25px">
+            <label style="color:#4a5568;font-weight:500;margin-bottom:8px;display:block">Confirm Password</label>
+            <div style="position:relative">
+              <input id="regPw2" type="password" name="password2" placeholder="Confirm your password" required style="width:100%;padding:14px 46px 14px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;background:#f8fafc"/>
+              <i class="fas fa-lock" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#667eea;font-size:16px;pointer-events:none"></i>
+              <button type="button" aria-label="Show confirm password" title="Show/Hide password" onclick="var i=document.getElementById('regPw2'),c=this.querySelector('i');var show=i.type==='password';i.type=show?'text':'password';if(c){c.className=show?'fas fa-eye-slash':'fas fa-eye';}this.setAttribute('aria-label',show?'Hide confirm password':'Show confirm password');" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;padding:4px;line-height:1"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <button type="submit" style="width:100%;padding:16px;background:linear-gradient(135deg,#0f766e 0%, #f59e0b 100%);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 10px 20px rgba(15,118,110,.18)"><i class="fas fa-user-plus"></i> Create Account</button>
+        </form>
+        <div style="margin-top:20px;text-align:center"><p style="margin:0;color:#64748b">Already have an account? <a th:href="@{/login}" style="color:#667eea;text-decoration:none;font-weight:500">Login here</a></p></div>
+        <div style="margin-top:12px;text-align:center"><a th:href="@{/}" style="color:#667eea;text-decoration:none;font-weight:500"><i class="fas fa-home"></i> Back to Home</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>@keyframes slideUp{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}</style>
+</body>
+</html>

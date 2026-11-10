@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Temple ERP - Trimbakeshwar Temple</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Temple ERP - Manage Darshan Pass, Room Booking & Donations Online"/>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" crossorigin="anonymous"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <!-- Animate CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        /* Hero Section */
+        .hero-section {
+            background: url('/assets/images/temple.jpg') no-repeat center center;
+            background-size: cover;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .hero-overlay {
+            background: rgba(0,0,0,0.3);
+            padding: 50px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+            margin-bottom: 15px;
+            animation: glowPulse 2s infinite alternate, fadeInUp 1s ease-out;
+        }
+        @keyframes glowPulse {
+            from { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff9900, 0 0 30px #ff6600; }
+            to { text-shadow: 0 0 20px #ffff66, 0 0 30px #ffd700, 0 0 40px #ff9900; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .om-symbol { font-size: 4rem; display: block; margin-bottom: 15px; color: #ffd700; text-shadow: 0 0 18px rgba(255,215,0,.35); animation: omFloat 3s ease-in-out infinite, fadeInUp 1s ease-out, omColorCycle 6s linear 5s infinite; }
+        @keyframes omFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes omColorCycle { 0% { color:#ffd700; text-shadow:0 0 18px rgba(255,215,0,.35);} 20% { color:#ff8c42; text-shadow:0 0 20px rgba(255,140,66,.4);} 40% { color:#ffffff; text-shadow:0 0 22px rgba(255,255,255,.45);} 60% { color:#ff6b35; text-shadow:0 0 20px rgba(255,107,53,.4);} 80% { color:#ffb703; text-shadow:0 0 20px rgba(255,183,3,.4);} 100% { color:#ffd700; text-shadow:0 0 18px rgba(255,215,0,.35);} }
+        .hero-subtitle { font-size: 1.3rem; color: #fff; }
+
+        /* Services Cards */
+        .services-section { padding: 60px 0; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); }
+        .section-title { text-align: center; margin-bottom: 40px; color: #1e3c72; font-size: 2rem; font-weight: bold; }
+        .service-card { background: #fff; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: all 0.3s; height: 100%; border: 2px solid transparent; }
+        .service-card:hover { transform: translateY(-10px); border-color: #ffd700; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .service-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; color: #ffd700; }
+        .service-card h4 { color: #1e3c72; margin-bottom: 15px; font-weight: 600; }
+        .service-card p { color: #666; font-size: 0.95rem; margin-bottom: 20px; }
+
+        /* Temple Timings */
+        .timings-section { padding: 60px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+        .timing-card { background: rgba(255,255,255,0.15); border-radius: 15px; padding: 30px; text-align: center; backdrop-filter: blur(10px); }
+        .timing-card h4 { color: #ffd700; margin-bottom: 15px; font-weight: 600; }
+        .timing-card .time { font-size: 2rem; font-weight: bold; }
+
+        body { display: flex; flex-direction: column; min-height: 100vh; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+        .main-content { flex: 1; }
+
+        .badge-counter { position: absolute; top: -5px; right: -8px; background: linear-gradient(135deg, #ff6b6b, #ff4757); color: white; font-size: 0.65rem; font-weight: 700; padding: 3px 6px; border-radius: 50px; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(255, 71, 87, 0.5); animation: pulse-badge 2s infinite; }
+        @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        /* Navbar (temple_erp parity) */
+        #mainNavbar { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ff6b35 100%) !important; padding: 12px 0; box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4); transition: all 0.3s ease; }
+        #mainNavbar.scrolled { padding: 8px 0; box-shadow: 0 4px 30px rgba(255, 107, 53, 0.6); }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand-om { width: 40px; height: 40px; animation: omGlow 2s ease-in-out infinite, omPulse 2s ease-in-out infinite; }
+        @keyframes omPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .brand-text { font-size: 1.4rem; font-weight: 700; color: #ffd700 !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); transition: all 0.3s ease; }
+        .brand-text:hover { color: #fff !important; transform: scale(1.05); }
+        @keyframes omGlow { 0%, 100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff9900; } 50% { text-shadow: 0 0 20px #ffff66, 0 0 30px #ffd700, 0 0 40px #ff9900; } }
+        .custom-toggler { border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 8px; background: transparent; cursor: pointer; }
+        .toggler-icon { display: flex; flex-direction: column; gap: 5px; width: 25px; }
+        .toggler-icon .bar { width: 100%; height: 3px; background: #fff; border-radius: 3px; transition: all 0.3s ease; }
+        .nav-link { color: rgba(255,255,255,0.95) !important; font-weight: 500; padding: 10px 18px !important; margin: 0 4px; border-radius: 25px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; display: flex; align-items: center; gap: 8px; overflow: hidden; }
+        .nav-link:hover { color: #fff !important; transform: translateY(-3px); text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .nav-link.active { background: rgba(255,255,255,0.3); color: #fff !important; }
+        .nav-icon { font-size: 1.1rem; transition: all 0.3s ease; }
+        .nav-link:hover .nav-icon { transform: scale(1.2) translateY(-2px); color: #ffd700 !important; }
+        .dropdown-menu { background: #fff; border: none; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); padding: 12px; margin-top: 10px !important; min-width: 220px; animation: dropdownFadeIn 0.3s ease; }
+        @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .dropdown-item { color: #333; padding: 12px 16px; border-radius: 10px; font-weight: 500; transition: all 0.2s ease; margin-bottom: 4px; display: flex; align-items: center; }
+        .dropdown-item:hover { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: #fff; transform: translateX(5px); }
+        .login-btn { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 25px; padding: 8px 20px !important; }
+        .login-btn:hover { background: rgba(255,255,255,0.2); border-color: #ffd700; color: #ffd700 !important; }
+        .profile-avatar { width: 38px; height: 38px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid rgba(255,255,255,0.3); animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(255, 215, 0, 0); } }
+        .profile-avatar:hover { transform: scale(1.15) rotate(5deg); border-color: #ffd700; }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .profile-dropdown { min-width: 260px; padding: 0; max-height: min(70vh, 420px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        .profile-header { padding: 20px; text-align: center; background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; border-radius: 16px 16px 0 0; }
+        .profile-avatar-lg { width: 70px; height: 70px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; overflow: hidden; border: 3px solid #ffd700; animation: bounceIn 0.6s ease-out; }
+        @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 70% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        .avatar-img-lg { width: 100%; height: 100%; object-fit: cover; }
+        .message-badge { position: absolute; top: 0px; right: 5px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 20px; animation: pulse-badge 2s infinite; }
+
+        /* Temple info & gallery (temple_erp parity) */
+        .temple-info-section { padding: 60px 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8e8e8 100%); }
+        .temple-card { background: #fff; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; opacity: 0; transform: translateY(30px); }
+        .temple-card.visible { opacity: 1; transform: translateY(0); }
+        .temple-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
+        .read-more-text { display: inline-flex; align-items: center; gap: 8px; color: #ff6b35; font-weight: 600; font-size: 0.9rem; margin-top: 10px; opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; }
+        .temple-card:hover .read-more-text { opacity: 1; transform: translateX(0); }
+        .temple-card-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 28px; color: #fff; }
+        .temple-card h4 { color: #1e3c72; margin-bottom: 15px; font-weight: 600; }
+        .temple-card p { color: #666; font-size: 0.95rem; margin-bottom: 0; }
+
+        .temple-gallery-section { padding: 60px 0; background: #fff; }
+        .gallery-item { position: relative; overflow: hidden; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; }
+        .gallery-item img { width: 100%; height: 250px; object-fit: cover; transition: transform 0.3s; }
+        .gallery-item:hover img { transform: scale(1.1); }
+        .gallery-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-overlay i { color: #ffd700; font-size: 2rem; }
+        .gallery-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); opacity: 0; transition: opacity 0.3s ease; }
+        .gallery-modal.show { display: flex; align-items: center; justify-content: center; opacity: 1; }
+        .gallery-modal-content { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); animation: zoomIn 0.4s ease; }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .gallery-modal-close { position: absolute; top: 30px; right: 40px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 10000; }
+        .gallery-modal-close:hover { color: #ffd700; transform: scale(1.2); }
+
+        /* Footer (temple_erp parity) */
+        .site-footer { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; padding: 60px 0 0; margin-top: 60px; }
+        .footer-title { color: #ffd700; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
+        .footer-title::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 3px; background: linear-gradient(90deg, #ffd700, #ff6b35); border-radius: 2px; }
+        .footer-text { color: rgba(255,255,255,0.7); font-size: 0.95rem; line-height: 1.7; margin-bottom: 20px; }
+        .footer-links { list-style: none; padding: 0; margin: 0; }
+        .footer-links li { margin-bottom: 12px; }
+        .footer-links a { color: rgba(255,255,255,0.7); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; font-size: 0.95rem; }
+        .footer-links a:hover { color: #ffd700; transform: translateX(5px); }
+        .footer-contact { list-style: none; padding: 0; margin: 0; }
+        .footer-contact li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; color: rgba(255,255,255,0.7); }
+        .footer-contact li i { color: #ffd700; margin-top: 4px; }
+        .footer-bottom { background: rgba(0,0,0,0.3); padding: 20px 0; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .footer-bottom p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0; }
+        .footer-bottom a { color: #ffd700; text-decoration: none; font-weight: 600; }
+        .view-profile-pic { background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(247, 147, 30, 0.95)); border-radius: 20px; padding: 30px; display: inline-block; }
+        .view-profile-img { max-width: 100%; max-height: 70vh; border-radius: 15px; border: 5px solid white; }
+        @media (max-width: 991px) {
+            .navbar-collapse { background: linear-gradient(135deg, #ff6b35, #f7931e); padding: 20px; border-radius: 0 0 20px 20px; margin-top: 15px; }
+            .nav-link { margin: 5px 0; padding: 12px 20px !important; }
+            .dropdown-menu { background: rgba(255,255,255,0.1); }
+            .dropdown-item { color: #fff; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+      <img th:src="@{/images/temple/icon-symbol.webp}" src="/images/temple/icon-symbol.webp" alt="Temple" class="brand-om" onerror="this.src='/images/temple/icon%20symbol.webp'"/>
+      <span class="brand-text">Temple ERP</span>
+    </a>
+    <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="toggler-icon"><span class="bar"></span><span class="bar"></span><span class="bar"></span></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/}"><i class="fas fa-home nav-icon"></i><span>Home</span></a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-concierge-bell nav-icon"></i><span>Services</span></a>
+          <ul class="dropdown-menu animate-dropdown" aria-labelledby="servicesDropdown">
+            <li><a class="dropdown-item" th:href="@{/services}"><i class="fas fa-th-large text-info me-2"></i><span>All Services</span></a></li>
+            <li><hr class="dropdown-divider"/></li>
+            <li><a class="dropdown-item" th:href="@{/passes/new}"><i class="fas fa-ticket-alt text-primary me-2"></i><span>Darshan Pass</span></a></li>
+            <li><a class="dropdown-item" th:href="@{/bookings/new}"><i class="fas fa-hotel text-warning me-2"></i><span>Room Booking</span></a></li>
+            <li><a class="dropdown-item" th:href="@{/donations}"><i class="fas fa-donate text-success me-2"></i><span>Donations</span></a></li>
+            <li><a class="dropdown-item" th:href="@{/restaurant}"><i class="fas fa-utensils text-danger me-2"></i><span>Restaurant</span></a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/news}"><i class="fas fa-newspaper nav-icon"></i><span>News</span></a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/events}"><i class="fas fa-calendar nav-icon"></i><span>Events</span></a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/festivals}"><i class="fas fa-star nav-icon"></i><span>Festivals</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#guidelinesModal"><i class="fas fa-info-circle nav-icon"></i><span>Guidelines</span></a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/about}"><i class="fas fa-landmark nav-icon"></i><span>About</span></a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item" sec:authorize="isAuthenticated()">
+          <a class="nav-link position-relative" th:href="@{/notifications}" title="Notifications"><i class="fas fa-envelope nav-icon"></i>
+            <span class="message-badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">0</span>
+          </a>
+        </li>
+        <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+          <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="profile-avatar">
+              <img th:if="${user != null and user.profilePic != null and !#strings.isEmpty(user.profilePic)}"
+                   th:src="@{'/uploads/profile/' + ${user.profilePic}}" alt="Profile" class="avatar-img"
+                   onerror="this.onerror=null;this.src='/images/temple/icon-symbol.webp';"/>
+              <img th:if="${user == null or user.profilePic == null or #strings.isEmpty(user.profilePic)}"
+                   th:src="@{/images/temple/icon-symbol.webp}" alt="Profile" class="avatar-img"
+                   onerror="this.src='/images/temple/icon%20symbol.webp'"/>
+            </div>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end profile-dropdown animate-dropdown" aria-labelledby="profileDropdown">
+            <li class="profile-header">
+              <div class="profile-avatar-lg">
+                <img th:if="${user != null and user.profilePic != null and !#strings.isEmpty(user.profilePic)}"
+                     th:src="@{'/uploads/profile/' + ${user.profilePic}}" alt="Profile" class="avatar-img-lg"
+                     onerror="this.onerror=null;this.src='/images/temple/icon-symbol.webp';"/>
+                <img th:if="${user == null or user.profilePic == null or #strings.isEmpty(user.profilePic)}"
+                     th:src="@{/images/temple/icon-symbol.webp}" alt="Profile" class="avatar-img-lg"
+                     onerror="this.src='/images/temple/icon%20symbol.webp'"/>
+              </div>
+              <h6 class="mb-0" th:text="${user != null and user.name != null ? user.name : #authentication?.name}">User</h6>
+              <small sec:authorize="isAuthenticated()" th:text="${user != null and user.email != null ? user.email + ' · Logged in' : 'Logged in'}">Logged in</small>
+            </li>
+            <li><hr class="dropdown-divider"/></li>
+            <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin/dashboard}"><i class="fas fa-gauge-high me-3 text-primary"></i>Admin Dashboard</a></li>
+            <li sec:authorize="!hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/dashboard}"><i class="fas fa-gauge me-3 text-primary"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" th:href="@{/profile}"><i class="fas fa-user-circle me-3 text-primary"></i>My Profile</a></li>
+            <li><a class="dropdown-item" th:href="@{/notifications}"><i class="fas fa-envelope-open-text me-3 text-info"></i>My Messages</a></li>
+            <li sec:authorize="!hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/passes/history}"><i class="fas fa-ticket-alt me-3 text-success"></i>My Passes</a></li>
+            <li sec:authorize="!hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/bookings/history}"><i class="fas fa-hotel me-3 text-warning"></i>My Bookings</a></li>
+            <li sec:authorize="!hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/donations}"><i class="fas fa-donate me-3 text-danger"></i>My Donations</a></li>
+            <li><hr class="dropdown-divider"/></li>
+            <li><a class="dropdown-item" th:href="@{/change-password}"><i class="fas fa-key me-3 text-secondary"></i>Change Password</a></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to logout?')) document.getElementById('logoutForm').submit();"><i class="fas fa-sign-out-alt me-3"></i>Logout</a></li>
+          </ul>
+        </li>
+        <li class="nav-item" sec:authorize="isAnonymous()">
+          <a class="nav-link login-btn" th:href="@{/login}"><i class="fas fa-sign-in-alt me-2"></i><span>Login</span></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<form id="logoutForm" action="/logout" th:action="@{/logout}" method="post" style="display:none"><input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/></form>
+
+<div class="container mt-3" th:if="${success}">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+        <span th:text="${success}">Success</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+<div class="container mt-3" th:if="${error}">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}">Error</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-overlay text-center animate__animated animate__fadeIn">
+        <span class="om-symbol" aria-hidden="true">ॐ</span>
+        <h1 class="hero-title">Welcome to Trimbakeshwar Temple</h1>
+    </div>
+</div>
+
+<!-- Services Section -->
+<div class="services-section">
+    <div class="container">
+        <h2 class="section-title">Our Services</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <h4>Darshan Pass</h4>
+                    <p>Book your darshan pass online and skip the queue. Get instant confirmation for temple entry.</p>
+                    <a th:href="@{/passes/new}" class="btn btn-primary" sec:authorize="isAuthenticated()">Book Now</a>
+                    <a href="#" class="btn btn-primary" sec:authorize="isAnonymous()" data-bs-toggle="modal" data-bs-target="#loginModal">Book Now</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-hotel"></i></div>
+                    <h4>Room Booking</h4>
+                    <p>Stay at temple guest house during your visit. Comfortable rooms at affordable rates.</p>
+                    <a th:href="@{/bookings/new}" class="btn btn-primary" sec:authorize="isAuthenticated()">Book Now</a>
+                    <a href="#" class="btn btn-primary" sec:authorize="isAnonymous()" data-bs-toggle="modal" data-bs-target="#loginModal">Book Now</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-donate"></i></div>
+                    <h4>Donations</h4>
+                    <p>Contribute to temple development and charity. Your donation makes a difference.</p>
+                    <a th:href="@{/donations}" class="btn btn-primary" sec:authorize="isAuthenticated()">Donate Now</a>
+                    <a href="#" class="btn btn-primary" sec:authorize="isAnonymous()" data-bs-toggle="modal" data-bs-target="#loginModal">Donate Now</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="service-card">
+                    <div class="service-icon" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);"><i class="fas fa-utensils"></i></div>
+                    <h4>Restaurant</h4>
+                    <p>Enjoy delicious vegetarian meals and prasad at our temple restaurant.</p>
+                    <a th:href="@{/restaurant}" class="btn btn-primary" sec:authorize="isAuthenticated()" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); border: none;">Order Now</a>
+                    <a href="#" class="btn btn-primary" sec:authorize="isAnonymous()" data-bs-toggle="modal" data-bs-target="#loginModal" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); border: none;">Order Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Temple Timings Section -->
+<div class="timings-section">
+    <div class="container">
+        <h2 class="section-title" style="color: #fff;">Temple Timings</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="timing-card animate__animated animate__fadeInLeft">
+                    <h4><i class="fas fa-sun"></i> Morning Darshan</h4>
+                    <div class="time">5:00 AM - 12:00 PM</div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="timing-card animate__animated animate__fadeInRight">
+                    <h4><i class="fas fa-moon"></i> Evening Darshan</h4>
+                    <div class="time">4:00 PM - 8:00 PM</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Temple Information Section -->
+<div class="temple-info-section">
+    <div class="container">
+        <h2 class="section-title">About Trimbakeshwar Temple</h2>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <a th:href="@{/about}" class="text-decoration-none">
+                    <div class="temple-card">
+                        <div class="temple-card-icon"><i class="fas fa-history"></i></div>
+                        <h4>Temple History</h4>
+                        <p>Trimbakeshwar is one of the most sacred temples in India, dedicated to Lord Shiva. The temple is believed to be built by Rajarshi Shrimant Sadashivrao Bhau Saheb in 1750-1800 AD.</p>
+                        <span class="read-more-text"><i class="fas fa-arrow-right"></i> Click to read more</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <a th:href="@{/about}" class="text-decoration-none">
+                    <div class="temple-card">
+                        <div class="temple-card-icon"><i class="fas fa-pray"></i></div>
+                        <h4>Sacred Deity</h4>
+                        <p>The presiding deity is Lord Trimbakeshwar (Lord Shiva). The lingam is believed to represent the cosmic pillar (Stambha) that supports the universe.</p>
+                        <span class="read-more-text"><i class="fas fa-arrow-right"></i> Click to read more</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <a th:href="@{/about}" class="text-decoration-none">
+                    <div class="temple-card">
+                        <div class="temple-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <h4>Major Festivals</h4>
+                        <p>Mahashivratri is the biggest festival celebrated with great enthusiasm. Other festivals include Shravan month, Navratri, and Kartik Poornima.</p>
+                        <span class="read-more-text"><i class="fas fa-arrow-right"></i> Click to read more</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <a th:href="@{/about}" class="text-decoration-none">
+                    <div class="temple-card">
+                        <div class="temple-card-icon"><i class="fas fa-hands-praying"></i></div>
+                        <h4>Pooja Services</h4>
+                        <p>Various poojas like Rudrabhishek, Mahashivratri Pooja, and Laghu Rudra can be booked online. Special sevas are conducted daily.</p>
+                        <span class="read-more-text"><i class="fas fa-arrow-right"></i> Click to read more</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Temple Gallery Section (images from images/img and images/about) -->
+<div class="temple-gallery-section">
+    <div class="container">
+        <h2 class="section-title">Temple Gallery</h2>
+        <p class="text-center text-muted mb-4">Sacred moments and views from Shri Trimbakeshwar (images/img &amp; images/about)</p>
+        <div class="row g-3">
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/Trimbakeshwar-Jyotirling.jpg" alt="Trimbakeshwar Jyotirling" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/about/trimbakeshwar.jpg" alt="Trimbakeshwar Temple" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/Brahmagiri.jpg" alt="Brahmagiri Hills" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/Tryambakeshvara1.jpg" alt="Lord Shiva Temple" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/about/inside.jpg" alt="Temple Interior" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/kushavart1.jpg" alt="Kushavart" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/trimbak.jpg" alt="Trimbak" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/garv-griha.jpg" alt="Garbhagriha" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/about/Trimbakweshwar_Temple_Entrance.jpg" alt="Temple Entrance" class="img-fluid" onerror="this.src='/images/img/banner1.jpg'"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/mahashivratra.jpg" alt="Mahashivratri" class="img-fluid" onerror="this.src='/images/img/chaitra.jpg'"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/kumbh.jpg" alt="Kumbh" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+            <div class="col-md-4 col-sm-6"><div class="gallery-item"><img src="/images/img/stairways.jpg" alt="Temple Stairways" class="img-fluid"/><div class="gallery-overlay"><i class="fas fa-camera"></i></div></div></div>
+        </div>
+        <p class="text-center mt-4"><button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#guidelinesModal"><i class="fas fa-info-circle"></i> Temple Guidelines</button></p>
+    </div>
+</div>
+
+</div><!-- /main-content -->
+
+<!-- Guidelines Modal -->
+<div class="modal fade" id="guidelinesModal" tabindex="-1" aria-labelledby="guidelinesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="guidelinesModalLabel"><i class="fas fa-info-circle me-2"></i>Temple Guidelines &amp; Visitor Information</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h6 class="text-success fw-bold"><i class="fas fa-clock me-2"></i>Temple Timings</h6>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-sm">
+                <thead class="table-dark"><tr><th>Activity</th><th>Timing</th></tr></thead>
+                <tbody>
+                    <tr><td>Temple Opening</td><td>5:30 AM</td></tr>
+                    <tr><td>Kakad Aarti (Morning)</td><td>5:30 AM - 6:00 AM</td></tr>
+                    <tr><td>General Darshan</td><td>5:30 AM - 9:00 PM</td></tr>
+                    <tr><td>Madhyan Pooja</td><td>1:00 PM - 1:30 PM</td></tr>
+                    <tr><td>Evening Aarti</td><td>7:00 PM - 8:00 PM</td></tr>
+                    <tr><td>Temple Closing</td><td>9:00 PM</td></tr>
+                    <tr><td>Rudrabhishek</td><td>6:00 AM - 7:00 AM</td></tr>
+                    <tr><td>Golden Mukut Darshan</td><td>Every Monday 4:30 PM</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <h6 class="text-success fw-bold mt-3"><i class="fas fa-tshirt me-2"></i>Dress Code</h6>
+        <div class="alert alert-info">
+            <div class="row">
+                <div class="col-md-6"><strong><i class="fas fa-male me-2"></i>Men</strong><ul class="mb-0 mt-2 small"><li>Dhoti, Kurta-Pajama</li><li>Full pants with shirt</li><li>White dhoti for puja</li></ul></div>
+                <div class="col-md-6"><strong><i class="fas fa-female me-2"></i>Women</strong><ul class="mb-0 mt-2 small"><li>Saree, Salwar Kameez</li><li>Long skirt with dupatta</li><li>Traditional dress</li></ul></div>
+            </div>
+            <p class="mb-0 mt-2 small text-danger"><strong>Not allowed:</strong> Jeans, shorts, sleeveless tops, western outfits</p>
+        </div>
+        <h6 class="text-success fw-bold mt-3"><i class="fas fa-lightbulb me-2"></i>Visitor Tips</h6>
+        <div class="alert alert-warning"><ul class="mb-0 small"><li><strong>Best time:</strong> Weekdays, before 8 AM</li><li><strong>Avoid:</strong> Mondays, Shravan month, festivals</li><li><strong>VIP Pass:</strong> Book online to skip queues</li><li><strong>Cash:</strong> Carry cash - many don't accept digital payments</li></ul></div>
+        <div class="d-flex gap-2 flex-wrap mt-3">
+            <a th:href="@{/images/arati.pdf}" href="/images/arati.pdf" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fas fa-file-pdf me-1"></i>Aarti Schedule</a>
+            <a th:href="@{/images/HERITAGE_GUIDELINES_FOR_TRAYAMBAKESHWAR.pdf}" href="/images/HERITAGE_GUIDELINES_FOR_TRAYAMBAKESHWAR.pdf" target="_blank" class="btn btn-outline-success btn-sm"><i class="fas fa-book me-1"></i>Heritage Guidelines</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login Required Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">Login Required</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body"><p>Please login to access this service.</p></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <a th:href="@{/login}" href="/login" class="btn btn-primary">Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Lightbox Modal -->
+<div id="galleryModal" class="gallery-modal">
+    <span class="gallery-modal-close">&times;</span>
+    <img class="gallery-modal-content" id="galleryModalImg" alt="Gallery"/>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <h4 class="footer-title">Trimbakeshwar Temple</h4>
+                <p class="footer-text">Experience the divine aura of Lord Shiva at Trimbakeshwar, one of the most sacred temples in India. Book darshan passes, room bookings, and donations online. <strong>ॐ नमः शिवाय</strong></p>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <h4 class="footer-title">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a th:href="@{/}"><i class="fas fa-chevron-right"></i> Home</a></li>
+                    <li><a th:href="@{/about}"><i class="fas fa-chevron-right"></i> About</a></li>
+                    <li><a th:href="@{/services}"><i class="fas fa-chevron-right"></i> Services</a></li>
+                    <li><a th:href="@{/news}"><i class="fas fa-chevron-right"></i> News</a></li>
+                    <li><a th:href="@{/events}"><i class="fas fa-chevron-right"></i> Events</a></li>
+                    <li><a th:href="@{/festivals}"><i class="fas fa-chevron-right"></i> Festivals</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h4 class="footer-title">Services</h4>
+                <ul class="footer-links">
+                    <li><a th:href="@{/passes/new}"><i class="fas fa-ticket-alt"></i> Darshan Pass</a></li>
+                    <li><a th:href="@{/bookings/new}"><i class="fas fa-hotel"></i> Room Booking</a></li>
+                    <li><a th:href="@{/donations}"><i class="fas fa-donate"></i> Donations</a></li>
+                    <li><a th:href="@{/restaurant}"><i class="fas fa-utensils"></i> Restaurant</a></li>
+                    <li><a th:href="@{/temple-updates}"><i class="fas fa-bullhorn"></i> Temple Updates</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h4 class="footer-title">Contact Us</h4>
+                <ul class="footer-contact">
+                    <li><i class="fas fa-map-marker-alt"></i><span>Trimbakeshwar Temple, Nashik, Maharashtra - 422212</span></li>
+                    <li><i class="fas fa-phone"></i><span>+91 12345 67890</span></li>
+                    <li><i class="fas fa-envelope"></i><a href="mailto:templeerp2027@gmail.com" style="color:inherit;text-decoration:none">templeerp2027@gmail.com</a></li>
+                    <li><i class="fas fa-clock"></i><span>Morning: 5:00 AM - 12:00 PM<br/>Evening: 4:00 PM - 8:00 PM</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <p class="text-center mb-0">&copy; 2026 Trimbakeshwar Temple. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script>
+// Navbar scroll effect
+window.addEventListener('scroll', function() {
+  var navbar = document.getElementById('mainNavbar');
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Enable dropdowns & tooltips
+    [].slice.call(document.querySelectorAll('.dropdown-toggle')).forEach(function(el){ new bootstrap.Dropdown(el); });
+    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).forEach(function(el){ new bootstrap.Tooltip(el); });
+
+    // Auto-dismiss success alert
+    var sa = document.getElementById('successAlert');
+    if (sa && window.bootstrap && bootstrap.Alert) setTimeout(function(){ bootstrap.Alert.getOrCreateInstance(sa).close(); }, 2000);
+
+    // Temple Cards Animation on Scroll
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, index) {
+            if (entry.isIntersecting) {
+                setTimeout(function(){ entry.target.classList.add('visible'); }, index * 150);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.temple-card').forEach(function(card){ observer.observe(card); });
+
+    // Gallery Lightbox
+    var modal = document.getElementById('galleryModal');
+    var modalImg = document.getElementById('galleryModalImg');
+    var closeBtn = document.querySelector('.gallery-modal-close');
+    document.querySelectorAll('.gallery-item').forEach(function(item){
+        item.addEventListener('click', function(){
+            var img = item.querySelector('img');
+            if (img && modal && modalImg) { modal.style.display='flex'; modal.classList.add('show'); modalImg.src = img.src; document.body.style.overflow='hidden'; }
+        });
+    });
+    function closeGallery(){ if(!modal) return; modal.classList.remove('show'); setTimeout(function(){ modal.style.display='none'; }, 300); document.body.style.overflow='auto'; }
+    if (closeBtn) closeBtn.addEventListener('click', closeGallery);
+    if (modal) modal.addEventListener('click', function(e){ if (e.target === modal) closeGallery(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modal && modal.classList.contains('show')) closeGallery(); });
+});
+</script>
+</body>
+</html>

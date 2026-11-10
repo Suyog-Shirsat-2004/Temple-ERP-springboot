@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${title} ?: 'Temple ERP'">Temple ERP</title>
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <style>
+    /* global creative motion (progressive enhancement) */
+    @media (prefers-reduced-motion: no-preference) {
+      body { animation: pageFadeIn .45s ease-out; }
+      @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    }
+  </style>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var els = document.querySelectorAll('.card, .stat-card, .panel, .service-card, .table, .section-card, .welcome-card, .auth-card, .news-card, .event-card, .fest-card');
+      if ('IntersectionObserver' in window) {
+        els.forEach(function(el, i){ el.style.opacity='0'; el.style.transform='translateY(14px)'; el.style.transition='opacity .5s ease '+(i%6)*60+'ms, transform .5s ease '+(i%6)*60+'ms'; });
+        var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='none'; io.unobserve(e.target); } }); }, {threshold: 0.08});
+        els.forEach(function(el){ io.observe(el); });
+      }
+    });
+  </script>
+</head>
+<body>
+<nav class="nav" th:fragment="nav">
+  <div class="container row nav-inner">
+    <a class="brand" th:href="@{/}">
+      <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" onerror="this.style.display='none'"/>
+      <span>Temple ERP</span>
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Toggle menu" onclick="var n=this.closest('.nav');var o=n.classList.toggle('open');this.querySelector('i').className=o?'fas fa-times':'fas fa-bars';document.getElementById('navOverlay')&&document.getElementById('navOverlay').classList.toggle('show',o)"><i class="fas fa-bars"></i></button>
+    <div class="nav-overlay" id="navOverlay" onclick="var n=document.querySelector('.nav');n.classList.remove('open');this.classList.remove('show');var b=n.querySelector('.nav-toggle i');if(b)b.className='fas fa-bars'"></div>
+    <div class="nav-links" id="navLinks">
+      <a th:href="@{/}">Home</a>
+      <a th:href="@{/about}">About</a>
+      <a th:href="@{/services}">Services</a>
+      <a th:href="@{/events}">Events</a>
+      <a th:href="@{/news}">News</a>
+      <span sec:authorize="isAnonymous()">
+        <a th:href="@{/login}">Login</a>
+        <a th:href="@{/register}">Register</a>
+        <a th:href="@{/admin/login}">Admin</a>
+      </span>
+      <span sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/passes/new}">Book Pass</a>
+        <a th:href="@{/restaurant}">Restaurant</a>
+        <a th:href="@{/bookings/new}">Book Room</a>
+      </span>
+      <span sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/admin/dashboard}">Admin</a>
+      </span>
+      <span sec:authorize="isAuthenticated()" class="nav-profile" style="position:relative;display:inline-flex;align-items:center;gap:8px">
+        <button type="button" class="nav-profile-btn" aria-label="Profile menu" onclick="var m=document.getElementById('navProfileMenu'); if(!m) return; var open=m.style.display==='block'; document.querySelectorAll('.nav-dropdown-menu').forEach(function(x){x.style.display='none';}); m.style.display=open?'none':'block'; event.stopPropagation();"
+                style="background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35);padding:4px 10px 4px 4px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;color:#fff;font-weight:600">
+          <span style="width:34px;height:34px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);flex:0 0 auto">
+            <img th:if="${user != null and user.profilePic != null and !#strings.isEmpty(user.profilePic)}" th:src="@{'/uploads/profile/' + ${user.profilePic}}" alt="Profile" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.src='/images/temple/icon-symbol.webp';"/>
+            <img th:if="${user == null or user.profilePic == null or #strings.isEmpty(user.profilePic)}" th:src="@{/images/temple/icon-symbol.webp}" alt="Profile" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=&quot;fas fa-user&quot;></i>';"/>
+          </span>
+          <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px"
+                th:text="${user != null and user.name != null and !#strings.isEmpty(user.name) ? user.name : (principal != null and principal.name != null ? principal.name : 'Profile')}">Profile</span>
+        </button>
+        <div id="navProfileMenu" class="nav-dropdown-menu profile-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:260px;max-height:min(70vh,420px);overflow-y:auto;overflow-x:hidden;background:#fff;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);border:1px solid #eee;z-index:1300">
+          <div style="padding:14px 14px;background:linear-gradient(135deg,#ff6b35,#f7931e);color:#fff;display:flex;gap:10px;align-items:center">
+            <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.7);flex:0 0 auto;background:rgba(255,255,255,.15)">
+              <img th:if="${user != null and user.profilePic != null and !#strings.isEmpty(user.profilePic)}" th:src="@{'/uploads/profile/' + ${user.profilePic}}" alt="Profile" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.src='/images/temple/icon-symbol.webp';"/>
+              <img th:if="${user == null or user.profilePic == null or #strings.isEmpty(user.profilePic)}" th:src="@{/images/temple/icon-symbol.webp}" alt="Profile" style="width:100%;height:100%;object-fit:cover"/>
+            </div>
+            <div style="min-width:0">
+              <div style="font-weight:700;line-height:1.2" th:text="${user != null and user.name != null and !#strings.isEmpty(user.name) ? user.name : (principal != null and principal.name != null ? principal.name : #authentication?.name)}">User</div>
+              <div style="font-size:12px;opacity:.95;word-break:break-all">
+                <span th:text="${user != null and user.email != null and !#strings.isEmpty(user.email) ? user.email : (principal != null and principal.email != null ? principal.email : '')}"></span>
+                <span sec:authorize="isAuthenticated()"> · Logged in</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding:8px">
+            <a th:href="@{/dashboard}" sec:authorize="!hasRole('ADMIN')" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">Dashboard</a>
+            <a th:href="@{/admin/dashboard}" sec:authorize="hasRole('ADMIN')" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">Admin Dashboard</a>
+            <a th:href="@{/profile}" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">My Profile</a>
+            <a th:href="@{/passes/history}" sec:authorize="!hasRole('ADMIN')" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">My Passes</a>
+            <a th:href="@{/passes/new}" sec:authorize="!hasRole('ADMIN')" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">Book Pass</a>
+            <a th:href="@{/restaurant/history}" sec:authorize="!hasRole('ADMIN')" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">My Orders</a>
+            <a th:href="@{/bookings/history}" sec:authorize="!hasRole('ADMIN')" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">My Bookings</a>
+            <a th:href="@{/notifications}" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">Notifications</a>
+            <a th:href="@{/change-password}" style="display:block;padding:9px 10px;border-radius:8px;color:#334155;text-decoration:none">Change Password</a>
+            <a th:href="@{/logout}" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();" style="display:block;padding:9px 10px;border-radius:8px;color:#dc2626;text-decoration:none;font-weight:600">Logout</a>
+          </div>
+        </div>
+        <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none"></form>
+      </span>
+      <span sec:authorize="isAuthenticated()" style="display:none"><form id="logoutFormFallback" th:action="@{/logout}" method="post"></form></span>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('click', function(e){
+      var t = e.target;
+      var inside = t && t.closest && t.closest('.nav-profile');
+      if(!inside){ document.querySelectorAll('.nav-dropdown-menu').forEach(function(x){ x.style.display='none'; }); }
+    });
+  </script>
+</nav>
+<footer class="footer" th:fragment="footer">
+  <div class="container" style="text-align:center">&copy; 2026 Trimbakeshwar Temple. All Rights Reserved.</div>
+</footer>
+</body>
+</html>

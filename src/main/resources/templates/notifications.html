@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Notifications - Temple ERP')}"></head>
+<body>
+<style>
+  @keyframes notifFadeUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: translateY(0); } }
+  .notif-wrap { padding: 8px 0 24px; }
+  .notif-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+  .notif-title { margin:0; font-size:1.6rem; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:10px; }
+  .notif-title .count { font-size:.85rem; font-weight:700; background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; padding:4px 10px; border-radius:999px; }
+  .notif-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:14px; align-items:stretch; }
+  .notif-link { text-decoration:none; color:inherit; display:block; }
+  .notif-card { background:#fff; border:1px solid #e8edf3; border-radius:16px; padding:16px 16px 14px; box-shadow:0 6px 18px rgba(15,23,42,.04); position:relative; overflow:hidden; transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; animation: notifFadeUp .5s ease both; height:100%; }
+  .notif-link:hover .notif-card, .notif-card:hover { transform: translateY(-4px); box-shadow:0 14px 30px rgba(15,23,42,.10); border-color:#cbd5e1; }
+  .notif-card.unread { border-left:4px solid #f59e0b; background:linear-gradient(180deg,#fffdf7 0%,#ffffff 100%); }
+  .notif-card.read { opacity:.96; }
+  .notif-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .notif-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; flex:0 0 auto; transition: transform .2s ease; }
+  .notif-link:hover .notif-icon { transform: scale(1.06) rotate(-2deg); }
+  .notif-icon.info { background:#eff6ff; color:#2563eb; }
+  .notif-icon.success { background:#ecfdf5; color:#059669; }
+  .notif-icon.warning { background:#fffbeb; color:#d97706; }
+  .notif-icon.danger { background:#fef2f2; color:#dc2626; }
+  .notif-icon.default { background:#f1f5f9; color:#475569; }
+  .notif-head { flex:1; min-width:0; }
+  .notif-card h3 { margin:0; font-size:1rem; font-weight:800; color:#0f172a; line-height:1.3; }
+  .notif-new { display:inline-flex; align-items:center; gap:4px; background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:.02em; }
+  .notif-msg { margin:0 0 10px; color:#334155; font-size:.95rem; line-height:1.5; word-break:break-word; }
+  .notif-meta { display:flex; flex-wrap:wrap; gap:8px; align-items:center; color:#64748b; font-size:12px; border-top:1px dashed #e2e8f0; padding-top:10px; }
+  .notif-type { background:#f8fafc; border:1px solid #e2e8f0; padding:2px 8px; border-radius:999px; font-weight:600; color:#475569; }
+  .notif-action { margin-left:auto; color:#2563eb; font-weight:700; font-size:12px; }
+  .notif-empty { text-align:center; padding:34px 18px; background:#fff; border:1px dashed #cbd5e1; border-radius:16px; color:#64748b; grid-column:1 / -1; }
+  .notif-empty i { font-size:34px; color:#cbd5e1; display:block; margin-bottom:10px; }
+  .btn-mark { background:#1e293b; color:#fff; border:none; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; transition: background .2s ease, transform .15s ease; }
+  .btn-mark:hover { background:#334155; transform: translateY(-1px); }
+  .btn-danger { background:#dc2626; color:#fff; border:none; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; transition: background .2s ease, transform .15s ease; }
+  .btn-danger:hover { background:#b91c1c; transform: translateY(-1px); }
+  .btn-outline { background:#fff; color:#334155; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; }
+  .btn-outline:hover { background:#f8fafc; }
+  .notif-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:0 0 14px; padding:12px; background:#fff; border:1px solid #e8edf3; border-radius:12px; }
+  .notif-toolbar label { display:flex; align-items:center; gap:8px; font-weight:700; color:#334155; cursor:pointer; }
+  .notif-select-wrap { position:absolute; top:10px; left:10px; z-index:3; background:rgba(255,255,255,.95); border:1px solid #cbd5e1; border-radius:8px; padding:4px 6px; }
+  .notif-select-wrap input { width:16px; height:16px; cursor:pointer; }
+  .notif-card { padding-top:42px; }
+  .notif-single-del { position:absolute; top:8px; right:8px; z-index:3; }
+  .notif-single-del button { border:none; background:#fee2e2; color:#991b1b; border-radius:8px; padding:6px 8px; font-size:12px; font-weight:700; cursor:pointer; }
+  .notif-single-del button:hover { background:#fecaca; }
+  .alert { padding:12px 14px; border-radius:10px; margin-bottom:14px; font-weight:600; }
+  .alert-success { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .alert-error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page notif-wrap">
+  <div class="notif-header">
+    <h2 class="notif-title">
+      <i class="fas fa-bell" style="color:#f59e0b"></i> Notifications
+      <span class="count" th:text="${#lists.size(notifications)} + ' message(s)'">0 message(s)</span>
+    </h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <form th:action="@{/notifications/read}" method="post" style="margin:0">
+        <button class="btn-mark" type="submit"><i class="fas fa-check-double"></i> Mark all as read</button>
+      </form>
+    </div>
+  </div>
+
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+  <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+  <div th:if="${!#lists.isEmpty(notifications)}">
+    <form id="notifBulkForm" th:action="@{/notifications/delete}" method="post" onsubmit="return confirmDeleteSelected();">
+      <div class="notif-toolbar">
+        <label><input type="checkbox" id="selectAllNotifs"> Select all</label>
+        <button type="submit" class="btn-danger"><i class="fas fa-trash-alt"></i> Delete selected</button>
+        <button type="button" class="btn-outline" onclick="clearNotifSelection()">Clear selection</button>
+        <span style="margin-left:auto;color:#64748b;font-size:13px">Select notifications and delete them from your account/database records.</span>
+      </div>
+
+      <div class="notif-grid">
+        <th:block th:each="n,stat : ${notifications}"
+             th:with="isNew=${n.isRead == null or n.isRead == false},
+                      ntype=${n.type != null ? #strings.toLowerCase(n.type) : 'info'},
+                      textBlob=${#strings.toLowerCase((n.title != null ? n.title : '') + ' ' + (n.message != null ? n.message : ''))},
+                      target=${#strings.contains(ntype,'pass') or #strings.contains(textBlob,'pass') or #strings.contains(textBlob,'darshan') ? '/passes/history' :
+                              (#strings.contains(ntype,'book') or #strings.contains(textBlob,'booking') or #strings.contains(textBlob,'room') ? '/bookings/history' :
+                              (#strings.contains(ntype,'order') or #strings.contains(ntype,'restaurant') or #strings.contains(textBlob,'order') ? '/restaurant/history' :
+                              (#strings.contains(ntype,'donat') or #strings.contains(textBlob,'donat') ? '/donations' : '/dashboard')))},
+                      iconClass=${#strings.contains(ntype,'success') or #strings.contains(ntype,'approve') or #strings.contains(ntype,'paid') or #strings.contains(ntype,'confirm') ? 'success' :
+                                 (#strings.contains(ntype,'warn') or #strings.contains(ntype,'pending') ? 'warning' :
+                                 (#strings.contains(ntype,'error') or #strings.contains(ntype,'reject') or #strings.contains(ntype,'cancel') or #strings.contains(ntype,'fail') ? 'danger' :
+                                 (#strings.contains(ntype,'book') or #strings.contains(ntype,'donat') or #strings.contains(ntype,'pass') or #strings.contains(ntype,'order') ? 'info' : 'default')))}">
+          <div style="position:relative">
+            <div class="notif-select-wrap" onclick="event.stopPropagation();">
+              <input type="checkbox" class="notif-check" name="ids" th:value="${n.id}" aria-label="Select notification">
+            </div>
+            <div class="notif-single-del">
+              <button type="submit" name="id" th:value="${n.id}" formmethod="post" th:formaction="@{/notifications/delete}"
+                      onclick="event.stopPropagation(); return confirm('Delete this notification?');" title="Delete notification">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <a class="notif-link" th:href="@{${target}}" th:attr="data-msg=${n.message},data-title=${n.title}">
+              <article class="notif-card"
+                       th:classappend="${isNew} ? ' unread' : ' read'"
+                       th:style="'animation-delay:' + ${stat.index * 0.05} + 's'">
+                <div class="notif-top">
+                  <div class="notif-icon" th:classappend="' ' + ${iconClass}">
+                    <i class="fas" th:classappend="${iconClass=='success'} ? ' fa-check-circle' : (${iconClass=='warning'} ? ' fa-exclamation-circle' : (${iconClass=='danger'} ? ' fa-times-circle' : ' fa-bell'))"></i>
+                  </div>
+                  <div class="notif-head">
+                    <h3 th:text="${n.title != null ? n.title : 'Notification'}">Notification</h3>
+                  </div>
+                  <span class="notif-new" th:if="${isNew}"><i class="fas fa-circle" style="font-size:7px"></i> New</span>
+                </div>
+                <p class="notif-msg" th:text="${n.message != null ? n.message : ''}"></p>
+                <div class="notif-meta">
+                  <span class="notif-type" th:text="${n.type != null ? n.type : 'info'}">info</span>
+                  <span><i class="far fa-clock"></i> <span th:text="${n.createdAt != null ? n.createdAt : ''}"></span></span>
+                  <span class="notif-action">Open <i class="fas fa-arrow-right"></i></span>
+                </div>
+              </article>
+            </a>
+          </div>
+        </th:block>
+      </div>
+    </form>
+  </div>
+
+  <div class="notif-grid" th:if="${#lists.isEmpty(notifications)}">
+    <div class="notif-empty">
+      <i class="far fa-bell-slash"></i>
+      <strong>No notifications yet</strong>
+      <div style="margin-top:6px">Updates about darshan passes, bookings, donations, and orders will appear here. Click a notification to open related details.</div>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+// If notification text contains a specific pass ID (DSP...), open that pass directly.
+(function(){
+  document.querySelectorAll('.notif-link').forEach(function(a){
+    var txt = ((a.getAttribute('data-title')||'') + ' ' + (a.getAttribute('data-msg')||''));
+    var m = txt.match(/\b(DSP[A-Z0-9]+)\b/i);
+    if (m && m[1]) a.setAttribute('href', '/passes/' + m[1]);
+  });
+})();
+
+(function(){
+  var selectAll = document.getElementById('selectAllNotifs');
+  if (!selectAll) return;
+  function checks(){ return Array.prototype.slice.call(document.querySelectorAll('.notif-check')); }
+  selectAll.addEventListener('change', function(){
+    checks().forEach(function(c){ c.checked = selectAll.checked; });
+  });
+  checks().forEach(function(c){
+    c.addEventListener('change', function(){
+      var all = checks();
+      selectAll.checked = all.length > 0 && all.every(function(x){ return x.checked; });
+    });
+  });
+})();
+
+function confirmDeleteSelected(){
+  var selected = document.querySelectorAll('.notif-check:checked');
+  if (!selected || selected.length === 0) {
+    alert('Select at least one notification to delete.');
+    return false;
+  }
+  return confirm('Delete ' + selected.length + ' selected notification(s)? This will remove them from the database.');
+}
+function clearNotifSelection(){
+  var selectAll = document.getElementById('selectAllNotifs');
+  if (selectAll) selectAll.checked = false;
+  document.querySelectorAll('.notif-check').forEach(function(c){ c.checked = false; });
+}
+</script>
+</body>
+</html>

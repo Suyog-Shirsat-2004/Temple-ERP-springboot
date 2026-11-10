@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<th:block th:fragment="bookingTokenCard">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap');
+  .token-page { padding: 18px 0 36px; background: linear-gradient(180deg,#f8f3ea 0%, #f3ece0 100%); min-height: calc(100vh - 120px); }
+  .temple-token { max-width: 900px; margin: 0 auto; position: relative; overflow: hidden; background: #fffdf8; border-radius: 12px; box-shadow: 0 22px 60px rgba(62,39,10,.15); border: 2px solid #c8a24a; }
+  .temple-token::before { content: ""; position: absolute; inset: 8px; border: 1px dashed rgba(200,162,74,.45); border-radius: 8px; pointer-events: none; }
+  .token-head { background: linear-gradient(135deg, #7a1f1f 0%, #8b2323 35%, #2563eb 100%); color: #fff; padding: 22px 26px 18px; text-align: center; }
+  .brand-row { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+  .brand-row img { width:62px; height:62px; object-fit:contain; background:rgba(255,248,230,.12); border:1px solid rgba(255,236,179,.45); border-radius:50%; padding:6px; }
+  .token-head h1 { margin:0; font-family:'Cinzel', Georgia, serif; font-size:1.45rem; font-weight:800; letter-spacing:.04em; }
+  .token-head .sub { margin:4px 0 0; font-family:'Cormorant Garamond', Georgia, serif; font-size:1.12rem; color:#ffefc2; }
+  .status-ribbon { margin-top:14px; display:flex; justify-content:center; }
+  .seal { display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:999px; font-weight:800; font-size:.82rem; letter-spacing:.06em; text-transform:uppercase; background:#ecfdf5; color:#065f46; border:1px solid #86efac; }
+  .token-body { padding: 20px 26px 22px; }
+  .identity { display:grid; grid-template-columns: 150px 1fr; gap:18px; align-items:stretch; background: linear-gradient(180deg,#fffaf0,#fff); border:1px solid #ead9b0; border-radius:10px; padding:16px; margin-bottom:16px; }
+  .photo-frame { background:#fff; border:1px solid #d6bc7a; border-radius:8px; padding:8px; text-align:center; }
+  .photo-frame .label { font-size:10px; font-weight:800; color:#7a5a1a; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; font-family:'Cinzel', Georgia, serif; }
+  .photo-frame img { width:118px; height:132px; object-fit:cover; border-radius:4px; border:1px solid #ead9b0; background:#f8fafc; display:block; margin:0 auto; }
+  .photo-fallback { width:118px; height:132px; border-radius:4px; border:1px solid #ead9b0; background:linear-gradient(180deg,#f8fafc,#eef2f7); color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:42px; margin:0 auto; }
+  .id-main { display:flex; flex-direction:column; justify-content:center; }
+  .token-id-label { font-size:11px; font-weight:800; color:#7a5a1a; text-transform:uppercase; letter-spacing:.08em; font-family:'Cinzel', Georgia, serif; }
+  .token-id { font-size:1.5rem; font-weight:800; color:#3f2a0a; font-family:'Cinzel', Georgia, serif; margin:2px 0 6px; word-break:break-all; }
+  .id-sub { color:#5b4a2a; font-size:1rem; margin:2px 0; } .id-sub strong { color:#3f2a0a; }
+  .note { margin-top:10px; padding:10px 12px; background:#fff8e8; border:1px dashed #d6bc7a; border-radius:8px; color:#6b5316; font-size:.92rem; }
+  .section-title { font-family:'Cinzel', Georgia, serif; color:#7a1f1f; font-size:1rem; margin: 4px 0 10px; display:flex; align-items:center; gap:10px; }
+  .section-title::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,#d6bc7a,transparent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
+  .field { background:#fff; border:1px solid #eadfca; border-radius:8px; padding:11px 13px; }
+  .field label { display:block; font-size:10px; font-weight:800; color:#8a6a24; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .field div { font-size:1rem; font-weight:700; color:#2c2416; word-break:break-word; }
+  .total-box { margin-top:14px; background:linear-gradient(135deg,#7a1f1f,#2563eb); color:#fff; border-radius:12px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .total-box .amt { font-size:1.6rem; font-weight:800; font-family:'Cinzel', Georgia, serif; }
+  .token-footer { padding:14px 26px 20px; border-top:1px solid #eadfca; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; color:#6b5316; background:linear-gradient(180deg,#fffdf8,#fff8eb); }
+  .footer-blessing { font-family:'Cormorant Garamond', Georgia, serif; font-size:1.08rem; font-weight:600; }
+  .btn-print { background:#7a1f1f; color:#fff; border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer; }
+  .btn-classic { display:inline-flex; align-items:center; gap:6px; text-decoration:none; border-radius:8px; padding:10px 14px; font-weight:700; }
+  @media (max-width: 640px) { .identity { grid-template-columns: 1fr; } }
+  @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } nav, footer, .no-print { display:none !important; } body, .token-page { background:#f8f3ea !important; } .temple-token { box-shadow:none; max-width:100%; } .container.page { max-width:100%; padding:0; } }
+  .pdf-mode .temple-token { box-shadow:none; }
+</style>
+
+<div th:if="${booking == null}" class="alert err" style="max-width:900px;margin:0 auto">Booking token not found.</div>
+<div th:if="${booking != null}" class="temple-token" th:classappend="${pdfMode == true} ? ' pdf-mode' : ''"
+     th:with="photoRaw=${bookingUserProfilePic},
+              photoUrlResolved=${bookingPhotoSrc != null ? bookingPhotoSrc : (photoRaw != null and !#strings.isEmpty(photoRaw) ? (#strings.startsWith(photoRaw,'/') or #strings.startsWith(photoRaw,'http') or #strings.startsWith(photoRaw,'data:') or #strings.startsWith(photoRaw,'file:') ? photoRaw : '/uploads/profile/' + photoRaw) : null)},
+              displayName=${bookingUser != null and bookingUser.name != null ? bookingUser.name : booking.guestName},
+              bs=${booking.bookingStatus != null ? #strings.toLowerCase(booking.bookingStatus) : ''},
+              isApproved=${bs=='confirmed' or bs=='approved'},
+              displayPaid=${isApproved},
+              displayStatus=${isApproved ? 'Approved' : (bs=='rejected' ? 'Rejected' : 'Pending')},
+              logoUrl=${bookingLogoSrc != null ? bookingLogoSrc : '/images/temple/icon-symbol.webp'}">
+  <div class="token-head">
+    <div class="brand-row">
+      <img th:src="${logoUrl}" alt="Temple Emblem"/>
+      <div>
+        <h1>Shri Trimbakeshwar Temple — Guest House</h1>
+        <div class="sub">Room Booking Token / Confirmation Pass &#183; Temple ERP</div>
+      </div>
+    </div>
+    <div class="status-ribbon">
+      <div class="seal" th:style="${isApproved ? '' : (bs=='rejected' ? 'background:#fef2f2;color:#991b1b;border-color:#fca5a5' : 'background:#fffbeb;color:#92400e;border-color:#fcd34d')}"><i class="fas" th:if="${pdfMode != true}" th:classappend="${isApproved ? ' fa-check-circle' : (bs=='rejected' ? ' fa-times-circle' : ' fa-hourglass-half')}"></i> <span th:text="${isApproved ? 'Approved — Token Generated' : (bs=='rejected' ? 'Rejected by Admin' : 'Payment Pending — Waiting for Admin Approval')}">Token</span></div>
+    </div>
+  </div>
+
+  <div class="token-body">
+    <div class="identity">
+      <div class="photo-frame">
+        <div class="label">Guest Photo</div>
+        <img th:if="${photoUrlResolved != null}" th:src="${photoUrlResolved}" alt="Guest profile"/>
+        <div class="photo-fallback" th:if="${photoUrlResolved == null}" style="display:flex"><i class="fas fa-user" th:if="${pdfMode != true}"></i><span th:if="${pdfMode == true}">Photo</span></div>
+      </div>
+      <div class="id-main">
+        <div class="token-id-label">Booking / Token ID</div>
+        <div class="token-id" th:text="${booking.bookingId != null ? booking.bookingId : booking.id}">BOOKING</div>
+        <div class="id-sub"><strong>Guest:</strong> <span th:text="${displayName != null ? displayName : '-'}">-</span></div>
+        <div class="id-sub"><strong>Room:</strong> <span th:text="${booking.roomType != null ? booking.roomType : '-'}">-</span> &#160;|&#160; <strong>Guests:</strong> <span th:text="${booking.noOfGuests != null ? booking.noOfGuests : '-'}">-</span></div>
+        <div class="note"><i class="fas fa-ticket-alt" th:if="${pdfMode != true}"></i> This booking token is generated after <strong>admin approval</strong> (payment is recorded during booking). Present it (digital or printed) at check-in.</div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fas fa-scroll" th:if="${pdfMode != true}"></i> Booking Details</div>
+    <div class="grid">
+      <div class="field"><label>Booking ID</label><div th:text="${booking.bookingId != null ? booking.bookingId : '-'}">-</div></div>
+      <div class="field"><label>Guest Name</label><div th:text="${booking.guestName != null ? booking.guestName : '-'}">-</div></div>
+      <div class="field"><label>Phone</label><div th:text="${booking.phone != null and !#strings.isEmpty(booking.phone) ? booking.phone : '-'}">-</div></div>
+      <div class="field"><label>Email</label><div th:text="${booking.email != null and !#strings.isEmpty(booking.email) ? booking.email : (bookingUser != null ? bookingUser.email : '-')}">-</div></div>
+      <div class="field"><label>Room Type</label><div th:text="${booking.roomType != null ? booking.roomType : '-'}">-</div></div>
+      <div class="field"><label>No. of Rooms</label><div th:text="${booking.noOfRooms != null ? booking.noOfRooms : 1}">1</div></div>
+      <div class="field"><label>Check-in</label><div th:text="${booking.checkIn != null ? booking.checkIn : '-'}">-</div></div>
+      <div class="field"><label>Check-out</label><div th:text="${booking.checkOut != null ? booking.checkOut : '-'}">-</div></div>
+      <div class="field"><label>Payment Method</label><div th:text="${booking.paymentMethod != null ? booking.paymentMethod : '-'}">-</div></div>
+      <div class="field"><label>Payment Status</label><div><span class="badge" th:classappend="${displayPaid ? 'paid' : 'pending'}" th:text="${displayPaid ? 'Paid' : 'Payment Pending'}">-</span></div></div>
+      <div class="field"><label>Booking Status</label><div><span class="badge" th:classappend="${isApproved ? 'approved' : (bs=='rejected' ? 'rejected' : 'pending')}" th:text="${displayStatus}">-</span></div></div>
+    </div>
+
+    <div class="total-box">
+      <div><div style="font-size:12px;opacity:.9;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Total Amount</div><div>Booking token / confirmation</div></div>
+      <div class="amt">₹<span th:text="${booking.totalAmount != null ? #numbers.formatDecimal(booking.totalAmount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div>
+    </div>
+  </div>
+
+  <div class="token-footer">
+    <div class="footer-blessing">ॐ नमः शिवाय &#160;&#183;&#160; Shri Trimbakeshwar Temple, Nashik</div>
+    <div class="no-print" th:if="${pdfMode != true}" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a th:href="@{'/bookings/token/' + (${booking.bookingId} != null ? ${booking.bookingId} : ${booking.id}) + '/pdf'}" class="btn-print" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px"><i class="fas fa-file-pdf"></i> Download PDF</a>
+      <button type="button" class="btn-classic" style="background:#fff7ed;color:#9a3412;border:1px solid #fdba74;cursor:pointer" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <a th:href="@{/bookings/history}" class="btn-classic" style="background:#f3e7c3;color:#5b3a0a;border:1px solid #d6bc7a">My Bookings</a>
+    </div>
+  </div>
+</div>
+</th:block>
+</body>
+</html>

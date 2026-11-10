@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard - Temple ERP')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('dashboard')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content">
+      <!-- Breadcrumb -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px">
+        <a th:href="@{/admin/dashboard}" style="color:#6366f1;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-home"></i> Home</a>
+        <i class="fas fa-chevron-right" style="font-size:10px;color:#94a3b8"></i>
+        <span style="color:#94a3b8">Dashboard</span>
+      </div>
+
+      <!-- Welcome Header -->
+      <div style="margin-bottom:32px">
+        <h1 style="font-size:28px;font-weight:800;color:#1e293b;margin:0">Welcome back, <span th:text="${#authentication?.principal?.name ?: #authentication?.name ?: 'Admin'}">Admin</span>!</h1>
+        <p style="color:#64748b;margin:8px 0 0;font-size:15px">Here's what's happening with your temple today.</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stat-grid">
+        <a th:href="@{/admin/devotees}" class="stat-card">
+          <div class="stat-icon" style="background:#ede9fe;color:#6366f1"><i class="fas fa-users"></i></div>
+          <div class="stat-value" th:text="${totalUsers}">0</div>
+          <div class="stat-label">Total Devotees</div>
+        </a>
+        <a th:href="@{/admin/passes}" class="stat-card">
+          <span th:if="${pendingPasses > 0}" style="position:absolute;top:20px;right:20px;font-size:12px;padding:6px 14px;border-radius:20px;font-weight:700;background:#f59e0b;color:#fff"><i class="fas fa-clock" style="margin-right:4px"></i><span th:text="${pendingPasses}">0</span> Pending</span>
+          <div class="stat-icon" style="background:#fce7f3;color:#ec4899"><i class="fas fa-ticket-alt"></i></div>
+          <div class="stat-value" th:text="${totalPasses}">0</div>
+          <div class="stat-label">Total Passes</div>
+        </a>
+        <a th:href="@{/admin/bookings}" class="stat-card">
+          <div class="stat-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-hotel"></i></div>
+          <div class="stat-value" th:text="${totalBookings}">0</div>
+          <div class="stat-label">Room Bookings</div>
+        </a>
+        <a th:href="@{/admin/donations}" class="stat-card">
+          <div class="stat-icon" style="background:#fef3c7;color:#f59e0b"><i class="fas fa-rupee-sign"></i></div>
+          <div class="stat-value">₹<span th:text="${donationAmount != null ? #numbers.formatDecimal(donationAmount,1,'COMMA',0,'POINT') : '0'}">0</span></div>
+          <div class="stat-label">Donations</div>
+        </a>
+        <a th:href="@{/admin/restaurant}" class="stat-card">
+          <div class="stat-icon" style="background:#ede9fe;color:#8b5cf6"><i class="fas fa-utensils"></i></div>
+          <div class="stat-value" th:text="${totalOrders}">0</div>
+          <div class="stat-label">Restaurant Orders</div>
+        </a>
+        <a th:href="@{/admin/passes}" class="stat-card">
+          <div class="stat-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-clock"></i></div>
+          <div class="stat-value" th:text="${totalPending}">0</div>
+          <div class="stat-label">Total Pending</div>
+        </a>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="recent-grid">
+        <div class="panel">
+          <h3><i class="fas fa-ticket-alt" style="color:#ec4899"></i> Recent Passes</h3>
+          <div th:each="p : ${recentPasses}" class="panel-row">
+            <div>
+              <div style="font-weight:600;font-size:14px" th:text="${p.passId}">PASS</div>
+              <div style="font-size:12px;color:#64748b" th:text="${p.devoteeName}">Name</div>
+            </div>
+            <span class="badge" th:classappend="${p.status}" th:text="${p.status}">status</span>
+          </div>
+          <p th:if="${#lists.isEmpty(recentPasses)}" style="color:#94a3b8;font-size:13px;margin:0">No recent passes</p>
+        </div>
+
+        <div class="panel">
+          <h3><i class="fas fa-hotel" style="color:#10b981"></i> Recent Bookings</h3>
+          <div th:each="b : ${recentBookings}" class="panel-row">
+            <div>
+              <div style="font-weight:600;font-size:14px" th:text="${b.bookingId}">BOOK</div>
+              <div style="font-size:12px;color:#64748b"><span th:text="${b.guestName}">Guest</span> — ₹<span th:text="${b.totalAmount}">0</span></div>
+            </div>
+            <span class="badge" th:classappend="${b.bookingStatus}" th:text="${b.bookingStatus}">status</span>
+          </div>
+          <p th:if="${#lists.isEmpty(recentBookings)}" style="color:#94a3b8;font-size:13px;margin:0">No recent bookings</p>
+        </div>
+
+        <div class="panel">
+          <h3><i class="fas fa-donate" style="color:#f59e0b"></i> Recent Donations</h3>
+          <div th:each="d : ${recentDonations}" class="panel-row">
+            <div>
+              <div style="font-weight:600;font-size:14px" th:text="${d.name != null ? d.name : 'Anonymous'}">Donor</div>
+              <div style="font-size:12px;color:#64748b" th:text="${d.receiptNo}">receipt</div>
+            </div>
+            <span style="font-weight:700;color:#10b981">₹<span th:text="${d.amount}">0</span></span>
+          </div>
+          <p th:if="${#lists.isEmpty(recentDonations)}" style="color:#94a3b8;font-size:13px;margin:0">No recent donations</p>
+        </div>
+
+        <div class="panel">
+          <h3><i class="fas fa-utensils" style="color:#8b5cf6"></i> Recent Orders</h3>
+          <div th:each="o : ${recentOrders}" class="panel-row">
+            <div>
+              <div style="font-weight:600;font-size:14px" th:text="${o.orderId}">ORD</div>
+              <div style="font-size:12px;color:#64748b"><span th:text="${o.name}">Name</span> — <span th:text="${o.items != null ? #lists.size(o.items) : 0}">0</span> items</div>
+            </div>
+            <span style="font-weight:700;color:#8b5cf6">₹<span th:text="${o.totalAmount}">0</span></span>
+          </div>
+          <p th:if="${#lists.isEmpty(recentOrders)}" style="color:#94a3b8;font-size:13px;margin:0">No recent orders</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Passes')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('passes')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content">
+      <h1 style="font-size:24px;font-weight:800;color:#1e293b;margin:0 0 8px">Darshan Pass Management</h1>
+      <p style="margin:0 0 14px;color:#64748b">Review requests, approve/reject passes. Approved passes generate the temple pass view for devotees.</p>
+      <div class="alert ok" th:if="${success}" th:text="${success}" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:12px;padding:12px 16px;margin-bottom:14px"></div>
+      <div class="alert" th:if="${error}" th:text="${error}" style="background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:12px;padding:12px 16px;margin-bottom:14px"></div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <button type="button" class="pass-filter-btn" data-filter="all" onclick="filterPasses('all',this)" style="border:1px solid #cbd5e1;background:#1e293b;color:#fff;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer">All <span id="count-all" style="opacity:.9"></span></button>
+          <button type="button" class="pass-filter-btn" data-filter="pending" onclick="filterPasses('pending',this)" style="border:1px solid #fcd34d;background:#fffbeb;color:#92400e;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer">Pending <span id="count-pending"></span></button>
+          <button type="button" class="pass-filter-btn" data-filter="approved" onclick="filterPasses('approved',this)" style="border:1px solid #86efac;background:#ecfdf5;color:#065f46;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer">Approved <span id="count-approved"></span></button>
+          <button type="button" class="pass-filter-btn" data-filter="rejected" onclick="filterPasses('rejected',this)" style="border:1px solid #fca5a5;background:#fef2f2;color:#991b1b;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer">Rejected <span id="count-rejected"></span></button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <input id="passSearch" type="search" placeholder="Search pass ID, name, phone, email, type, date..." oninput="applyPassFilters()" style="min-width:280px;max-width:420px;width:38vw;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;outline:none" />
+          <span id="passVisibleCount" style="font-size:12px;color:#64748b;font-weight:600;white-space:nowrap"></span>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:0;overflow:auto;max-height:72vh;-webkit-overflow-scrolling:touch">
+        <table class="table" id="passesTable" style="margin:0;box-shadow:none;border-radius:0;min-width:980px;width:100%">
+          <thead style="position:sticky;top:0;z-index:2;background:#f8fafc"><tr><th>Pass ID</th><th>Devotee (Selected)</th><th>Type</th><th>Visit (Selected)</th><th>Persons</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="passesTbody">
+            <tr class="pass-row" th:each="p : ${passes}" th:with="isPending=${p.status != null and #strings.equalsIgnoreCase(p.status,'pending')},
+                                                isApproved=${p.status != null and #strings.equalsIgnoreCase(p.status,'approved')},
+                                                isRejected=${p.status != null and #strings.equalsIgnoreCase(p.status,'rejected')}"
+                th:attr="data-status=${isApproved ? 'approved' : (isRejected ? 'rejected' : (isPending ? 'pending' : 'other'))},
+                         data-search=${#strings.toLowerCase((p.passId != null ? p.passId : '') + ' ' + (p.devoteeName != null ? p.devoteeName : '') + ' ' + (p.phone != null ? p.phone : '') + ' ' + (p.email != null ? p.email : '') + ' ' + (p.passType != null ? p.passType : '') + ' ' + (p.visitDate != null ? p.visitDate : '') + ' ' + (p.visitTime != null ? p.visitTime : '') + ' ' + (p.status != null ? p.status : ''))}">
+              <th:block th:with="persons=${p.noOfPersons != null and p.noOfPersons > 0 ? p.noOfPersons : 1}, amt=${p.amount != null ? p.amount : 0}">
+                <th:block th:with="computed=${(amt * persons) > 0 ? (amt * persons) : (p.totalAmount != null ? p.totalAmount : 0)}, rawTotal=${p.totalAmount != null ? p.totalAmount : ((amt * persons) > 0 ? (amt * persons) : 0)}">
+                  <th:block th:with="isFreeEntry=${(rawTotal &lt;= 0) or (p.paymentStatus != null and (#strings.equalsIgnoreCase(p.paymentStatus,'not_required') or #strings.equalsIgnoreCase(p.paymentStatus,'free') or #strings.equalsIgnoreCase(p.paymentStatus,'waived'))) or (p.paymentMethod != null and (#strings.containsIgnoreCase(p.paymentMethod,'trust') or #strings.containsIgnoreCase(p.paymentMethod,'free'))) or (p.passType != null and (#strings.containsIgnoreCase(p.passType,'trust') or #strings.containsIgnoreCase(p.passType,'guest entry') or #strings.containsIgnoreCase(p.passType,'special guest') or #strings.containsIgnoreCase(p.passType,'free') or #strings.containsIgnoreCase(p.passType,'complimentary')))}">
+              <td th:text="${p.passId}" style="font-weight:700"></td>
+              <td>
+                <div th:text="${p.devoteeName != null ? p.devoteeName : '-'}" style="font-weight:600"></div>
+                <div style="font-size:12px;color:#64748b" th:text="${p.phone != null and !#strings.isEmpty(p.phone) ? p.phone : '-'}"></div>
+                <div style="font-size:12px;color:#64748b" th:if="${p.email != null and !#strings.isEmpty(p.email)}" th:text="${p.email}"></div>
+              </td>
+              <td>
+                <div th:text="${p.passType != null ? p.passType : '-'}"></div>
+                <div th:if="${isFreeEntry}" style="font-size:11px;font-weight:800;color:#166534;margin-top:2px"><i class="fas fa-user-check"></i> Free Entry</div>
+              </td>
+              <td>
+                <div th:text="${p.visitDate != null ? p.visitDate : '-'}"></div>
+                <div th:text="${p.visitTime != null and !#strings.isEmpty(p.visitTime) ? p.visitTime : '-'}" style="font-size:12px;color:#64748b"></div>
+              </td>
+              <td th:text="${persons}" style="font-weight:700;text-align:center"></td>
+              <td th:style="${isFreeEntry} ? 'color:#166534;font-weight:700' : 'font-weight:700;color:#1e293b'">
+                <span th:if="${isFreeEntry}">Rs. 0.00 (Free)</span>
+                <span th:if="${!isFreeEntry}">
+                  <span th:text="${'Rs. ' + #numbers.formatDecimal(computed, 1, 'COMMA', 2, 'POINT')}">Rs. 0.00</span>
+                  <span style="display:block;font-size:11px;color:#64748b;font-weight:600" th:if="${persons > 1}" th:text="${persons + ' × Rs. ' + #numbers.formatDecimal(amt, 1, 'COMMA', 2, 'POINT')}"></span>
+                </span>
+              </td>
+              <td>
+                <span class="badge" th:classappend="${isFreeEntry ? ' free' : (p.paymentStatus != null ? ' ' + p.paymentStatus : '')}" th:text="${isFreeEntry ? 'Free / Not Required' : (p.paymentStatus != null ? p.paymentStatus : '-')}"></span>
+                <div style="font-size:11px;color:#64748b;margin-top:2px" th:if="${p.paymentMethod != null and !#strings.isEmpty(p.paymentMethod)}" th:text="${p.paymentMethod}"></div>
+              </td>
+              <td style="vertical-align:top">
+                <span th:if="${isApproved}" style="display:inline-flex;align-items:center;gap:5px;background:#ecfdf5;color:#065f46;border:1px solid #86efac;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800"><i class="fas fa-check-circle"></i> Approved</span>
+                <span th:if="${isRejected}" style="display:inline-flex;align-items:center;gap:5px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800"><i class="fas fa-times-circle"></i> Rejected</span>
+                <span th:if="${isPending}" style="display:inline-flex;align-items:center;gap:5px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800"><i class="fas fa-hourglass-half"></i> Pending (Admin Action)</span>
+                <span th:if="${!isApproved and !isRejected and !isPending}" class="badge" th:classappend="${p.status}" th:text="${p.status != null ? p.status : '-'}"></span>
+              </td>
+              <td style="vertical-align:top">
+                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;min-width:180px">
+                  <div th:if="${isPending}" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                    <form th:action="@{'/admin/passes/' + ${p.id} + '/approve'}" method="post" style="display:inline;margin:0" onsubmit="return confirm('Approve this pass? Status will change to Approved.');">
+                      <button type="submit" style="background:#16a34a;color:#fff;border:1px solid #15803d;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer"><i class="fas fa-check-circle"></i> Approve</button>
+                    </form>
+                    <form th:action="@{'/admin/passes/' + ${p.id} + '/reject'}" method="post" style="display:inline;margin:0" onsubmit="return confirm('Reject this pass? Status will change to Rejected.');">
+                      <button type="submit" style="background:#dc2626;color:#fff;border:1px solid #b91c1c;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer"><i class="fas fa-times-circle"></i> Reject</button>
+                    </form>
+                  </div>
+                  <div style="display:inline-flex;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden;background:#fff;flex-wrap:wrap">
+                    <a th:href="@{'/passes/' + ${p.passId}}" target="_blank" rel="noopener" title="View pass" style="display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:700;color:#334155;text-decoration:none;background:#f8fafc;border-right:1px solid #cbd5e1"><i class="fas fa-eye"></i> View</a>
+                    <a th:href="@{'/passes/' + ${p.passId} + '/pdf'}" target="_blank" rel="noopener" title="Download original PDF (same as emailed)" th:style="${isApproved ? 'display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:700;color:#fff;text-decoration:none;background:#059669;border-right:1px solid #cbd5e1' : 'display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:700;color:#334155;text-decoration:none;background:#fff;border-right:1px solid #cbd5e1'}"><i class="fas fa-file-pdf"></i> Download PDF</a>
+                  </div>
+                  <form th:action="@{'/admin/passes/' + ${p.id} + '/send-pdf'}" method="post" style="display:inline;margin:0" th:attr="onsubmit=${'return confirm(&quot;Send pass PDF for ' + (p.passId != null ? p.passId : p.id) + ' to the user profile email?&quot;);'}">
+                    <button type="submit" style="background:#2563eb;color:#fff;border:1px solid #1d4ed8;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer"><i class="fas fa-envelope"></i> Send PDF Email</button>
+                  </form>
+                  <span th:if="${isApproved}" style="color:#059669;font-size:12px;font-weight:700"><i class="fas fa-check-circle"></i> Approved — pass generated</span>
+                  <span th:if="${isRejected}" style="color:#dc2626;font-size:12px;font-weight:700"><i class="fas fa-ban"></i> Rejected</span>
+                </div>
+              </td>
+                  </th:block>
+                </th:block>
+              </th:block>
+            </tr>
+            <tr id="emptyPassesRow" th:if="${#lists.isEmpty(passes)}"><td colspan="9" style="padding:24px;color:#64748b">No pass requests found.</td></tr>
+            <tr id="noMatchPassesRow" style="display:none"><td colspan="9" style="padding:24px;color:#64748b">No passes match your search/filter.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var activeStatus='all';
+  window.filterPasses=function(status,btn){
+    activeStatus=status||'all';
+    var btns=document.querySelectorAll('.pass-filter-btn');
+    for(var i=0;i<btns.length;i++){
+      var on=btns[i].getAttribute('data-filter')===activeStatus;
+      btns[i].style.outline=on?'2px solid #6366f1':'none';
+      btns[i].style.boxShadow=on?'0 0 0 2px rgba(99,102,241,.15)':'none';
+    }
+    applyPassFilters();
+  };
+  window.applyPassFilters=function(){
+    var q=(document.getElementById('passSearch')||{}).value||'';
+    q=q.toLowerCase().trim();
+    var rows=document.querySelectorAll('tr.pass-row');
+    var shown=0,total=rows.length, c={all:0,pending:0,approved:0,rejected:0,other:0};
+    for(var i=0;i<rows.length;i++){
+      var st=rows[i].getAttribute('data-status')||'other';
+      var hay=rows[i].getAttribute('data-search')||'';
+      if(c[st]==null)c[st]=0; c[st]++; c.all++;
+      var okStatus=(activeStatus==='all'||st===activeStatus);
+      var okSearch=(q===''||hay.indexOf(q)!==-1);
+      var show=okStatus&&okSearch;
+      rows[i].style.display=show?'':'none';
+      if(show) shown++;
+    }
+    var set=function(id,n){var el=document.getElementById(id); if(el) el.textContent='('+n+')';};
+    set('count-all',c.all); set('count-pending',c.pending||0); set('count-approved',c.approved||0); set('count-rejected',c.rejected||0);
+    var vc=document.getElementById('passVisibleCount'); if(vc) vc.textContent='Showing '+shown+' of '+total;
+    var noMatch=document.getElementById('noMatchPassesRow'); if(noMatch) noMatch.style.display=(total>0 && shown===0)?'':'none';
+  };
+  try{ window.filterPasses('all', document.querySelector('.pass-filter-btn[data-filter="all"]')); }catch(e){ window.applyPassFilters(); }
+})();
+</script>
+</body>
+</html>

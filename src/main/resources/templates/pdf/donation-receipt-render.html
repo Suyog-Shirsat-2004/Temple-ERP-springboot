@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Donation Receipt</title>
+  <style>
+    @page { size: A4; margin: 10mm; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin:0; padding:0; font-family: "Nirmala UI", "Noto Sans Devanagari", "Mangal", "Noto Sans", Georgia, "Times New Roman", serif; color:#2b2416; background:#ead9b8; font-size:12px; }
+    .page { width:100%; border:3px solid #c8a24a; background:#fff7e6; padding:0; position:relative; overflow:hidden; }
+    .head { background:#7a1f1f; color:#fff; padding:14px 16px 12px; border-bottom:5px solid #d4af37; }
+    .head-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    .head-table td { vertical-align:middle; }
+    .head-logo-cell { width:120px; text-align:left; }
+    .head-spacer-cell { width:120px; }
+    .head-center-cell { text-align:center; }
+    .brand-logo { margin:0; }
+    .brand-logo img { width:100px; height:100px; object-fit:contain; background:#fff3d6; border:3px solid #f0c75e; border-radius:50%; padding:6px; display:block; }
+    .head .temple-name { font-size:30px; font-weight:700; letter-spacing:.5px; margin:0; line-height:1.15; color:#fffaf0; }
+    .head .sub { font-size:16px; font-weight:700; color:#fff3c4; margin:6px 0 0; letter-spacing:.3px; }
+    .head .mantra { font-size:13px; color:#fff8dc; margin-top:8px; font-weight:700; letter-spacing:.4px; }
+    .status-row { text-align:center; margin:10px 0 6px; }
+    .pill { display:inline-block; padding:6px 16px; border-radius:20px; font-weight:700; font-size:12px; border:1px solid #ccc; }
+    .pill.ok { background:linear-gradient(180deg,#dcfce7,#bbf7d0); color:#166534; border-color:#22c55e; }
+    .pill.pending { background:linear-gradient(180deg,#fef9c3,#fde68a); color:#854d0e; border-color:#eab308; }
+    .pill.bad { background:linear-gradient(180deg,#fee2e2,#fecaca); color:#991b1b; border-color:#ef4444; }
+    .watermark { text-align:center; margin:6px 12px 0; padding:10px 12px; border:3px solid; font-weight:800; letter-spacing:.08em; }
+    .watermark.ok { color:#166534; border-color:#22c55e; background:linear-gradient(90deg,#ecfdf5,#fef9c3,#ecfdf5); box-shadow: inset 0 0 0 2px rgba(34,197,94,.15); }
+    .watermark.pending { color:#92400e; border-color:#eab308; background:linear-gradient(90deg,#fffbeb,#fff7ed,#fffbeb); }
+    .watermark.bad { color:#991b1b; border-color:#ef4444; background:linear-gradient(90deg,#fef2f2,#fff7ed,#fef2f2); }
+    .banner { margin:10px 12px; padding:9px 10px; border:1px solid; border-radius:6px; font-size:11.5px; }
+    .banner.ok { background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
+    .banner.pending { background:#fffbeb; color:#92400e; border-color:#fde68a; }
+    .banner.bad { background:#fef2f2; color:#991b1b; border-color:#fecaca; }
+    .identity { margin:10px 12px; border:2px solid #d4af37; background:#fff3db; padding:10px; }
+    .id-table { width:100%; border-collapse:collapse; }
+    .id-table td { vertical-align:top; }
+    .photo-box { width:120px; text-align:center; border:2px solid #c8a24a; background:#fffaf0; padding:8px; }
+    .photo-box .lbl { font-size:9px; font-weight:700; color:#7a1f1f; text-transform:uppercase; margin-bottom:6px; }
+    .photo-box img { width:100px; height:130px; object-fit:cover; border:1px solid #d6bc7a; background:#fff; }
+    .photo-ph { width:100px; height:130px; border:1px solid #d6bc7a; background:#fff; color:#94a3b8; line-height:130px; text-align:center; margin:0 auto; font-size:11px; }
+    .main-info { padding:0 10px; }
+    .k { font-size:10px; font-weight:700; color:#7a5a1a; text-transform:uppercase; }
+    .token-id { font-size:18px; font-weight:700; color:#3f2a0a; margin:2px 0 6px; word-break:break-all; }
+    .line { margin:2px 0; color:#3f2a0a; }
+    .note { margin-top:6px; padding:7px 8px; background:#fff8e8; border:1px dashed #d6bc7a; color:#6b5316; font-size:11px; }
+    .amount-box { width:170px; border:2px solid #22c55e; background:#f0fdf4; padding:10px; text-align:center; }
+    .amount-box.pending { border-color:#eab308; background:#fffbeb; }
+    .amount-box.bad { border-color:#ef4444; background:#fff5f5; }
+    .amount-box .al { font-size:9px; font-weight:700; text-transform:uppercase; color:#166534; }
+    .amount-box.pending .al { color:#854d0e; } .amount-box.bad .al { color:#991b1b; }
+    .amount-box .atype { font-size:12px; font-weight:700; color:#14532d; margin-top:4px; }
+    .amount-box .amt { font-size:22px; font-weight:800; margin-top:4px; color:#14532d; }
+    .amount-box.pending .amt { color:#713f12; } .amount-box.bad .amt { color:#7f1d1d; }
+    .section { margin:10px 12px 4px; font-size:13px; font-weight:700; color:#fffaf0; border-bottom:2px solid #d4af37; padding:7px 10px 5px; background:#8b2323; border-radius:4px 4px 0 0; }
+    .grid { margin:0 12px 10px; }
+    table.fields { width:100%; border-collapse:collapse; }
+    table.fields td { border:1px solid #d6bc7a; padding:7px 8px; vertical-align:top; width:25%; background:#fffaf0; }
+    table.fields .label { display:block; font-size:9px; font-weight:700; color:#7a1f1f; text-transform:uppercase; margin-bottom:2px; }
+    table.fields .val { font-size:12px; font-weight:700; color:#2c2416; word-break:break-word; }
+    .foot { margin:8px 12px 12px; padding:10px 8px; border-top:3px solid #d4af37; background:#7a1f1f; color:#fff3c4; text-align:center; font-size:11px; border-radius:0 0 6px 6px; }
+  </style>
+</head>
+<body th:with="d=${donation},
+               isCompleted=${d != null and d.paymentStatus != null and (#strings.equalsIgnoreCase(d.paymentStatus,'completed') or #strings.equalsIgnoreCase(d.paymentStatus,'complete') or #strings.equalsIgnoreCase(d.paymentStatus,'paid') or #strings.equalsIgnoreCase(d.paymentStatus,'success'))},
+               isFailed=${d != null and d.paymentStatus != null and (#strings.equalsIgnoreCase(d.paymentStatus,'failed') or #strings.equalsIgnoreCase(d.paymentStatus,'rejected'))},
+               displayName=${donorUser != null and donorUser.name != null ? donorUser.name : (d != null and d.name != null ? d.name : '-')},
+               displayEmail=${donorUser != null and donorUser.email != null ? donorUser.email : (d != null ? d.email : null)},
+               displayPhone=${d != null and d.phone != null and !#strings.isEmpty(d.phone) ? d.phone : (donorUser != null ? donorUser.mobile : null)},
+               receiptNo=${d != null ? (d.receiptNo != null ? d.receiptNo : d.id) : '-'}">
+<div class="page" th:if="${d != null}">
+  <div class="head">
+    <table class="head-table">
+      <tr>
+        <td class="head-logo-cell">
+          <div class="brand-logo" th:if="${donationLogoSrc != null}"><img th:src="${donationLogoSrc}" alt="Temple Logo"/></div>
+        </td>
+        <td class="head-center-cell">
+          <div class="temple-name">Shri Trimbakeshwar</div>
+          <div class="temple-name" style="font-size:26px;">Jyotirlinga Temple</div>
+          <div class="sub">Official Donation Receipt &#183; Temple ERP</div>
+          <div class="mantra">&#2384; &#160;|&#160; Trimbak, Nashik, Maharashtra</div>
+        </td>
+        <td class="head-spacer-cell"></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="status-row">
+    <span class="pill" th:classappend="${isCompleted} ? ' ok' : (${isFailed} ? ' bad' : ' pending')"
+          th:text="${isCompleted ? 'COMPLETED / RECEIPT GENERATED' : (isFailed ? 'FAILED / REJECTED' : (d.paymentStatus != null ? #strings.toUpperCase(d.paymentStatus) : 'PENDING'))}">Status</span>
+  </div>
+
+  <div class="watermark ok" th:if="${isCompleted}">RECEIPT GENERATED<br/><span style="font-size:13px;letter-spacing:.12em;color:#15803d">DONATION CONFIRMED</span></div>
+  <div class="watermark pending" th:if="${!isCompleted and !isFailed}">PAYMENT PENDING<br/><span style="font-size:13px;letter-spacing:.12em;color:#a16207">AWAITING CONFIRMATION</span></div>
+  <div class="watermark bad" th:if="${isFailed}">PAYMENT FAILED<br/><span style="font-size:13px;letter-spacing:.12em;color:#b91c1c">RECEIPT NOT VALID</span></div>
+
+  <div class="banner ok" th:if="${isCompleted}"><strong>Donation completed.</strong> This is your official donation receipt. You can print or save/download it for your records. Thank you for your contribution.</div>
+  <div class="banner pending" th:if="${!isCompleted and !isFailed}"><strong>Payment/status not completed.</strong> Receipt details are shown below for reference.</div>
+  <div class="banner bad" th:if="${isFailed}"><strong>Payment failed/rejected.</strong> Receipt details are shown below for reference.</div>
+
+  <div class="identity">
+    <table class="id-table"><tr>
+      <td style="width:120px;">
+        <div class="photo-box">
+          <div class="lbl">Donor Photo</div>
+          <img th:if="${donationPhotoSrc != null}" th:src="${donationPhotoSrc}" alt="Photo"/>
+          <div class="photo-ph" th:if="${donationPhotoSrc == null}">Photo</div>
+        </div>
+      </td>
+      <td class="main-info">
+        <div class="k">Receipt Number</div>
+        <div class="token-id" th:text="${receiptNo}">-</div>
+        <div class="line"><strong>Donor:</strong> <span th:text="${displayName}">-</span></div>
+        <div class="line"><strong>Email:</strong> <span th:text="${displayEmail != null and !#strings.isEmpty(displayEmail) ? displayEmail : '-'}">-</span></div>
+        <div class="line"><strong>Phone:</strong> <span th:text="${displayPhone != null and !#strings.isEmpty(displayPhone) ? displayPhone : '-'}">-</span></div>
+        <div class="note">Thank you for your contribution to Shri Trimbakeshwar Jyotirlinga Temple. Please keep this receipt for your records.</div>
+      </td>
+      <td style="width:170px;vertical-align:middle;">
+        <div class="amount-box" th:classappend="${isFailed} ? ' bad' : (${isCompleted} ? '' : ' pending')">
+          <div class="al">Donation Amount</div>
+          <div class="atype" th:text="${d.donationType != null ? d.donationType : 'Donation'}">Donation</div>
+          <div class="amt">&#8377;<span th:text="${d.amount != null ? #numbers.formatDecimal(d.amount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div>
+          <div style="margin-top:6px;font-size:10px;font-weight:700;color:#355a46;" th:text="${d.paymentMethod != null ? d.paymentMethod : '-'}">-</div>
+        </div>
+      </td>
+    </tr></table>
+  </div>
+
+  <div class="section">Receipt / Donor Details</div>
+  <div class="grid">
+    <table class="fields">
+      <tr>
+        <td><span class="label">Receipt No</span><div class="val" th:text="${receiptNo}">-</div></td>
+        <td><span class="label">Donor Name</span><div class="val" th:text="${displayName}">-</div></td>
+        <td><span class="label">Email</span><div class="val" th:text="${displayEmail != null and !#strings.isEmpty(displayEmail) ? displayEmail : '-'}">-</div></td>
+        <td><span class="label">Phone</span><div class="val" th:text="${displayPhone != null and !#strings.isEmpty(displayPhone) ? displayPhone : '-'}">-</div></td>
+      </tr>
+      <tr th:if="${donorUser != null}">
+        <td><span class="label">Gender</span><div class="val" th:text="${donorUser.gender != null and !#strings.isEmpty(donorUser.gender) ? donorUser.gender : '-'}">-</div></td>
+        <td><span class="label">Username</span><div class="val" th:text="${donorUser.username != null ? donorUser.username : '-'}">-</div></td>
+        <td colspan="2"><span class="label">Address</span><div class="val" th:text="${donorUser.address != null and !#strings.isEmpty(donorUser.address) ? donorUser.address : '-'}">-</div></td>
+      </tr>
+      <tr>
+        <td><span class="label">Amount</span><div class="val">&#8377;<span th:text="${d.amount != null ? #numbers.formatDecimal(d.amount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div></td>
+        <td><span class="label">Donation Type</span><div class="val" th:text="${d.donationType != null ? d.donationType : '-'}">-</div></td>
+        <td><span class="label">Payment Method</span><div class="val" th:text="${d.paymentMethod != null ? d.paymentMethod : '-'}">-</div></td>
+        <td><span class="label">Payment Status</span><div class="val" th:text="${d.paymentStatus != null ? d.paymentStatus : '-'}">-</div></td>
+      </tr>
+      <tr>
+        <td><span class="label">Donation Date</span><div class="val" th:text="${d.donationDate != null ? d.donationDate : (d.createdAt != null ? d.createdAt : '-')}">-</div></td>
+        <td><span class="label">Created At</span><div class="val" th:text="${d.createdAt != null ? d.createdAt : '-'}">-</div></td>
+        <td colspan="2"><span class="label">Notes / Message</span><div class="val" th:text="${d.notes != null and !#strings.isEmpty(d.notes) ? d.notes : '-'}">-</div></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="foot">&#2384; &#160;&#183;&#160; Shri Trimbakeshwar Jyotirlinga Temple, Nashik &#160;&#183;&#160; Temple ERP</div>
+</div>
+<div th:if="${d == null}" style="padding:20px;font-family:Georgia,serif">Donation receipt not found.</div>
+</body>
+</html>

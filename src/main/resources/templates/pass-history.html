@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My Passes - Temple ERP')}"></head>
+<body>
+<style>
+  @keyframes phUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+  .ph-card { animation: phUp .45s ease both; }
+  .ph-card:hover { transform: translateY(-2px); transition: transform .2s ease, box-shadow .2s ease; box-shadow:0 10px 24px rgba(15,23,42,.08); }
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page">
+  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+    <div>
+      <h2 style="margin:0">My Darshan Passes</h2>
+      <p style="margin:4px 0 0;color:#64748b">Create a pass request, wait for admin approval, then view/print your temple pass.</p>
+    </div>
+    <a class="btn" th:href="@{/passes/new}"><i class="fas fa-plus"></i> Book New Pass</a>
+  </div>
+  <div class="alert ok" th:if="${success}" th:text="${success}"></div>
+
+  <div class="panel" style="padding:0;overflow:hidden" th:if="${!#lists.isEmpty(passes)}">
+    <table class="table" style="margin:0;box-shadow:none;border-radius:0">
+      <thead><tr><th>Pass ID</th><th>Devotee</th><th>Type</th><th>Visit</th><th>Persons</th><th>Total</th><th>Payment</th><th>Status</th><th>Temple Pass</th></tr></thead>
+      <tbody>
+        <tr th:each="p,stat : ${passes}" class="ph-card" th:style="'animation-delay:' + ${stat.index * 0.04} + 's'"
+            th:with="isApproved=${p.status != null and #strings.equalsIgnoreCase(p.status,'approved')},
+                     payPaid=${p.paymentStatus != null and (#strings.equalsIgnoreCase(p.paymentStatus,'paid') or #strings.equalsIgnoreCase(p.paymentStatus,'completed') or #strings.equalsIgnoreCase(p.paymentStatus,'success'))}">
+          <th:block th:with="persons=${p.noOfPersons != null and p.noOfPersons > 0 ? p.noOfPersons : 1}, amt=${p.amount != null ? p.amount : 0}">
+            <th:block th:with="computed=${(amt * persons) > 0 ? (amt * persons) : (p.totalAmount != null ? p.totalAmount : 0)}, rawTotal=${p.totalAmount != null ? p.totalAmount : ((amt * persons) > 0 ? (amt * persons) : 0)}">
+              <th:block th:with="isFreeEntry=${(rawTotal &lt;= 0) or (p.paymentStatus != null and (#strings.equalsIgnoreCase(p.paymentStatus,'not_required') or #strings.equalsIgnoreCase(p.paymentStatus,'free') or #strings.equalsIgnoreCase(p.paymentStatus,'waived'))) or (p.paymentMethod != null and (#strings.containsIgnoreCase(p.paymentMethod,'trust') or #strings.containsIgnoreCase(p.paymentMethod,'free'))) or (p.passType != null and (#strings.containsIgnoreCase(p.passType,'trust') or #strings.containsIgnoreCase(p.passType,'guest entry') or #strings.containsIgnoreCase(p.passType,'special guest') or #strings.containsIgnoreCase(p.passType,'free') or #strings.containsIgnoreCase(p.passType,'complimentary')))}">
+          <td th:text="${p.passId != null ? p.passId : '-'}" style="font-weight:700"></td>
+          <td th:text="${p.devoteeName != null ? p.devoteeName : '-'}"></td>
+          <td th:text="${p.passType != null ? p.passType : '-'}"></td>
+          <td><span th:text="${p.visitDate != null ? p.visitDate : '-'}"></span> <span th:text="${p.visitTime != null and !#strings.isEmpty(p.visitTime) ? p.visitTime : ''}" style="color:#64748b;font-size:12px"></span></td>
+          <td th:text="${persons}"></td>
+          <td>
+            <span th:if="${isFreeEntry}" style="color:#166534;font-weight:700">Rs. 0.00 (Free)</span>
+            <span th:if="${!isFreeEntry}">
+              <span th:text="${'Rs. ' + #numbers.formatDecimal(computed, 1, 'COMMA', 2, 'POINT')}" style="font-weight:700"></span>
+              <span th:if="${persons > 1}" style="display:block;font-size:11px;color:#64748b;font-weight:600" th:text="${persons + ' × Rs. ' + #numbers.formatDecimal(amt, 1, 'COMMA', 2, 'POINT') + ' / person'}"></span>
+            </span>
+          </td>
+          <td>
+            <span class="badge" th:classappend="${isFreeEntry ? ' free' : (payPaid ? ' paid' : ' pending')}"
+                  th:text="${isFreeEntry ? 'Free / Not Required' : (payPaid ? ('Paid Rs. ' + #numbers.formatDecimal(computed, 1, 'COMMA', 2, 'POINT')) : (p.paymentStatus != null ? p.paymentStatus : '-'))}"></span>
+            <div style="font-size:11px;color:#64748b;margin-top:2px" th:if="${!isFreeEntry and p.paymentMethod != null and !#strings.isEmpty(p.paymentMethod)}" th:text="${p.paymentMethod}"></div>
+          </td>
+          <td><span class="badge" th:classappend="${p.status != null ? p.status : 'pending'}" th:text="${p.status != null ? p.status : '-'}"></span></td>
+          <td>
+            <a th:href="@{'/passes/' + ${p.passId != null ? p.passId : p.id}}" class="btn sm" th:style="${isApproved ? 'background:#059669;text-decoration:none;color:#fff' : 'text-decoration:none'}">
+              <i class="fas" th:classappend="${isApproved ? ' fa-ticket-alt' : ' fa-eye'}"></i>
+              <span th:text="${isApproved ? ' View Pass' : ' View Details'}">View</span>
+            </a>
+          </td>
+              </th:block>
+            </th:block>
+          </th:block>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" th:if="${#lists.isEmpty(passes)}" style="text-align:center;padding:28px;color:#64748b">
+    <i class="fas fa-ticket-alt" style="font-size:30px;color:#cbd5e1;display:block;margin-bottom:8px"></i>
+    No passes found. <a th:href="@{/passes/new}">Create your first darshan pass</a>.
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

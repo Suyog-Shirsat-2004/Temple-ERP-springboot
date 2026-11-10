@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My Profile - Temple ERP')}"></head>
+<body>
+<style>
+  body { background: linear-gradient(180deg, #f6f1e7 0%, #efe6d6 100%); }
+  .profile-page { padding: 22px 0 40px; }
+  .profile-card { max-width: 920px; margin: 0 auto; background:#fffdf8; border:1px solid #dccca8; border-radius:18px; box-shadow:0 16px 44px rgba(62,39,10,.12); overflow:hidden; }
+  .profile-head { background:linear-gradient(135deg,#6f1717 0%, #8b2323 40%, #a16207 100%); color:#ffffff; padding:24px 26px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .profile-head, .profile-head h2, .profile-head p, .profile-head span, .profile-head div { color:#ffffff !important; }
+  .avatar-wrap { width:112px; height:112px; border-radius:50%; border:3px solid rgba(255,236,179,.85); background:rgba(255,255,255,.14); overflow:hidden; flex:0 0 auto; display:flex; align-items:center; justify-content:center; }
+  .avatar-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
+  .avatar-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:42px; color:#ffefc2; }
+  .profile-head h2 { margin:0; font-size:1.7rem; font-weight:800; letter-spacing:.01em; text-shadow:0 1px 2px rgba(0,0,0,.18); }
+  .profile-head p { margin:4px 0 0; color:#fff4d6 !important; font-size:1rem; font-weight:500; }
+  .profile-body { padding:24px 26px; color:#2c2416; }
+  .profile-body h3 { color:#5b2a0a !important; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+  .field label { display:block; font-size:12px; font-weight:800; color:#6b5316; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+  .field input, .field textarea, .field select { width:100%; padding:12px 14px; border:1px solid #d8ccb0; border-radius:10px; font-size:15px; color:#2c2416; background:#fff; }
+  .field input::placeholder, .field textarea::placeholder { color:#8a7a5a; }
+  .field textarea { min-height:90px; resize:vertical; }
+  .details { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:18px; }
+  .detail { background:#fff8e8; border:1px solid #ead9b0; border-radius:12px; padding:13px 14px; }
+  .detail label { display:block; font-size:11px; font-weight:800; color:#7a5a1a; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+  .detail div { color:#2c2416; font-weight:700; font-size:1rem; word-break:break-word; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; align-items:center; }
+  .btn-main { background:linear-gradient(135deg,#7a1f1f,#8b2323); color:#fff !important; border:none; border-radius:10px; padding:12px 18px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .btn-pw { display:inline-flex; align-items:center; gap:8px; background:#f3e7c3; color:#5b3a0a !important; border:1px solid #cfb87a; border-radius:10px; padding:12px 18px; font-weight:700; text-decoration:none; }
+  .btn-pw:hover { background:#ecdcae; color:#4a2f08 !important; text-decoration:none; }
+  .profile-page a { color:#7a1f1f; }
+  .profile-page a.btn-main, .profile-page a.btn-pw { text-decoration:none; }
+  .alert { border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+  .alert.success { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .alert.err { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .hint { color:#6b5316; font-size:13px; margin-top:6px; }
+  .pass-summary { display:flex; align-items:center; gap:16px; flex-wrap:wrap; background:linear-gradient(180deg,#fff8e8,#fff); border:1px solid #ead9b0; border-radius:14px; padding:14px 16px; margin-bottom:18px; }
+  .pass-circle { width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg,#7a1f1f,#a16207); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; border:3px solid #f3e3b5; box-shadow:0 8px 20px rgba(122,31,31,.18); flex:0 0 auto; position:relative; }
+  .pass-circle::after { content:""; position:absolute; inset:5px; border:1px solid rgba(255,236,179,.45); border-radius:50%; pointer-events:none; }
+  .pass-circle .count { font-size:1.55rem; font-weight:800; line-height:1; }
+  .pass-circle .lbl { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#ffefc2; margin-top:2px; }
+  .pass-summary .meta h4 { margin:0; color:#5b2a0a; font-size:1.05rem; }
+  .pass-summary .meta p { margin:4px 0 0; color:#6b5316; font-size:.94rem; }
+  .pass-summary .meta a { display:inline-flex; align-items:center; gap:6px; margin-top:8px; color:#7a1f1f !important; font-weight:700; text-decoration:none; }
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page profile-page">
+  <div class="profile-card">
+    <div class="profile-head">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <form id="avatarPhotoForm" th:action="@{/profile}" method="post" enctype="multipart/form-data" style="margin:0">
+          <input type="file" id="avatarPhotoInput" name="profile_pic" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="if(this.files && this.files.length){ document.getElementById('avatarPhotoForm').submit(); }">
+          <button type="button" onclick="document.getElementById('avatarPhotoInput').click()" title="Click to update profile photo / logo" style="background:none;border:none;padding:0;cursor:pointer">
+            <div class="avatar-wrap" style="position:relative">
+              <img id="headAvatarImg" th:if="${user != null and user.profilePic != null and !#strings.isEmpty(user.profilePic)}"
+                   th:src="@{'/uploads/profile/' + ${user.profilePic}}" alt="Profile photo"
+                   onerror="this.style.display='none';document.getElementById('headAvatarFallback').style.display='flex';"/>
+              <div id="headAvatarFallback" class="avatar-fallback"
+                   th:style="${user != null and user.profilePic != null and !#strings.isEmpty(user.profilePic)} ? 'display:none' : 'display:flex'">
+                <i class="fas fa-user"></i>
+              </div>
+              <div style="position:absolute;right:2px;bottom:2px;width:30px;height:30px;border-radius:50%;background:#fff;color:#7a1f1f;display:flex;align-items:center;justify-content:center;border:2px solid #ead9b0;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+                <i class="fas fa-camera" style="font-size:13px"></i>
+              </div>
+            </div>
+          </button>
+        </form>
+      </div>
+      <div>
+        <h2 th:text="${user != null ? user.name : principal.name}">My Profile</h2>
+        <p th:text="${user != null ? (user.email != null ? user.email : '') : principal.email}"></p>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <div th:if="${success}" class="alert success"><i class="fas fa-check-circle"></i> <span th:text="${success}"></span></div>
+      <div th:if="${error}" class="alert err"><i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span></div>
+
+      <div th:if="${user != null}">
+        <div class="pass-summary">
+          <div class="pass-circle" title="Darshan passes added">
+            <div class="count" th:text="${passesCount != null ? passesCount : 0}">0</div>
+            <div class="lbl">Passes</div>
+          </div>
+          <div class="meta">
+            <h4><i class="fas fa-ticket-alt" style="color:#a16207"></i> Darshan Passes</h4>
+            <p th:text="${(passesCount != null ? passesCount : 0) + ' pass(es) added to your account.'}">Your passes</p>
+            <a th:href="@{/passes/history}"><i class="fas fa-arrow-right"></i> View My Passes</a>
+          </div>
+        </div>
+        <div class="details">
+          <div class="detail"><label>Name</label><div th:text="${user.name != null ? user.name : '-'}">-</div></div>
+          <div class="detail"><label>Email</label><div th:text="${user.email != null ? user.email : '-'}">-</div></div>
+          <div class="detail"><label>Username</label><div th:text="${user.username != null ? user.username : '-'}">-</div></div>
+          <div class="detail"><label>Mobile</label><div th:text="${user.mobile != null and !#strings.isEmpty(user.mobile) ? user.mobile : '-'}">-</div></div>
+          <div class="detail"><label>Gender</label><div th:text="${user.gender != null and !#strings.isEmpty(user.gender) ? user.gender : '-'}">-</div></div>
+          <div class="detail"><label>Role</label><div th:text="${user.role != null ? user.role : '-'}">-</div></div>
+          <div class="detail" style="grid-column:1/-1"><label>Address</label><div th:text="${user.address != null and !#strings.isEmpty(user.address) ? user.address : '-'}">-</div></div>
+        </div>
+
+        <h3 style="margin:0 0 10px;color:#1e293b;font-size:1.1rem"><i class="fas fa-user-edit"></i> Update Profile Details</h3>
+        <p class="hint" style="margin:0 0 12px">Update any single field (name, email, mobile, gender, or address) and click <strong>Save Profile</strong>. To change profile photo/logo/icon, click the profile photo above.</p>
+        <form id="profileDetailsForm" th:action="@{/profile}" method="post">
+          <div class="grid">
+            <div class="field">
+              <label for="name">Full Name</label>
+              <input id="name" type="text" name="name" th:value="${user.name}" placeholder="Your name"/>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" name="email" th:value="${user.email}" placeholder="Email (e.g. name@example.com)" maxlength="120" pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}" title="Enter a valid email address"/>
+            </div>
+            <div class="field">
+              <label for="mobile">Mobile</label>
+              <input id="mobile" type="tel" name="mobile" th:value="${user.mobile}" placeholder="10-digit mobile number" maxlength="10" minlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Enter exactly 10 digits (numbers only)"/>
+            </div>
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender">
+                <option value="" th:selected="${user.gender == null or #strings.isEmpty(user.gender)}">Select</option>
+                <option value="Male" th:selected="${user.gender == 'Male'}">Male</option>
+                <option value="Female" th:selected="${user.gender == 'Female'}">Female</option>
+                <option value="Other" th:selected="${user.gender == 'Other'}">Other</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column:1/-1">
+              <label for="address">Address</label>
+              <textarea id="address" name="address" placeholder="Address" th:text="${user.address}"></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button type="submit" class="btn-main"><i class="fas fa-save"></i> Save Profile</button>
+            <a class="btn-pw" th:href="@{/change-password}"><i class="fas fa-key"></i> Change Password</a>
+          </div>
+        </form>
+      </div>
+
+      <div th:if="${user == null}">
+        <div class="details">
+          <div class="detail"><label>Account</label><div th:text="${principal.name}"></div></div>
+          <div class="detail"><label>Email</label><div th:text="${principal.email}"></div></div>
+        </div>
+        <p style="color:#6b5316;font-weight:500">Admin profile is managed via configuration.</p>
+        <div class="actions">
+          <a class="btn-pw" th:href="@{/change-password}"><i class="fas fa-key"></i> Change Password</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+(function(){
+  var form = document.getElementById('profileDetailsForm') || document.querySelector('form[action$="/profile"]');
+  var mobile = document.getElementById('mobile');
+  var email = document.getElementById('email');
+  if(mobile){ mobile.addEventListener('input', function(){ var d=(this.value||'').replace(/\D/g,'').slice(0,10); if(this.value!==d) this.value=d; }); }
+  function validEmail(v){ v=(v||'').trim(); return !v || /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(v); }
+  if(form){ form.addEventListener('submit', function(ev){
+    var m = (mobile && mobile.value ? mobile.value : '').replace(/\D/g,'');
+    if(mobile && mobile.value.trim() !== '' && !/^\d{10}$/.test(m)){
+      ev.preventDefault(); alert('Mobile number must be exactly 10 digits (numbers only). Invalid mobile is not allowed.'); if(mobile){ mobile.value=m; mobile.focus(); } return;
+    }
+    var e = email ? email.value : '';
+    if(email && e.trim() !== '' && !validEmail(e)){
+      ev.preventDefault(); alert('Please enter a valid email address. Invalid email is not allowed.'); email.focus(); return;
+    }
+    if(mobile) mobile.value = m;
+  }); }
+})();
+</script>
+</body>
+</html>

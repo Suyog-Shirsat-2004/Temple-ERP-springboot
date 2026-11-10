@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Users')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('users')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content">
+      <h1 style="font-size:24px;font-weight:800;color:#1e293b;margin:0 0 18px">User Management</h1>
+      <div class="alert info" style="margin-bottom:16px">Full create/update/delete is available via REST API (<code>/api/admin/users</code>).</div>
+      <div class="panel" style="padding:0;overflow:hidden"><table class="table" style="margin:0;box-shadow:none;border-radius:0">
+        <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Mobile</th><th>Role</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr th:each="u : ${users}"><td th:text="${u.name}"></td><td th:text="${u.username}"></td><td th:text="${u.email}"></td><td th:text="${u.mobile}"></td><td th:text="${u.role}"></td><td><span class="badge" th:classappend="${u.status}" th:text="${u.status}"></span></td></tr>
+          <tr th:if="${#lists.isEmpty(users)}"><td colspan="6" style="padding:24px;color:#64748b">No users.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

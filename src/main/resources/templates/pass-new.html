@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Book Darshan Pass - Temple ERP')}"></head>
+<body>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+  :root{
+    --bg1:#fff7ec; --bg2:#f6ead6; --card:#fffdf8; --ink:#2b2118; --muted:#6b5a45;
+    --saffron:#ff8a00; --deep:#8b2323; --gold:#c99700; --green:#1f8f5f; --line:#ead9b6;
+  }
+  body{margin:0;font-family:'Poppins',system-ui,sans-serif;color:var(--ink);background:var(--bg1);}
+  .scene{min-height:100vh;position:relative;overflow:hidden;
+    background:
+      radial-gradient(900px 420px at 8% 0%, rgba(255,138,0,.18), transparent 60%),
+      radial-gradient(700px 380px at 100% 10%, rgba(201,151,0,.16), transparent 60%),
+      radial-gradient(800px 420px at 50% 100%, rgba(139,35,35,.10), transparent 60%),
+      linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);}
+  .scene::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;
+    background-image:
+      radial-gradient(circle at 20px 20px, rgba(139,35,35,.22) 1.2px, transparent 1.3px),
+      radial-gradient(circle at 20px 20px, rgba(201,151,0,.18) 1.2px, transparent 1.3px);
+    background-size:44px 44px, 44px 44px; background-position:0 0, 22px 22px;}
+  .mandala{position:absolute;border-radius:50%;border:2px solid rgba(201,151,0,.18);pointer-events:none}
+  .mandala.m1{width:360px;height:360px;right:-120px;top:90px;animation:slowspin 26s linear infinite}
+  .mandala.m2{width:220px;height:220px;left:-70px;bottom:120px;border-color:rgba(139,35,35,.14);animation:slowspin 20s linear reverse infinite}
+  .mandala::after{content:"";position:absolute;inset:18px;border-radius:50%;border:1px dashed rgba(201,151,0,.22)}
+  @keyframes slowspin{to{transform:rotate(360deg)}}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:18px 16px 46px}
+  .hero{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:18px 20px;border-radius:18px;color:#fff;
+    background:linear-gradient(135deg,#7a1f1f 0%, #a63a1b 45%, #d97706 100%);
+    box-shadow:0 14px 34px rgba(122,31,31,.18); border:1px solid rgba(255,236,179,.25);}
+  .hero-badge{width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,236,179,.35);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .hero-badge img{width:54px;height:54px;object-fit:contain}
+  .hero h1{margin:0;font-family:'Cinzel',Georgia,serif;font-size:clamp(1.4rem,2.6vw,1.95rem);font-weight:800}
+  .hero p{margin:4px 0 0;color:#fff4d8}
+  .layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(310px,.95fr);gap:16px;margin-top:16px;align-items:start}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px rgba(70,45,12,.08)}
+  .form-panel{padding:18px}
+  .side{padding:16px;position:sticky;top:12px}
+  .sec{margin-top:14px;padding-top:14px;border-top:1px dashed #dfcfa8}
+  .sec:first-child{margin-top:0;padding-top:0;border-top:0}
+  .st{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:1rem;font-weight:800;color:#6a2a12}
+  .st .i{width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#ff8a00,#d97706)}
+  .st.g .i{background:linear-gradient(135deg,#1f8f5f,#2f6f5e)}
+  .st.m .i{background:linear-gradient(135deg,#8b2323,#b45309)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .f label{display:block;font-size:12px;font-weight:700;color:#6b5316;margin-bottom:6px}
+  .f input,.f select,.f textarea{width:100%;box-sizing:border-box;padding:12px 13px;border:1.5px solid #e2d2b3;border-radius:12px;background:#fff;color:var(--ink);font-size:14px;transition:border .2s, box-shadow .2s}
+  .f textarea{min-height:74px;resize:vertical}
+  .f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:#d97706;box-shadow:0 0 0 4px rgba(217,119,6,.12)}
+  .req{color:#c2410c}
+  .hint{font-size:12px;color:var(--muted);margin-top:5px}
+  .calc{border-radius:16px;padding:14px;color:#fff;background:linear-gradient(135deg,#7a1f1f 0%, #b45309 55%, #a16207 100%);box-shadow:0 12px 26px rgba(122,31,31,.16);position:relative;overflow:hidden}
+  .calc::after{content:"";position:absolute;top:-60%;left:-30%;width:60%;height:220%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);transform:rotate(18deg);animation:gloss 3.8s ease-in-out infinite}
+  @keyframes gloss{0%,45%{transform:translateX(-40%) rotate(18deg)}100%{transform:translateX(260%) rotate(18deg)}}
+  .row{position:relative;z-index:1;display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.18);font-size:14px}
+  .row:last-child{border-bottom:0;margin-top:2px;padding-top:10px}
+  .row strong{font-size:1.02rem}
+  .total{font-size:1.55rem;font-weight:800;color:#fff1bf}
+  .pay{margin-top:12px;border:1px solid var(--line);border-radius:16px;padding:14px;background:linear-gradient(180deg,#fffdf8,#fff7e8)}
+  .pay h4{margin:0 0 6px;color:#6a2a12;font-size:.98rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#fff1d6;color:#7a4a00;border:1px solid #efd39a}
+  .pay p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+  .stage{margin-top:12px;height:92px;border-radius:14px;background:linear-gradient(135deg,#fff,#fff4df);border:1px dashed #ddb978;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .scan{width:64px;height:64px;border:2px solid #d97706;border-radius:12px;position:relative;box-shadow:0 0 0 8px rgba(217,119,6,.08);animation:pulse 1.8s ease-in-out infinite}
+  .scan i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#b45309;font-size:22px;opacity:.35}
+  .beam{position:absolute;left:8px;right:8px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#f59e0b,transparent);box-shadow:0 0 10px rgba(245,158,11,.55);animation:beam 1.7s ease-in-out infinite}
+  @keyframes beam{0%{top:10px;opacity:.25}50%{opacity:1}100%{top:72px;opacity:.25}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  .phone{position:absolute;right:16%;font-size:24px;color:#8b2323;animation:pulse 1.6s ease-in-out infinite}
+  .coin{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffe08a,#d97706);border:2px solid #92600a;color:#6b4300;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 8px 16px rgba(146,96,10,.18);animation:floatc 2.1s ease-in-out infinite}
+  .coin.b{width:34px;height:34px;font-size:12px;animation-delay:-.6s}.coin.c{width:28px;height:28px;font-size:11px;animation-delay:-1.2s}
+  @keyframes floatc{0%,100%{transform:translateY(8px)}50%{transform:translateY(-10px)}}
+  .bar{position:absolute;left:14px;right:14px;bottom:12px;height:6px;border-radius:999px;background:rgba(146,96,10,.12);overflow:hidden}
+  .bar::after{content:"";position:absolute;inset:0;width:38%;background:linear-gradient(90deg,transparent,rgba(217,119,6,.8),transparent);animation:bar 1.5s linear infinite}
+  @keyframes bar{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
+  .qr{margin-top:10px;text-align:center}
+  .qr img{width:148px;max-width:100%;padding:8px;background:#fff;border:1px solid #ead9b6;border-radius:12px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn-main{border:0;cursor:pointer;padding:13px 18px;border-radius:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b2323,#d97706);box-shadow:0 10px 22px rgba(139,35,35,.18)}
+  .btn-main:hover{filter:saturate(1.05);transform:translateY(-1px)}
+  .btn-soft{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;color:#6a2a12;background:#fff3db;border:1px solid #e6cf9b}
+  .msg{margin:0 0 12px;padding:12px 14px;border-radius:12px;font-size:14px}
+  .msg.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+  .msg.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+</style>
+
+<div class="scene">
+  <div class="mandala m1"></div>
+  <div class="mandala m2"></div>
+  <nav th:replace="~{fragments/layout :: nav}"></nav>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-badge">
+        <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" onerror="this.style.display='none'"/>
+      </div>
+      <div>
+        <h1>Book Darshan Pass</h1>
+        <p>Shri Trimbakeshwar Temple &middot; Enter devotee details, check live price calculation, and confirm payment details.</p>
+      </div>
+    </section>
+
+    <div class="msg err" th:if="${error}" th:text="${error}"></div>
+    <div class="msg ok" th:if="${success}" th:text="${success}"></div>
+
+    <div class="layout">
+      <form id="passForm" class="panel form-panel" th:action="@{/passes/new}" method="post" enctype="multipart/form-data">
+        <div class="sec">
+          <h3 class="st"><span class="i"><i class="fas fa-ticket-alt"></i></span> Pass &amp; Visit Details</h3>
+          <div class="grid">
+            <div class="f">
+              <label for="pass_type">Pass Type <span class="req">*</span></label>
+              <select id="pass_type" name="pass_type" required>
+                <option value="" data-price="0">-- Select Pass Type --</option>
+                <option th:each="t : ${passTypes}" th:value="${t.passType}" th:attr="data-price=${t.price != null ? t.price : 0}"
+                        th:text="${(t.price != null and t.price &gt; 0) ? (t.passType + ' — Rs. ' + #numbers.formatDecimal(t.price,1,'COMMA',2,'POINT') + ' / person') : (t.passType + ' — Free (Trust/Guest Entry, Admin Approval)')}"></option>
+                <option value="General" data-price="50">General — Rs. 50.00 / person</option>
+                <option value="Special" data-price="100">Special — Rs. 100.00 / person</option>
+                <option value="VIP" data-price="200">VIP — Rs. 200.00 / person</option>
+                <option value="Guest Entry (Trust ID)" data-price="0">Guest Entry (Trust ID) — Free / Admin Approval</option>
+                <option value="Special Guest (Trust ID)" data-price="0">Special Guest (Trust ID) — Free / Admin Approval</option>
+              </select>
+              <div class="hint" id="freeHint" style="display:none;color:#065f46;font-weight:600"><i class="fas fa-info-circle"></i> Free entry selected: no payment required. Pass will be submitted for <strong>formality checkup &amp; admin approval</strong>.</div>
+            </div>
+            <div class="f">
+              <label for="no_of_persons">Number of Persons <span class="req">*</span></label>
+              <input id="no_of_persons" type="number" name="no_of_persons" value="1" min="1" max="20" required/>
+            </div>
+            <div class="f">
+              <label for="visit_date">Visit Date <span class="req">*</span></label>
+              <input id="visit_date" type="date" name="visit_date" required/>
+            </div>
+            <div class="f">
+              <label for="visit_time_select">Visit Time</label>
+              <select id="visit_time_select" onchange="var v=this.value, c=document.getElementById('visit_time_custom_wrap'), i=document.getElementById('visit_time'); if(v==='__custom__'){ if(c)c.style.display='block'; if(i){i.value=''; i.focus();} } else { if(c)c.style.display='none'; if(i)i.value=v; }">
+                <option value="">-- Select Visit Time --</option>
+                <option th:each="vt : ${visitedTimes}" th:if="${visitedTimes != null}" th:value="${vt}" th:text="${vt}"></option>
+                <option value="06:00 AM - 08:00 AM">06:00 AM - 08:00 AM</option>
+                <option value="08:00 AM - 10:00 AM">08:00 AM - 10:00 AM</option>
+                <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                <option value="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM</option>
+                <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                <option value="__custom__">Other (type custom time)</option>
+              </select>
+              <input type="hidden" id="visit_time" name="visit_time" value=""/>
+              <div id="visit_time_custom_wrap" style="display:none;margin-top:8px">
+                <input type="text" id="visit_time_custom" placeholder="Type visit time (e.g. 07:30 AM)" oninput="document.getElementById('visit_time').value=this.value"/>
+              </div>
+              <div class="hint">Select from your previous visit times or choose a slot; pick “Other” to type a custom time.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <h3 class="st g"><span class="i"><i class="fas fa-user"></i></span> Devotee Details</h3>
+          <div class="grid">
+            <div class="f">
+              <label for="devotee_name">Devotee Name <span class="req">*</span></label>
+              <input id="devotee_name" type="text" name="devotee_name" placeholder="Full name" required maxlength="120"/>
+            </div>
+            <div class="f">
+              <label for="phone">Phone <span class="req">*</span></label>
+              <input id="phone" type="tel" name="phone" placeholder="10-digit mobile number" required maxlength="10" minlength="10" pattern="[0-9]{10}" inputmode="numeric" autocomplete="tel" title="Enter exactly 10 digits (numbers only)"/>
+              <div class="hint">Enter exactly 10 digits. Extra digits/numbers not allowed.</div>
+            </div>
+            <div class="f">
+              <label for="email">Email <span class="req">*</span></label>
+              <input id="email" type="email" name="email" placeholder="name@example.com (e.g. abs1223@gmail.com)" required maxlength="120" pattern="[A-Za-z][A-Za-z0-9._%+\-]*@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}" title="Enter a valid email address (e.g. abs1223@gmail.com). Capital first letter is allowed." autocomplete="email"/>
+              <div class="hint">Valid email required (capital first letter is allowed).</div>
+            </div>
+            <div class="f">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="f" style="margin-top:12px">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" placeholder="Address (optional)" maxlength="255"></textarea>
+          </div>
+        </div>
+
+        <div class="sec">
+          <h3 class="st m"><span class="i"><i class="fas fa-id-card"></i></span> ID &amp; Payment</h3>
+          <div class="grid">
+            <div class="f">
+              <label for="aadhar_number">Aadhar Number <span class="req">*</span></label>
+              <input id="aadhar_number" type="text" name="aadhar_number" placeholder="12-digit Aadhar number" required maxlength="12" minlength="12" pattern="[0-9]{12}" inputmode="numeric" title="Enter exactly 12 digits (numbers only)"/>
+              <div class="hint">Enter exactly 12 digits. Extra digits not allowed, less than 12 not accepted.</div>
+            </div>
+            <div class="f" id="trustIdField" style="display:none">
+              <label for="trust_id">Trust ID / Reference ID <span class="req">*</span></label>
+              <input id="trust_id" type="text" name="trust_id" placeholder="Enter Trust/Guest reference ID" maxlength="80"/>
+              <div class="hint">Required for free guest/trust entry. Verified during formality checkup.</div>
+            </div>
+            <div class="f">
+              <label for="aadhar_card">Aadhar Card Image</label>
+              <input id="aadhar_card" type="file" name="aadhar_card" accept="image/*,.pdf"/>
+              <div class="hint">Upload image/PDF if required.</div>
+            </div>
+            <div class="f" id="paymentMethodField">
+              <label for="payment_method">Payment Method <span class="req" id="payReq">*</span></label>
+              <select id="payment_method" name="payment_method" required>
+                <option value="UPI QR">UPI / QR (Scan &amp; Pay)</option>
+                <option value="UPI">UPI</option>
+                <option value="Cash">Cash at Counter</option>
+                <option value="Trust ID / Free Entry">Trust ID / Free Entry (No Payment)</option>
+              </select>
+            </div>
+          </div>
+          <div id="freeApprovalNote" style="display:none;margin-top:12px;padding:12px 14px;border-radius:12px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:13px">
+            <i class="fas fa-check-circle"></i> <strong>Free / Trust ID entry:</strong> No payment is required. After you submit, the pass goes for <strong>formality checkup &amp; admin approval</strong>. Status will update when admin approves.
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-main" type="submit"><i class="fas fa-paper-plane"></i> Submit Pass Request</button>
+          <a class="btn-soft" th:href="@{/passes/history}"><i class="fas fa-history"></i> My Passes</a>
+          <a class="btn-soft" th:href="@{/}"><i class="fas fa-home"></i> Home</a>
+        </div>
+      </form>
+
+      <aside class="panel side" aria-live="polite">
+        <h3 class="st m" style="margin-bottom:10px"><span class="i"><i class="fas fa-calculator"></i></span> Price Calculation</h3>
+        <div class="calc">
+          <div class="row"><span>Pass Type</span><strong id="calcType">—</strong></div>
+          <div class="row"><span>Price / Person</span><strong id="calcUnit">Rs. 0.00</strong></div>
+          <div class="row"><span>Persons</span><strong id="calcPersons">1</strong></div>
+          <div class="row"><span>Total Amount</span><span id="calcTotal" class="total">Rs. 0.00</span></div>
+        </div>
+
+        <div class="pay" id="payAnim">
+          <h4><span class="badge" id="payBadge"><i class="fas fa-qrcode"></i> UPI / QR</span> <span id="payTitle">Payment Details</span></h4>
+          <p id="payDesc">Scan the QR with your UPI app, verify the calculated amount, complete payment, then submit your pass request.</p>
+          <div class="stage" id="payStage"></div>
+          <div class="qr" id="qrWrap">
+            <img th:src="@{/images/pay/QR.jpeg}" src="/images/pay/QR.jpeg" alt="UPI Payment QR" onerror="this.style.display='none'"/>
+            <div class="hint" style="margin-top:6px">Pay <strong id="qrAmount">Rs. 0.00</strong> and submit the form.</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+
+<script>
+(function(){
+  var passSel = document.getElementById('pass_type');
+  var personsInput = document.getElementById('no_of_persons');
+  var paySel = document.getElementById('payment_method');
+  var calcType = document.getElementById('calcType');
+  var calcUnit = document.getElementById('calcUnit');
+  var calcPersons = document.getElementById('calcPersons');
+  var calcTotal = document.getElementById('calcTotal');
+  var qrAmount = document.getElementById('qrAmount');
+  var payBadge = document.getElementById('payBadge');
+  var payTitle = document.getElementById('payTitle');
+  var payDesc = document.getElementById('payDesc');
+  var payStage = document.getElementById('payStage');
+  var qrWrap = document.getElementById('qrWrap');
+  var dateInput = document.getElementById('visit_date');
+  var trustIdField = document.getElementById('trustIdField');
+  var trustIdInput = document.getElementById('trust_id');
+  var freeHint = document.getElementById('freeHint');
+  var freeApprovalNote = document.getElementById('freeApprovalNote');
+
+  function inr(n){ n = isFinite(n) ? n : 0; return 'Rs. ' + n.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function getUnitPrice(){
+    if(!passSel) return 0;
+    var opt = passSel.options[passSel.selectedIndex];
+    var p = opt ? parseFloat(opt.getAttribute('data-price') || '0') : 0;
+    return isFinite(p) ? p : 0;
+  }
+  function getPersons(){
+    var v = parseInt(personsInput && personsInput.value ? personsInput.value : '1', 10);
+    if(!isFinite(v) || v < 1) v = 1;
+    if(v > 20) v = 20;
+    return v;
+  }
+  function isFreeTrust(){
+    var opt = passSel && passSel.options[passSel.selectedIndex];
+    if(!opt || !opt.value) return false;
+    var unit = getUnitPrice();
+    var txt = ((opt.value||'') + ' ' + (opt.textContent||'')).toLowerCase();
+    return unit <= 0 || /trust|complimentary|free entry|guest entry|special guest|special person/.test(txt);
+  }
+  function syncFreeUi(free){
+    if(trustIdField) trustIdField.style.display = free ? 'block' : 'none';
+    if(trustIdInput) trustIdInput.required = !!free;
+    if(freeHint) freeHint.style.display = free ? 'block' : 'none';
+    if(freeApprovalNote) freeApprovalNote.style.display = free ? 'block' : 'none';
+    if(paySel){
+      paySel.required = !free;
+      if(free){ paySel.value = 'Trust ID / Free Entry'; }
+      else if(paySel.value === 'Trust ID / Free Entry'){ paySel.value = 'UPI QR'; }
+    }
+  }
+  function updateCalc(){
+    var opt = passSel && passSel.options[passSel.selectedIndex];
+    var typeName = (opt && opt.value) ? opt.value : '—';
+    var unit = getUnitPrice();
+    var persons = getPersons();
+    var free = isFreeTrust();
+    var total = free ? 0 : (unit * persons);
+    if(calcType) calcType.textContent = typeName;
+    if(calcUnit) calcUnit.textContent = free ? 'FREE' : inr(unit);
+    if(calcPersons) calcPersons.textContent = String(persons);
+    if(calcTotal) calcTotal.textContent = free ? 'Rs. 0.00 (Free)' : inr(total);
+    if(qrAmount) qrAmount.textContent = free ? 'Rs. 0.00' : inr(total);
+    syncFreeUi(free);
+    if(calcTotal){ calcTotal.style.transition='transform .14s'; calcTotal.style.transform='scale(1.06)'; setTimeout(function(){ calcTotal.style.transform='scale(1)'; }, 140); }
+    renderPayment(free);
+  }
+  function renderPayment(free){
+    if(typeof free === 'undefined') free = isFreeTrust();
+    if(free){
+      if(payBadge) payBadge.innerHTML = '<i class="fas fa-user-check"></i> Free / Trust ID';
+      if(payTitle) payTitle.textContent = 'No Payment — Admin Approval Required';
+      if(payDesc) payDesc.textContent = 'This is a free guest/trust entry. No payment is required now. After submission, the pass goes for formality checkup and admin approval before it becomes valid.';
+      if(qrWrap) qrWrap.style.display = 'none';
+      if(payStage){
+        payStage.innerHTML = '<div style="display:flex;align-items:center;gap:14px;color:#065f46;font-weight:700">' +
+          '<div style="width:54px;height:54px;border-radius:50%;background:#ecfdf5;border:2px solid #34d399;display:flex;align-items:center;justify-content:center;font-size:22px;animation:pulse 1.8s ease-in-out infinite"><i class="fas fa-clipboard-check"></i></div>' +
+          '<div style="font-size:13px;line-height:1.35;color:#166534">Formality checkup<br><span style="font-weight:600;color:#15803d">+ Admin approval</span></div>' +
+          '</div>';
+      }
+      return;
+    }
+    var method = paySel ? paySel.value : 'UPI QR';
+    var isCash = /cash/i.test(method);
+    if(payBadge) payBadge.innerHTML = isCash ? '<i class="fas fa-coins"></i> Cash' : '<i class="fas fa-qrcode"></i> UPI / QR';
+    if(payTitle) payTitle.textContent = isCash ? 'Cash Payment Details' : 'Digital Payment (Animated)';
+    if(payDesc) payDesc.textContent = isCash
+      ? 'Pay the calculated total at the temple counter. Submit the pass request now; payment is confirmed at the counter/admin workflow.'
+      : 'Scan the QR with any UPI app, check the amount, complete payment, then submit your darshan pass request.';
+    if(qrWrap) qrWrap.style.display = isCash ? 'none' : 'block';
+    if(!payStage) return;
+    if(isCash){
+      payStage.innerHTML = '<div class="coin" style="left:24%">Rs. </div><div class="coin b" style="left:47%">Rs. </div><div class="coin c" style="left:69%">Rs. </div><div class="bar"></div>';
+    } else {
+      payStage.innerHTML = '<div class="scan"><i class="fas fa-qrcode"></i><div class="beam"></div></div><div class="phone"><i class="fas fa-mobile-alt"></i></div>';
+    }
+  }
+  var phoneInput = document.getElementById('phone');
+  var emailInput = document.getElementById('email');
+  var aadharInput = document.getElementById('aadhar_number');
+  var form = document.getElementById('passForm');
+  function digitsOnly(v){ return (v||'').replace(/\D+/g,''); }
+  function validatePhone(showMsg){
+    if(!phoneInput) return true;
+    phoneInput.value = digitsOnly(phoneInput.value).slice(0,10);
+    var ok = /^[0-9]{10}$/.test(phoneInput.value);
+    phoneInput.setCustomValidity(ok ? '' : 'Phone must be exactly 10 digits.');
+    if(showMsg && !ok) phoneInput.reportValidity();
+    return ok;
+  }
+  function validateEmail(showMsg){
+    if(!emailInput) return true;
+    var v = (emailInput.value||'').trim();
+    emailInput.value = v;
+    var ok = /^[A-Za-z][A-Za-z0-9._%+\-]*@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(v);
+    emailInput.setCustomValidity(ok ? '' : 'Enter a valid email address (e.g. abs1223@gmail.com).');
+    if(showMsg && !ok) emailInput.reportValidity();
+    return ok;
+  }
+  function validateAadhar(showMsg){
+    if(!aadharInput) return true;
+    aadharInput.value = digitsOnly(aadharInput.value).slice(0,12);
+    var ok = /^[0-9]{12}$/.test(aadharInput.value);
+    aadharInput.setCustomValidity(ok ? '' : 'Aadhar number must be exactly 12 digits.');
+    if(showMsg && !ok) aadharInput.reportValidity();
+    return ok;
+  }
+  if(phoneInput){
+    phoneInput.addEventListener('input', function(){ validatePhone(false); });
+    phoneInput.addEventListener('blur', function(){ validatePhone(false); });
+  }
+  if(emailInput){
+    emailInput.addEventListener('input', function(){ validateEmail(false); });
+    emailInput.addEventListener('blur', function(){ validateEmail(false); });
+  }
+  if(aadharInput){
+    aadharInput.addEventListener('input', function(){ validateAadhar(false); });
+    aadharInput.addEventListener('blur', function(){ validateAadhar(false); });
+  }
+  if(form){
+    form.addEventListener('submit', function(ev){
+      var okPhone = validatePhone(true);
+      var okEmail = okPhone ? validateEmail(true) : (validateEmail(false), false);
+      var okAadhar = (okPhone && okEmail) ? validateAadhar(true) : (validateAadhar(false), false);
+      if(!okPhone || !okEmail || !okAadhar){ ev.preventDefault(); }
+    });
+  }
+  if(dateInput && !dateInput.min){
+    var t = new Date(); t.setMinutes(t.getMinutes()-t.getTimezoneOffset());
+    dateInput.min = t.toISOString().slice(0,10);
+  }
+  [passSel, personsInput].forEach(function(el){ if(el){ el.addEventListener('change', updateCalc); el.addEventListener('input', updateCalc);} });
+  if(paySel){ paySel.addEventListener('change', function(){ renderPayment(isFreeTrust()); }); }
+  updateCalc();
+})();
+</script>
+</body>
+</html>

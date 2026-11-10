@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Room Booking - Temple ERP')}"></head>
+<body>
+<style>
+  :root { --ink:#2b2118; --muted:#6b5a45; --line:#ead9b6; --card:#fffdf8; --deep:#8b2323; --saffron:#d97706; --ok:#059669; }
+  * { box-sizing: border-box; }
+  .rb-page { min-height: calc(100vh - 120px); background: linear-gradient(180deg,#fff7ec,#f6ead6); padding: 16px 0 32px; }
+  .rb-wrap { max-width: 1140px; margin: 0 auto; padding: 0 14px; }
+  .rb-hero { background: linear-gradient(135deg,#7a1f1f,#b45309); color:#fff; border-radius:16px; padding:16px 18px; box-shadow:0 10px 24px rgba(122,31,31,.15); }
+  .rb-hero h1 { margin:0; font-size:clamp(1.3rem,2.5vw,1.8rem); }
+  .rb-hero p { margin:4px 0 0; color:#ffefc2; }
+  .rb-card { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 22px rgba(70,45,12,.07); margin-top:14px; overflow:hidden; }
+  .rb-head { padding:12px 14px; border-bottom:1px solid var(--line); display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+  .rb-steps { display:flex; gap:8px; flex-wrap:wrap; }
+  .rb-step { display:inline-flex; align-items:center; gap:8px; padding:7px 11px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--muted); font-weight:700; font-size:13px; }
+  .rb-step .n { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#ead9b6; color:#6b5316; font-size:12px; }
+  .rb-step.active { background:#fff3db; color:#6a2a12; border-color:#ddb978; }
+  .rb-step.active .n { background:var(--deep); color:#fff; }
+  .rb-step.done { background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
+  .rb-step.done .n { background:var(--ok); color:#fff; }
+  .rb-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; padding:14px; }
+  .room-card { border:2px solid #ead9b6; border-radius:14px; background:#fff; overflow:hidden; cursor:pointer; transition:transform .15s, box-shadow .15s, border-color .15s; position:relative; }
+  .room-card:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(62,39,10,.10); }
+  .room-card.selected { border-color:var(--saffron); box-shadow:0 0 0 4px rgba(217,119,6,.14); }
+  .room-card .tag { position:absolute; top:10px; left:10px; background:rgba(43,33,24,.72); color:#fff; font-size:11px; font-weight:700; padding:5px 9px; border-radius:999px; }
+  .room-card.selected .tag { background:var(--ok); }
+  .room-card img { width:100%; height:155px; object-fit:cover; display:block; background:#f3e8d4; }
+  .room-card .body { padding:11px 12px; }
+  .room-card h3 { margin:0 0 4px; font-size:1rem; color:#3b2716; }
+  .room-card p { margin:2px 0; color:var(--muted); font-size:13px; }
+  .room-card .price { color:#7a1f1f; font-weight:800; font-size:14px; }
+  .rb-empty { padding:20px; color:var(--muted); }
+  .rb-form-wrap { display:none; padding:14px; border-top:1px solid var(--line); }
+  .rb-form-wrap.show { display:block; }
+  .sel-bar { display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap; background:#fff8e8; border:1px solid #ead9b0; color:#6b5316; border-radius:12px; padding:10px 12px; margin-bottom:12px; }
+  .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+  .field label { display:block; font-size:12px; font-weight:700; color:#6b5316; margin-bottom:5px; }
+  .field input, .field select { width:100%; padding:11px 12px; border:1.5px solid #e2d2b3; border-radius:10px; font-size:14px; background:#fff; color:var(--ink); }
+  .field input:focus, .field select:focus { outline:none; border-color:var(--saffron); box-shadow:0 0 0 3px rgba(217,119,6,.10); }
+  .req { color:#c2410c; }
+  .calc { margin-top:12px; padding:12px; border-radius:12px; color:#fff; background:linear-gradient(135deg,#7a1f1f,#b45309); display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; }
+  .calc span { display:block; font-size:12px; opacity:.9; }
+  .calc strong { font-size:1.05rem; }
+  .calc .tot strong { font-size:1.3rem; color:#fff1bf; }
+  .qr-box-wrap { margin-top:10px; padding:12px; border:1px solid #bfdbfe; background:linear-gradient(180deg,#eff6ff,#fff); border-radius:12px; }
+  .qr-box { position:relative; width:160px; max-width:100%; margin:8px auto 4px; padding:8px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; }
+  .qr-box img { width:100%; display:block; border-radius:8px; }
+  .scan-line { position:absolute; left:8px; right:8px; height:3px; border-radius:3px; background:linear-gradient(90deg,transparent,rgba(37,99,235,.95),transparent); animation:scan 2.2s ease-in-out infinite; }
+  @keyframes scan { 0%{top:10px;opacity:.2} 50%{opacity:1} 100%{top:78%;opacity:.2} }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .btn-main { background:linear-gradient(135deg,#8b2323,#d97706); color:#fff; }
+  .btn-soft { background:#fff3db; color:#6a2a12; border:1px solid #e6cf9b; }
+  .btn:disabled { opacity:.55; cursor:not-allowed; }
+  .msg { margin:10px 0 0; padding:10px 12px; border-radius:10px; font-size:14px; }
+  .msg.ok { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .msg.err { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .table-wrap { overflow:auto; }
+  table.rb-table { width:100%; border-collapse:collapse; min-width:720px; font-size:14px; }
+  .rb-table th, .rb-table td { padding:10px 12px; border-bottom:1px solid #f3e8d4; text-align:left; vertical-align:middle; }
+  .rb-table th { background:#fff8e8; color:#6b5316; }
+  .st-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid #cbd5e1; background:#f8fafc; color:#334155; text-transform:capitalize; white-space:nowrap; }
+  .st-green { background:#dcfce7; color:#166534; border-color:#86efac; }
+  .st-yellow { background:#fef9c3; color:#854d0e; border-color:#fde047; }
+  .st-red { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+  @media (max-width: 640px) { .rb-head { align-items:flex-start; } .room-card img { height:140px; } }
+</style>
+
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="rb-page">
+  <div class="rb-wrap">
+    <section class="rb-hero">
+      <h1><i class="fas fa-bed"></i> Room Booking</h1>
+      <p>Select an available room, enter details, and submit your booking request.</p>
+    </section>
+
+    <div th:if="${success}" class="msg ok" th:text="${success}"></div>
+    <div th:if="${error}" class="msg err" th:text="${error}"></div>
+    <div id="clientError" class="msg err" style="display:none"></div>
+
+    <section class="rb-card" id="bookingCard">
+      <div class="rb-head">
+        <div>
+          <strong style="color:#6a2a12;font-size:1.02rem">Book a Room</strong>
+          <div style="color:#6b5a45;font-size:13px">Step 1: choose a room. Step 2: fill booking details and submit.</div>
+        </div>
+        <div class="rb-steps">
+          <div class="rb-step active" id="step1Badge"><span class="n">1</span> Select Room</div>
+          <div class="rb-step" id="step2Badge"><span class="n">2</span> Booking Details</div>
+        </div>
+      </div>
+
+      <div id="step1Panel">
+        <div class="rb-grid" id="roomsGrid" th:if="${rooms != null and !#lists.isEmpty(rooms)}">
+          <article class="room-card" th:each="r,stat : ${rooms}"
+                   th:attr="data-room-id=${r.id},
+                            data-room-name=${r.roomName != null ? r.roomName : r.roomNumber},
+                            data-room-number=${r.roomNumber},
+                            data-room-type=${r.roomType},
+                            data-room-capacity=${r.capacity != null ? r.capacity : ''},
+                            data-room-price=${r.pricePerDay != null ? r.pricePerDay : 0},
+                            data-room-label=${(r.roomName != null ? r.roomName : r.roomNumber) + ' - Room ' + r.roomNumber + (r.capacity != null ? ' (Capacity: ' + r.capacity + ')' : '')}">
+            <span class="tag"><i class="fas fa-hand-pointer"></i> Select</span>
+            <img th:src="@{'/images/rooms/r' + ${((stat.index % 8) + 1)} + '.jpg'}" alt="Room" loading="lazy"/>
+            <div class="body">
+              <h3 th:text="${r.roomName != null ? r.roomName : r.roomNumber}">Room</h3>
+              <p>Room <strong th:text="${r.roomNumber}">-</strong> · <span th:text="${r.roomType}">-</span></p>
+              <p th:if="${r.capacity != null}" style="color:#1d4ed8;font-weight:700"><i class="fas fa-users"></i> Capacity: <span th:text="${r.capacity}"></span> person(s)</p>
+              <p class="price">₹<span th:text="${r.pricePerDay != null ? r.pricePerDay : 0}">0</span> / day</p>
+              <p th:text="${r.amenities}">Amenities</p>
+            </div>
+          </article>
+        </div>
+        <div class="rb-empty" th:if="${rooms == null or #lists.isEmpty(rooms)}">
+          No rooms available right now. Please check back later (Admin can set room status to <strong>available</strong>).
+        </div>
+        <div style="padding:0 14px 14px" th:if="${rooms != null and !#lists.isEmpty(rooms)}">
+          <button type="button" class="btn btn-main" id="nextBtn" disabled><i class="fas fa-arrow-right"></i> Continue to Booking Details</button>
+        </div>
+      </div>
+
+      <div class="rb-form-wrap" id="step2Panel" th:if="${rooms != null and !#lists.isEmpty(rooms)}">
+        <form id="bookingForm" th:action="@{/bookings/new}" method="post">
+          <div class="sel-bar">
+            <div><i class="fas fa-check-circle" style="color:#059669"></i> Selected room: <strong id="selectedRoomLabel">None</strong></div>
+            <button type="button" class="btn btn-soft" id="changeRoomBtn"><i class="fas fa-arrow-left"></i> Change Room</button>
+          </div>
+
+          <input type="hidden" id="room_id" name="room_id" value=""/>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="guest_name">Guest Name <span class="req">*</span></label>
+              <input id="guest_name" name="guest_name" type="text" required minlength="2" autocomplete="name"/>
+            </div>
+            <div class="field">
+              <label for="phone">Phone <span class="req">*</span></label>
+              <input id="phone" name="phone" type="tel" required minlength="10" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel"/>
+            </div>
+            <div class="field">
+              <label for="email">Email <span class="req">*</span></label>
+              <input id="email" name="email" type="email" required maxlength="120" placeholder="name@example.com" autocomplete="email"/>
+            </div>
+            <div class="field">
+              <label for="check_in">Check-in <span class="req">*</span></label>
+              <input id="check_in" name="check_in" type="date" required/>
+            </div>
+            <div class="field">
+              <label for="check_out">Check-out <span class="req">*</span></label>
+              <input id="check_out" name="check_out" type="date" required/>
+            </div>
+            <div class="field">
+              <label for="no_of_guests">Guests <span class="req">*</span></label>
+              <input id="no_of_guests" name="no_of_guests" type="number" min="1" value="1" required/>
+              <div id="capacityHint" style="font-size:12px;color:#475569;margin-top:4px"></div>
+            </div>
+          </div>
+
+          <div class="calc" aria-live="polite">
+            <div><span>Price / day</span><strong id="cPrice">₹0.00</strong></div>
+            <div><span>Nights</span><strong id="cNights">1</strong></div>
+            <div class="tot"><span>Total</span><strong id="cTotal">₹0.00</strong></div>
+          </div>
+
+          <div class="field" style="margin-top:12px;max-width:420px">
+            <label for="payment_method">Payment Method</label>
+            <select id="payment_method" name="payment_method">
+              <option value="UPI QR">UPI / QR (Scan)</option>
+              <option value="UPI">UPI</option>
+              <option value="Cash">Cash</option>
+            </select>
+            <div id="qrPayRoom" class="qr-box-wrap">
+              <strong style="color:#1d4ed8"><i class="fas fa-qrcode"></i> Scan QR to Pay</strong>
+              <div style="font-size:13px;color:#475569;margin-top:2px">Scan and pay the total amount, then submit the booking.</div>
+              <div class="qr-box"><span class="scan-line"></span><img th:src="@{/images/pay/QR.jpeg}" src="/images/pay/QR.jpeg" alt="Payment QR" onerror="this.style.display='none'"/></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-main" type="submit" id="submitBookingBtn"><i class="fas fa-check"></i> Create Booking</button>
+            <a class="btn btn-soft" th:href="@{/bookings/history}">My Bookings</a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="rb-card" th:if="${myBookings != null}">
+      <div class="rb-head">
+        <strong style="color:#6a2a12"><i class="fas fa-list"></i> My Bookings</strong>
+        <a class="btn btn-soft" th:href="@{/bookings/history}" style="padding:8px 12px;font-size:13px">View all booking history</a>
+      </div>
+      <div class="rb-empty" th:if="${#lists.isEmpty(myBookings)}">No bookings yet. Your room bookings will appear here after you create one.</div>
+      <div class="table-wrap" th:if="${!#lists.isEmpty(myBookings)}">
+        <table class="rb-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Guest</th>
+              <th>Room</th>
+              <th>Check-in / Check-out</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Token</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="b : ${myBookings}" th:with="bs=${b.bookingStatus != null ? #strings.toLowerCase(b.bookingStatus) : 'pending'}, isApproved=${bs=='approved' or bs=='confirmed'}, isRejected=${bs=='rejected' or bs=='cancelled'}">
+              <td style="font-weight:700" th:text="${b.bookingId}">-</td>
+              <td th:text="${b.guestName}">-</td>
+              <td th:text="${b.roomType}">-</td>
+              <td><span th:text="${b.checkIn}">-</span> → <span th:text="${b.checkOut}">-</span></td>
+              <td>₹<span th:text="${b.totalAmount != null ? b.totalAmount : 0}">0</span></td>
+              <td>
+                <span class="st-pill" th:classappend="${isApproved} ? ' st-green' : (${isRejected} ? ' st-red' : ' st-yellow')">
+                  <i class="fas" th:classappend="${isApproved} ? ' fa-check-circle' : (${isRejected} ? ' fa-times-circle' : ' fa-hourglass-half')"></i>
+                  <span th:text="${isApproved ? (bs == 'confirmed' ? 'Confirmed' : 'Approved') : (isRejected ? 'Rejected' : (b.bookingStatus != null ? b.bookingStatus : 'Pending'))}">Status</span>
+                </span>
+              </td>
+              <td>
+                <a th:href="@{'/bookings/token/' + ${b.bookingId != null ? b.bookingId : b.id}}" class="btn btn-main" style="padding:6px 10px;font-size:12px;border-radius:8px;display:inline-flex"><i class="fas fa-ticket-alt"></i> <span th:text="${isApproved ? 'Token' : 'View'}">View</span></a>
+                <a th:href="@{'/bookings/token/' + ${b.bookingId != null ? b.bookingId : b.id} + '/pdf'}" style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;color:#166534;font-size:12px;font-weight:700;text-decoration:none"><i class="fas fa-file-pdf"></i> PDF</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script>
+(function () {
+  'use strict';
+
+  function byId(id) { return document.getElementById(id); }
+  function inr(n) {
+    var x = Number(n);
+    if (!isFinite(x)) x = 0;
+    return '₹' + x.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function showClientError(msg) {
+    var el = byId('clientError');
+    if (!el) return;
+    if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.style.display = 'block';
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+  }
+  function nights() {
+    var ci = byId('check_in'), co = byId('check_out');
+    if (!ci || !co || !ci.value || !co.value) return 1;
+    var d1 = new Date(ci.value + 'T00:00:00');
+    var d2 = new Date(co.value + 'T00:00:00');
+    var diff = Math.round((d2 - d1) / 86400000);
+    return diff > 0 ? diff : 1;
+  }
+  function selectedCard() {
+    return document.querySelector('.room-card.selected');
+  }
+  function updateCalc() {
+    var card = selectedCard();
+    var price = card ? (parseFloat(card.getAttribute('data-room-price') || '0') || 0) : 0;
+    var n = nights();
+    var cPrice = byId('cPrice'), cNights = byId('cNights'), cTotal = byId('cTotal');
+    if (cPrice) cPrice.textContent = inr(price);
+    if (cNights) cNights.textContent = String(n);
+    if (cTotal) cTotal.textContent = inr(price * n);
+  }
+  function toggleQr() {
+    var pm = byId('payment_method');
+    var v = pm ? (pm.value || '') : '';
+    var show = v.indexOf('QR') > -1 || v.toUpperCase() === 'UPI';
+    var box = byId('qrPayRoom');
+    if (box) box.style.display = show ? 'block' : 'none';
+  }
+  function openStep2() {
+    var panel = byId('step2Panel');
+    if (!panel) return;
+    panel.classList.add('show');
+    var s1 = byId('step1Badge'), s2 = byId('step2Badge');
+    if (s1) { s1.classList.add('done'); s1.classList.remove('active'); }
+    if (s2) { s2.classList.add('active'); }
+    try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { panel.scrollIntoView(true); }
+  }
+  function backToRooms() {
+    var panel = byId('step2Panel');
+    if (panel) panel.classList.remove('show');
+    var s1 = byId('step1Badge'), s2 = byId('step2Badge');
+    if (s2) s2.classList.remove('active');
+    if (s1) { s1.classList.remove('done'); s1.classList.add('active'); }
+    var step1 = byId('step1Panel');
+    if (step1) try { step1.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+  }
+  function clearSelectionUI() {
+    var cards = document.querySelectorAll('.room-card');
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].classList.remove('selected');
+      var tag = cards[i].querySelector('.tag');
+      if (tag) tag.innerHTML = '<i class="fas fa-hand-pointer"></i> Select';
+    }
+  }
+  function selectRoom(card) {
+    if (!card) return;
+    var roomId = card.getAttribute('data-room-id') || '';
+    if (!roomId) return;
+    clearSelectionUI();
+    card.classList.add('selected');
+    var tag = card.querySelector('.tag');
+    if (tag) tag.innerHTML = '<i class="fas fa-check"></i> Selected';
+
+    var roomInput = byId('room_id');
+    if (roomInput) roomInput.value = roomId;
+
+    var label = card.getAttribute('data-room-label') || card.getAttribute('data-room-name') || ('Room ' + roomId);
+    var labelEl = byId('selectedRoomLabel');
+    if (labelEl) labelEl.textContent = label;
+
+    var capAttr = card.getAttribute('data-room-capacity');
+    var cap = capAttr ? parseInt(capAttr, 10) : NaN;
+    var guests = byId('no_of_guests');
+    if (guests) {
+      if (isFinite(cap) && cap > 0) guests.max = String(cap); else guests.removeAttribute('max');
+      if (isFinite(cap) && cap > 0 && parseInt(guests.value || '1', 10) > cap) guests.value = String(cap);
+    }
+    var hint = byId('capacityHint');
+    if (hint) hint.textContent = (isFinite(cap) && cap > 0) ? ('Room capacity: ' + cap + ' person(s).') : '';
+
+    var next = byId('nextBtn');
+    if (next) next.disabled = false;
+
+    showClientError('');
+    updateCalc();
+    openStep2();
+  }
+  function validateBeforeSubmit(e) {
+    showClientError('');
+    var roomId = (byId('room_id') || {}).value || '';
+    if (!roomId || !selectedCard()) {
+      if (e) e.preventDefault();
+      showClientError('Please select an available room before submitting the booking.');
+      return false;
+    }
+    var ci = (byId('check_in') || {}).value || '';
+    var co = (byId('check_out') || {}).value || '';
+    if (ci && co && new Date(co + 'T00:00:00') <= new Date(ci + 'T00:00:00')) {
+      if (e) e.preventDefault();
+      showClientError('Check-out date must be after check-in date.');
+      return false;
+    }
+    var phone = ((byId('phone') || {}).value || '').replace(/\D/g, '');
+    if (phone.length !== 10) {
+      if (e) e.preventDefault();
+      showClientError('Please enter a valid 10-digit phone number.');
+      return false;
+    }
+    var phoneInput = byId('phone'); if (phoneInput) phoneInput.value = phone;
+    var guests = parseInt(((byId('no_of_guests') || {}).value || '1'), 10);
+    var card = selectedCard();
+    var cap = card ? parseInt(card.getAttribute('data-room-capacity') || '', 10) : NaN;
+    if (isFinite(cap) && cap > 0 && guests > cap) {
+      if (e) e.preventDefault();
+      showClientError('Number of guests exceeds room capacity (' + cap + ').');
+      return false;
+    }
+    return true;
+  }
+
+  function init() {
+    // Delegated click handling (single source of truth)
+    document.addEventListener('click', function (ev) {
+      var t = ev.target;
+      if (!t) return;
+      var roomCard = t.closest ? t.closest('.room-card') : null;
+      if (roomCard) {
+        ev.preventDefault();
+        selectRoom(roomCard);
+        return;
+      }
+      if (t.closest && t.closest('#nextBtn')) {
+        if ((byId('room_id') || {}).value) openStep2();
+        return;
+      }
+      if (t.closest && t.closest('#changeRoomBtn')) {
+        backToRooms();
+        return;
+      }
+    }, false);
+
+    ['check_in', 'check_out'].forEach(function (id) {
+      var el = byId(id);
+      if (el) { el.addEventListener('change', updateCalc); el.addEventListener('input', updateCalc); }
+    });
+    var guestsEl = byId('no_of_guests');
+    if (guestsEl) { guestsEl.addEventListener('change', updateCalc); guestsEl.addEventListener('input', updateCalc); }
+
+    var phoneEl = byId('phone');
+    if (phoneEl) {
+      phoneEl.addEventListener('input', function () {
+        var d = (this.value || '').replace(/\D/g, '').slice(0, 10);
+        if (this.value !== d) this.value = d;
+      });
+    }
+
+    var pm = byId('payment_method');
+    if (pm) pm.addEventListener('change', toggleQr);
+
+    var form = byId('bookingForm');
+    if (form) form.addEventListener('submit', validateBeforeSubmit);
+
+    // Min dates (today)
+    try {
+      var today = new Date();
+      var yyyy = today.getFullYear();
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var dd = String(today.getDate()).padStart(2, '0');
+      var iso = yyyy + '-' + mm + '-' + dd;
+      var ci = byId('check_in'), co = byId('check_out');
+      if (ci && !ci.min) ci.min = iso;
+      if (co && !co.min) co.min = iso;
+      if (ci && co) {
+        ci.addEventListener('change', function () { if (ci.value) { co.min = ci.value; if (co.value && co.value <= ci.value) co.value = ''; } updateCalc(); });
+      }
+    } catch (e) {}
+
+    // Preselect from query param (?room_id=...)
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var rid = params.get('room_id');
+      if (rid) {
+        var pre = document.querySelector('.room-card[data-room-id="' + CSS.escape(rid) + '"]') || document.querySelector('.room-card[data-room-id="' + rid + '"]');
+        if (pre) selectRoom(pre);
+      }
+    } catch (e) {}
+
+    toggleQr();
+    updateCalc();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

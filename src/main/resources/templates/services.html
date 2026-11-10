@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Services - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page">
+  <div class="card" style="margin-bottom:16px;padding:0;overflow:hidden">
+    <img th:src="@{/images/img/banner.jpg}" alt="Temple services" style="width:100%;height:220px;object-fit:cover;display:block" onerror="this.src='/images/img/Trimbakeshwar-Jyotirling.jpg'"/>
+    <div style="padding:16px;text-align:center">
+      <img th:src="@{/images/temple/icon-symbol.webp}" alt="Temple" style="width:56px;height:56px;object-fit:contain;margin:0 auto 8px" onerror="this.style.display='none'"/>
+      <h1 style="margin:0">Our Services</h1>
+      <p style="margin:8px 0 0;color:var(--muted,#64748b)">Temple services hub (parity with temple_erp)</p>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+    <a class="card" th:href="@{/passes/new}" style="text-decoration:none;color:inherit;display:block;padding:0;overflow:hidden">
+      <img th:src="@{/images/img/garv-griha.jpg}" alt="Darshan" style="width:100%;height:140px;object-fit:cover;display:block"/>
+      <div style="padding:14px">
+        <h3><i class="fas fa-ticket-alt"></i> Darshan Pass</h3>
+        <p>Book your darshan pass online. Choose from available pass types.</p>
+        <div class="alert info" th:if="${passTypes != null and !#lists.isEmpty(passTypes)}">From ₹<span th:text="${passTypes[0].price != null ? #numbers.formatDecimal(passTypes[0].price,1,'COMMA',0,'POINT') : '0'}">0</span></div>
+        <span class="btn">Book Now</span>
+      </div>
+    </a>
+    <a class="card" th:href="@{/bookings/new}" style="text-decoration:none;color:inherit;display:block;padding:0;overflow:hidden">
+      <img th:src="@{/images/rooms/r1.jpg}" alt="Room booking" style="width:100%;height:140px;object-fit:cover;display:block"/>
+      <div style="padding:14px">
+        <h3><i class="fas fa-hotel"></i> Room Booking</h3>
+        <p>Stay at the temple guest house with comfortable rooms and easy booking.</p>
+        <div class="alert info" th:if="${rooms != null and !#lists.isEmpty(rooms)}">From ₹<span th:text="${rooms[0].pricePerDay != null ? #numbers.formatDecimal(rooms[0].pricePerDay,1,'COMMA',0,'POINT') : '0'}">0</span>/night</div>
+        <span class="btn">Book Now</span>
+      </div>
+    </a>
+    <a class="card" th:href="@{/donations}" style="text-decoration:none;color:inherit;display:block;padding:0;overflow:hidden">
+      <img th:src="@{/images/img/trimbak.jpg}" alt="Donations" style="width:100%;height:140px;object-fit:cover;display:block"/>
+      <div style="padding:14px">
+        <h3><i class="fas fa-donate"></i> Donations</h3>
+        <p>Contribute to temple development and seva. Secure recording and receipts.</p>
+        <span class="btn">Donate Now</span>
+      </div>
+    </a>
+    <a class="card" th:href="@{/restaurant}" style="text-decoration:none;color:inherit;display:block;padding:0;overflow:hidden">
+      <img th:src="@{/images/restro/re1.jpg}" alt="Restaurant" style="width:100%;height:140px;object-fit:cover;display:block"/>
+      <div style="padding:14px">
+        <h3><i class="fas fa-utensils"></i> Restaurant</h3>
+        <p>Enjoy pure vegetarian meals and prasad at the temple restaurant.</p>
+        <span class="btn">Order Now</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3><i class="fas fa-images"></i> Temple &amp; Service Glimpses (images/img)</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px">
+      <img th:src="@{/images/img/Trimbakeshwar-Jyotirling.jpg}" alt="Trimbakeshwar" style="width:100%;height:110px;object-fit:cover;border-radius:10px"/>
+      <img th:src="@{/images/img/Brahmagiri.jpg}" alt="Brahmagiri" style="width:100%;height:110px;object-fit:cover;border-radius:10px"/>
+      <img th:src="@{/images/img/kushavart1.jpg}" alt="Kushavart" style="width:100%;height:110px;object-fit:cover;border-radius:10px"/>
+      <img th:src="@{/images/img/Tryambakeshvara1.jpg}" alt="Temple" style="width:100%;height:110px;object-fit:cover;border-radius:10px"/>
+      <img th:src="@{/images/img/mahashivratra.jpg}" alt="Mahashivratri" style="width:100%;height:110px;object-fit:cover;border-radius:10px" onerror="this.src='/images/img/chaitra.jpg'"/>
+      <img th:src="@{/images/img/stairways.jpg}" alt="Temple area" style="width:100%;height:110px;object-fit:cover;border-radius:10px"/>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px" sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
+    <h3><i class="fas fa-chart-line"></i> Your Activity</h3>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+      <div class="card" style="text-align:center"><strong th:text="${totalPasses != null ? totalPasses : 0}">0</strong><div>Darshan Passes</div></div>
+      <div class="card" style="text-align:center"><strong th:text="${totalBookings != null ? totalBookings : 0}">0</strong><div>Room Bookings</div></div>
+      <div class="card" style="text-align:center"><strong>₹<span th:text="${totalDonationAmount != null ? #numbers.formatDecimal(totalDonationAmount,1,'COMMA',0,'POINT') : '0'}">0</span></strong><div>Donations</div></div>
+      <div class="card" style="text-align:center"><strong th:text="${totalOrders != null ? totalOrders : 0}">0</strong><div>Food Orders</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px" sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <h3 style="margin:0"><i class="fas fa-ticket-alt" style="color:#f59e0b"></i> Darshan Pass — Generate &amp; Previous Passes</h3>
+      <a class="btn" th:href="@{/passes/new}"><i class="fas fa-plus"></i> Generate Pass</a>
+    </div>
+    <div th:if="${previousPasses != null and !#lists.isEmpty(previousPasses)}" style="overflow:auto">
+      <table class="table" style="margin:0;min-width:720px">
+        <thead><tr><th>Pass ID</th><th>Type</th><th>Visit</th><th>Status</th><th>Payment</th><th>Pass</th></tr></thead>
+        <tbody>
+          <tr th:each="p : ${previousPasses}" th:with="isApproved=${p.status != null and #strings.equalsIgnoreCase(p.status,'approved')},
+                                                      isFreeEntry=${(p.totalAmount != null and p.totalAmount &lt;= 0) or (p.paymentStatus != null and (#strings.equalsIgnoreCase(p.paymentStatus,'not_required') or #strings.equalsIgnoreCase(p.paymentStatus,'free') or #strings.equalsIgnoreCase(p.paymentStatus,'waived'))) or (p.paymentMethod != null and (#strings.containsIgnoreCase(p.paymentMethod,'trust') or #strings.containsIgnoreCase(p.paymentMethod,'free'))) or (p.passType != null and (#strings.containsIgnoreCase(p.passType,'trust') or #strings.containsIgnoreCase(p.passType,'guest entry') or #strings.containsIgnoreCase(p.passType,'special guest') or #strings.containsIgnoreCase(p.passType,'free') or #strings.containsIgnoreCase(p.passType,'complimentary')))}">
+            <td style="font-weight:700" th:text="${p.passId}"></td>
+            <td th:text="${p.passType}"></td>
+            <td><span th:text="${p.visitDate}"></span> <span th:text="${p.visitTime}" style="color:#64748b;font-size:12px"></span></td>
+            <td><span class="badge" th:classappend="${p.status}" th:text="${p.status}"></span></td>
+            <td><span class="badge" th:classappend="${isFreeEntry} ? 'free' : ${p.paymentStatus}" th:text="${isFreeEntry} ? 'Free Entry' : ${p.paymentStatus}"></span></td>
+            <td><a class="btn" th:href="@{'/passes/' + ${p.passId}}" style="padding:6px 10px;font-size:12px;text-decoration:none"><i class="fas" th:classappend="${isApproved} ? ' fa-ticket-alt' : ' fa-eye'"></i> <span th:text="${isApproved} ? 'View Pass' : 'View'"></span></a></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px"><a th:href="@{/passes/history}" style="font-weight:600">View all previous passes</a></div>
+    </div>
+    <div th:if="${previousPasses == null or #lists.isEmpty(previousPasses)}" style="color:#64748b">No previous passes. <a th:href="@{/passes/new}">Generate a darshan pass</a>.</div>
+  </div>
+
+  <div class="card" style="margin-top:16px" sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <h3 style="margin:0"><i class="fas fa-hotel" style="color:#2563eb"></i> All My Bookings</h3>
+      <a class="btn" th:href="@{/bookings/new}" style="text-decoration:none"><i class="fas fa-plus"></i> Book Room</a>
+    </div>
+    <div th:if="${myBookings != null and !#lists.isEmpty(myBookings)}" style="overflow:auto;margin-bottom:12px">
+      <table class="table" style="margin:0;min-width:680px">
+        <thead><tr><th>Booking ID</th><th>Guest</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr th:each="b : ${myBookings}" th:with="isConfirmed=${b.bookingStatus != null and (#strings.equalsIgnoreCase(b.bookingStatus,'confirmed') or #strings.equalsIgnoreCase(b.bookingStatus,'approved'))},
+                                                  tokenReady=${isConfirmed}">
+            <td style="font-weight:700" th:text="${b.bookingId}"></td>
+            <td th:text="${b.guestName}"></td>
+            <td th:text="${b.roomType}"></td>
+            <td th:text="${b.checkIn}"></td>
+            <td th:text="${b.checkOut}"></td>
+            <td><span class="badge" th:classappend="${b.bookingStatus}" th:text="${b.bookingStatus}"></span></td>
+            <td><a th:if="${tokenReady}" th:href="@{'/bookings/token/' + ${b.bookingId != null ? b.bookingId : b.id}}" class="btn" style="padding:5px 9px;font-size:12px;text-decoration:none;background:#7a1f1f;color:#fff"><i class="fas fa-ticket-alt"></i> Token</a><span th:if="${!tokenReady}" style="color:#64748b;font-size:12px">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px"><a th:href="@{/bookings/history}" style="font-weight:600">View all bookings</a></div>
+    </div>
+    <div th:if="${myBookings == null or #lists.isEmpty(myBookings)}" style="color:#64748b;margin-bottom:12px">No bookings yet. <a th:href="@{/bookings/new}">Book a room</a>.</div>
+
+    <div style="border-top:1px solid #e2e8f0;padding-top:12px">
+      <h4 style="margin:0 0 8px;font-size:15px;color:#1e293b"><i class="fas fa-bell" style="color:#f59e0b"></i> Notifications (Booking Updates)</h4>
+      <div th:if="${bookingNotifications != null and !#lists.isEmpty(bookingNotifications)}" style="display:grid;gap:8px">
+        <div th:each="n : ${bookingNotifications}" style="padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+            <strong th:text="${n.title != null ? n.title : 'Notification'}" style="color:#0f172a;font-size:14px"></strong>
+            <span class="badge" th:if="${n.isRead == null or !n.isRead}" style="background:#fef3c7;color:#92400e">New</span>
+          </div>
+          <div th:text="${n.message}" style="color:#475569;font-size:13px;margin-top:4px"></div>
+        </div>
+      </div>
+      <div th:if="${(bookingNotifications == null or #lists.isEmpty(bookingNotifications)) and serviceNotifications != null and !#lists.isEmpty(serviceNotifications)}" style="display:grid;gap:8px">
+        <div th:each="n : ${serviceNotifications}" style="padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+            <strong th:text="${n.title != null ? n.title : 'Notification'}" style="color:#0f172a;font-size:14px"></strong>
+            <span class="badge" th:text="${n.type != null ? n.type : 'info'}" style="background:#eef2ff;color:#3730a3"></span>
+          </div>
+          <div th:text="${n.message}" style="color:#475569;font-size:13px;margin-top:4px"></div>
+        </div>
+      </div>
+      <div th:if="${(bookingNotifications == null or #lists.isEmpty(bookingNotifications)) and (serviceNotifications == null or #lists.isEmpty(serviceNotifications))}" style="color:#64748b;font-size:13px">No notifications yet.</div>
+      <div style="margin-top:8px"><a th:href="@{/notifications}" style="font-weight:600">View all notifications</a></div>
+    </div>
+  </div>
+  <div class="alert info" style="margin-top:16px" sec:authorize="isAnonymous()">
+    <a th:href="@{/login}">Log in</a> to see your personal service statistics, or use the services above to get started.
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3><i class="fas fa-link"></i> Quick Links</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <a class="btn" th:href="@{/passes/history}">Pass History</a>
+      <a class="btn" th:href="@{/bookings/history}">My Bookings</a>
+      <a class="btn" th:href="@{/notifications}">Notifications</a>
+      <a class="btn" th:href="@{/profile}">My Profile</a>
+      <a class="btn" th:href="@{/about}">About Temple</a>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

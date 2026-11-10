@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Error - Temple ERP')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page" style="padding:30px 0 50px">
+  <div class="card" style="max-width:760px;margin:0 auto">
+    <h2 style="margin-top:0;color:#991b1b"><i class="fas fa-exclamation-triangle"></i> Something went wrong</h2>
+    <p th:if="${status}" style="color:#475569;margin-bottom:8px">Status: <strong th:text="${status}">500</strong> <span th:if="${error}" th:text="${' - ' + error}"></span></p>
+    <p th:if="${message}" style="color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px" th:text="${message}"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <a class="btn" th:href="@{/}"><i class="fas fa-home"></i> Home</a>
+      <a class="btn outline" th:href="@{/login}">Login</a>
+      <a class="btn outline" th:href="@{/dashboard}">Dashboard</a>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

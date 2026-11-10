@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Temple Darshan Pass - Trimbakeshwar')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page pass-page" style="padding:18px 0 36px;background:linear-gradient(180deg,#f8f3ea 0%, #f3ece0 100%);min-height:calc(100vh - 120px)">
+  <div th:if="${pass == null}" class="alert err" style="max-width:920px;margin:0 auto">Pass not found. <a th:href="@{/passes/history}">Back to my passes</a></div>
+  <div th:if="${success}" class="alert ok no-print" style="max-width:920px;margin:0 auto 12px" th:text="${success}"></div>
+  <div th:if="${error}" class="alert err no-print" style="max-width:920px;margin:0 auto 12px" th:text="${error}"></div>
+  <th:block th:replace="~{fragments/pass-card :: passCard}"></th:block>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:inline="javascript">
+  (function(){
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('print') === '1') {
+        setTimeout(function(){ window.print(); }, 350);
+      }
+    } catch(e) {}
+  })();
+</script>
+</body>
+</html>

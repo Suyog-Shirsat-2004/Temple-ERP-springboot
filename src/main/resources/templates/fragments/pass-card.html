@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<th:block th:fragment="passCard">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap');
+  .pass-page { padding: 18px 0 36px; background: linear-gradient(180deg,#f8f3ea 0%, #f3ece0 100%); min-height: calc(100vh - 120px); }
+  .temple-pass {
+    max-width: 920px; margin: 0 auto; position: relative; overflow: hidden;
+    background: #fffdf8;
+    border-radius: 10px;
+    box-shadow: 0 22px 60px rgba(62,39,10,.16);
+    border: 2px solid #c8a24a;
+  }
+  .temple-pass::before {
+    content: ""; position: absolute; inset: 8px;
+    border: 1px solid rgba(200,162,74,.55); border-radius: 6px; pointer-events: none;
+  }
+  .ornament { color:#c8a24a; letter-spacing:.25em; font-size:12px; text-align:center; margin: 2px 0 0; opacity:.95; }
+  .pass-head {
+    background: linear-gradient(135deg, #7a1f1f 0%, #8b2323 35%, #a16207 100%);
+    color: #fff; padding: 22px 26px 18px; text-align: left; position: relative;
+  }
+  .pass-head::after {
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:10px;
+    background: linear-gradient(90deg, transparent, rgba(255,236,179,.7), transparent);
+  }
+  .invalid-watermark, .valid-watermark {
+    position:absolute; inset:0; z-index:5; pointer-events:none; overflow:hidden; display:flex; align-items:center; justify-content:center;
+  }
+  .invalid-watermark::before {
+    content:"INVALID PASS \A YOU DO NOT HAVE ENTRY ON TEMPLE";
+    white-space:pre; text-align:center; font-family:'Cinzel', Georgia, serif; font-weight:800;
+    font-size:clamp(22px,3.2vw,42px); line-height:1.25; letter-spacing:.08em; text-transform:uppercase;
+    color:rgba(185,28,28,.18); border:6px solid rgba(185,28,28,.16); padding:18px 22px; border-radius:14px;
+    transform:rotate(-18deg); background:rgba(254,242,242,.18);
+    box-shadow:0 0 0 2px rgba(185,28,28,.06) inset;
+  }
+  .valid-watermark::before {
+    content:"VALID PASS \A ENTRY PERMITTED";
+    white-space:pre; text-align:center; font-family:'Cinzel', Georgia, serif; font-weight:800;
+    font-size:clamp(22px,3.2vw,40px); line-height:1.25; letter-spacing:.08em; text-transform:uppercase;
+    color:rgba(22,163,74,.16); border:6px solid rgba(22,163,74,.14); padding:18px 22px; border-radius:14px;
+    transform:rotate(-18deg); background:rgba(240,253,244,.16);
+    box-shadow:0 0 0 2px rgba(22,163,74,.05) inset;
+  }
+  .brand-row { display:flex; align-items:center; justify-content:flex-start; gap:16px; flex-wrap:wrap; text-align:left; }
+  .brand-row img { width:96px; height:96px; object-fit:contain; background:rgba(255,248,230,.12); border:1px solid rgba(255,236,179,.45); border-radius:50%; padding:6px; }
+  .pass-head h1 { margin:0; font-family:'Cinzel', Georgia, serif; font-size:1.7rem; font-weight:800; letter-spacing:.04em; text-shadow:0 1px 2px rgba(0,0,0,.25); }
+  .pass-head .sub { margin:4px 0 0; font-family:'Cormorant Garamond', Georgia, serif; font-size:1.15rem; color:#ffefc2; }
+  .pass-head .mantra { margin-top:10px; font-size:.92rem; color:rgba(255,245,220,.95); text-align:center; }
+  .status-ribbon { margin-top:14px; display:flex; justify-content:center; }
+  .seal { display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:999px; font-weight:800; font-size:.82rem; letter-spacing:.06em; text-transform:uppercase; border:1px solid rgba(255,255,255,.35); }
+  .seal.approved { background:#ecfdf5; color:#065f46; border-color:#86efac; }
+  .seal.pending { background:#fffbeb; color:#92400e; border-color:#fcd34d; }
+  .seal.rejected { background:#fef2f2; color:#991b1b; border-color:#fca5a5; }
+
+  .pass-body { padding: 20px 26px 22px; }
+  .identity-panel {
+    display:grid; grid-template-columns: 140px minmax(0,1fr) 165px 190px; gap:14px; align-items:stretch;
+    background: linear-gradient(180deg,#fffaf0,#fff); border:1px solid #ead9b0; border-radius:10px; padding:16px; margin-bottom:16px;
+  }
+  .payment-side {
+    background: linear-gradient(180deg,#f8fff9,#f0fdf4); border:1px solid #86efac; border-radius:10px; padding:12px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:6px; height:100%; box-sizing:border-box;
+  }
+  .payment-side.pending { background: linear-gradient(180deg,#fffbeb,#fef9c3); border-color:#fde047; }
+  .payment-side.rejected { background: linear-gradient(180deg,#fff5f5,#fef2f2); border-color:#fca5a5; }
+  .payment-side .ps-label { font-size:10px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.08em; font-family:'Cinzel', Georgia, serif; }
+  .payment-side.pending .ps-label { color:#854d0e; }
+  .payment-side.rejected .ps-label { color:#991b1b; }
+  .payment-side .ps-value { font-size:1.05rem; font-weight:800; color:#14532d; }
+  .payment-side .ps-meta { font-size:12px; color:#355a46; line-height:1.4; }
+  .payment-side.pending .ps-value, .payment-side.pending .ps-meta { color:#713f12; }
+  .payment-side.rejected .ps-value, .payment-side.rejected .ps-meta { color:#7f1d1d; }
+  .photo-frame {
+    background:#fff; border:1px solid #d6bc7a; border-radius:8px; padding:10px; text-align:center;
+    box-shadow: inset 0 0 0 3px #fbf6ea; height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .photo-frame .label { font-size:10px; font-weight:800; color:#7a5a1a; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; font-family:'Cinzel', Georgia, serif; }
+  .photo-frame img { width:100%; max-width:132px; height:200px; object-fit:cover; border-radius:4px; border:1px solid #ead9b0; background:#f8fafc; display:block; margin:0 auto; }
+  .photo-fallback { width:100%; max-width:132px; height:200px; border-radius:4px; border:1px solid #ead9b0; background:linear-gradient(180deg,#f8fafc,#eef2f7); color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:42px; margin:0 auto; }
+  .id-main { display:flex; flex-direction:row; gap:14px; align-items:stretch; justify-content:space-between; }
+  .id-main-info { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; justify-content:center; }
+  .id-main-qr { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; height:100%; box-sizing:border-box; }
+  .qr-box { background:#fff; border:1px solid #d6bc7a; border-radius:8px; padding:10px; box-shadow: inset 0 0 0 3px #fbf6ea; width:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; }
+  .qr-box img { width:150px; height:150px; max-width:100%; display:block; object-fit:contain; }
+  .qr-label { margin-top:8px; font-size:10px; font-weight:800; color:#7a5a1a; text-transform:uppercase; letter-spacing:.06em; font-family:'Cinzel', Georgia, serif; }
+  .qr-sub { font-size:10px; color:#6b5316; margin-top:4px; line-height:1.3; }
+  .pass-id-label { font-size:11px; font-weight:800; color:#7a5a1a; text-transform:uppercase; letter-spacing:.08em; font-family:'Cinzel', Georgia, serif; }
+  .pass-id { font-size:1.55rem; font-weight:800; color:#3f2a0a; font-family:'Cinzel', Georgia, serif; margin:2px 0 6px; word-break:break-all; }
+  .id-sub { color:#5b4a2a; font-size:1rem; margin:2px 0; }
+  .id-sub strong { color:#3f2a0a; }
+  .pass-note { margin-top:10px; padding:10px 12px; background:#fff8e8; border:1px dashed #d6bc7a; border-radius:8px; color:#6b5316; font-size:.92rem; line-height:1.4; }
+
+  .banner { margin: 0 0 16px; border-radius:10px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; font-size:.95rem; }
+  .approved-banner { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .pending-banner { background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+  .rejected-banner { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+
+  .section-title { font-family:'Cinzel', Georgia, serif; color:#7a1f1f; font-size:1rem; margin: 4px 0 10px; display:flex; align-items:center; gap:10px; }
+  .section-title::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,#d6bc7a,transparent); }
+  .pass-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+  .pass-field { background:#fff; border:1px solid #eadfca; border-radius:8px; padding:11px 13px; }
+  .pass-field label { display:block; font-size:10px; font-weight:800; color:#8a6a24; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .pass-field div { font-size:1rem; font-weight:700; color:#2c2416; word-break:break-word; }
+  .pass-footer {
+    padding:14px 26px 20px; border-top:1px solid #eadfca;
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+    color:#6b5316; font-size:.92rem; background:linear-gradient(180deg,#fffdf8,#fff8eb);
+  }
+  .footer-blessing { font-family:'Cormorant Garamond', Georgia, serif; font-size:1.08rem; font-weight:600; }
+  .btn-print { background:#7a1f1f; color:#fff; border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer; }
+  .btn-classic { display:inline-flex; align-items:center; gap:6px; text-decoration:none; border-radius:8px; padding:10px 14px; font-weight:700; }
+  @media (max-width: 980px) { .identity-panel { grid-template-columns: 140px 1fr; } .identity-panel .payment-side, .identity-panel .id-main-qr { grid-column: auto; } }
+  @media (max-width: 640px) { .identity-panel { grid-template-columns: 1fr; } .photo-frame, .id-main-qr { height:auto; } .photo-frame img, .photo-fallback { width:140px; max-width:100%; height:170px; } .qr-box img { width:140px; height:140px; } .pass-head h1 { font-size:1.25rem; } .id-main-qr { align-items:center; text-align:center; } }
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    nav, footer, .no-print { display:none !important; }
+    body, .pass-page { background:#f8f3ea !important; }
+    .temple-pass { box-shadow:none; max-width:100%; }
+    .container.page { max-width:100%; padding:0; }
+  }
+  /* PDF mode tweaks */
+  .pdf-mode .temple-pass { box-shadow:none; }
+</style>
+
+<div th:if="${pass != null}" class="temple-pass" th:classappend="${pdfMode == true} ? ' pdf-mode' : ''"
+     th:with="isApproved=${pass.status != null and #strings.equalsIgnoreCase(pass.status,'approved')},
+              isRejected=${pass.status != null and #strings.equalsIgnoreCase(pass.status,'rejected')},
+              isFreeEntry=${(pass.totalAmount != null and pass.totalAmount &lt;= 0) or (pass.paymentStatus != null and (#strings.equalsIgnoreCase(pass.paymentStatus,'not_required') or #strings.equalsIgnoreCase(pass.paymentStatus,'free') or #strings.equalsIgnoreCase(pass.paymentStatus,'waived'))) or (pass.paymentMethod != null and (#strings.containsIgnoreCase(pass.paymentMethod,'trust') or #strings.containsIgnoreCase(pass.paymentMethod,'free'))) or (pass.passType != null and (#strings.containsIgnoreCase(pass.passType,'trust') or #strings.containsIgnoreCase(pass.passType,'guest entry') or #strings.containsIgnoreCase(pass.passType,'special guest') or #strings.containsIgnoreCase(pass.passType,'free') or #strings.containsIgnoreCase(pass.passType,'complimentary')))},
+              photoRaw=${passOwnerProfilePic},
+              photoUrlResolved=${photoRaw != null and !#strings.isEmpty(photoRaw) ? (#strings.startsWith(photoRaw,'/') or #strings.startsWith(photoRaw,'http') or #strings.startsWith(photoRaw,'data:') or #strings.startsWith(photoRaw,'file:') ? photoRaw : '/uploads/profile/' + photoRaw) : null},
+              displayName=${passOwner != null and passOwner.name != null ? passOwner.name : (pass.devoteeName != null ? pass.devoteeName : displayName)},
+              logoUrl=${passLogoSrc != null ? passLogoSrc : '/images/temple/icon-symbol.webp'},
+              qrUrl=${passQrSrc != null ? passQrSrc : passQrImageUrl}">
+  <div th:if="${isRejected}" class="invalid-watermark" aria-hidden="true"></div>
+  <div th:if="${isApproved}" class="valid-watermark" aria-hidden="true"></div>
+  <div class="pass-head">
+    <div class="brand-row">
+      <img th:src="${logoUrl}" alt="Temple Emblem" onerror="this.style.display='none'"/>
+      <div>
+        <h1>Shri Trimbakeshwar Jyotirlinga Temple</h1>
+        <div class="sub">Official Darshan Pass &#183; Temple ERP</div>
+      </div>
+    </div>
+    <div class="mantra">ॐ नमः शिवाय &#160;|&#160; Trimbak, Nashik, Maharashtra</div>
+    <div class="ornament">&#10022; &#10022; &#10022;</div>
+    <div class="status-ribbon">
+      <div class="seal" th:classappend="${isApproved} ? ' approved' : (${isRejected} ? ' rejected' : ' pending')">
+        <i class="fas" th:if="${pdfMode != true}" th:classappend="${isApproved} ? ' fa-check-circle' : (${isRejected} ? ' fa-times-circle' : ' fa-hourglass-half')"></i>
+        <span th:text="${isApproved} ? 'Approved / Valid Pass' : (${isRejected} ? 'Rejected' : 'Pending Approval')">Status</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pass-body">
+    <div class="banner approved-banner" th:if="${isApproved}">
+      <i class="fas fa-check-circle" th:if="${pdfMode != true}" style="font-size:20px;margin-top:1px"></i>
+      <div><strong>Pass approved by temple administration.</strong> This darshan pass is valid as per the details below. Please carry a valid government ID at the temple entrance.</div>
+    </div>
+    <div class="banner pending-banner" th:if="${!isApproved and !isRejected}">
+      <i class="fas fa-hourglass-half" th:if="${pdfMode != true}" style="font-size:20px;margin-top:1px"></i>
+      <div><strong>Awaiting admin approval.</strong> Your pass request has been recorded. Once approved, this page will serve as your generated temple darshan pass.</div>
+    </div>
+    <div class="banner rejected-banner" th:if="${isRejected}">
+      <i class="fas fa-ban" th:if="${pdfMode != true}" style="font-size:20px;margin-top:1px"></i>
+      <div><strong style="font-size:1.02rem">INVALID PASS — You do not have entry on temple.</strong><div style="margin-top:4px">This pass was rejected by admin. All details are shown below for reference, but this pass is not valid for entry. Please contact temple administration or submit a new request if required.</div></div>
+    </div>
+
+    <div class="identity-panel">
+      <div class="photo-frame">
+        <div class="label">Devotee Photo</div>
+        <img th:if="${photoUrlResolved != null}" th:src="${photoUrlResolved}" alt="Devotee profile photo"/>
+        <div class="photo-fallback" th:if="${photoUrlResolved == null}" style="display:flex"><i class="fas fa-user" th:if="${pdfMode != true}"></i><span th:if="${pdfMode == true}">Photo</span></div>
+      </div>
+      <div class="id-main">
+        <div class="id-main-info">
+          <div class="pass-id-label">Darshan Pass ID</div>
+          <div class="pass-id" th:text="${pass.passId}">PASS</div>
+          <div class="id-sub"><strong>Devotee:</strong> <span th:text="${displayName}">-</span></div>
+          <div class="id-sub" th:if="${pass.passType != null}"><strong>Pass Type:</strong> <span th:text="${pass.passType}">-</span><span th:if="${isFreeEntry}" style="margin-left:8px;background:#ecfdf5;color:#166534;border:1px solid #86efac;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800">FREE ENTRY</span></div>
+          <div class="id-sub"><strong>Visit:</strong> <span th:text="${pass.visitDate != null ? pass.visitDate : '-'}">-</span></div>
+          <div class="id-sub"><strong>Visit Time:</strong> <span th:text="${pass.visitTime != null and !#strings.isEmpty(pass.visitTime) ? pass.visitTime : '-'}">-</span> &#160;&#183;&#160; <strong>Persons:</strong> <span th:text="${pass.noOfPersons != null ? pass.noOfPersons : 1}">1</span></div>
+          <div class="pass-note"><i class="fas fa-id-card" th:if="${pdfMode != true}"></i> Present this pass (digital or printed) with a valid photo ID at the temple entry.</div>
+        </div>
+      </div>
+      <aside class="payment-side" th:classappend="${isRejected} ? ' rejected' : (${isApproved} ? '' : ' pending')"
+             th:with="persons=${pass.noOfPersons != null and pass.noOfPersons > 0 ? pass.noOfPersons : 1},
+                      amt=${pass.amount != null ? pass.amount : 0},
+                      computedTotal=${(amt * persons) > 0 ? (amt * persons) : (pass.totalAmount != null ? pass.totalAmount : 0)},
+                      payStatus=${isFreeEntry ? 'Free / Not Required' : (pass.paymentStatus != null and !#strings.isEmpty(pass.paymentStatus) ? pass.paymentStatus : '-')}">
+        <div class="ps-label"><i class="fas fa-receipt" th:if="${pdfMode != true}"></i> Payment Status</div>
+        <div class="ps-value" style="width:100%;display:flex;justify-content:center;">
+          <span th:if="${isApproved}" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;color:#166534"><i class="fas fa-check-circle" th:if="${pdfMode != true}"></i> <span th:text="${payStatus}">-</span></span>
+          <span th:if="${isRejected}" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;color:#991b1b"><i class="fas fa-times-circle" th:if="${pdfMode != true}"></i> <span th:text="${payStatus}">-</span></span>
+          <span th:if="${!isApproved and !isRejected}" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;color:#854d0e"><i class="fas fa-hourglass-half" th:if="${pdfMode != true}"></i> <span th:text="${payStatus}">-</span></span>
+        </div>
+        <div class="ps-meta" style="width:100%;text-align:center;"><strong>Method:</strong> <span th:text="${pass.paymentMethod != null and !#strings.isEmpty(pass.paymentMethod) ? pass.paymentMethod : '-'}">-</span></div>
+        <div class="ps-meta" style="width:100%;text-align:center;"><strong>Total:</strong> <span th:text="${isFreeEntry ? 'Rs. 0.00 (Free Entry)' : 'Rs. ' + #numbers.formatDecimal(computedTotal, 1, 'COMMA', 2, 'POINT')}">-</span></div>
+        <div class="ps-meta" th:if="${!isFreeEntry and persons > 1}" style="width:100%;text-align:center;" th:text="${persons + ' × Rs. ' + #numbers.formatDecimal(amt, 1, 'COMMA', 2, 'POINT')}"></div>
+      </aside>
+      <div class="id-main-qr" th:if="${qrUrl != null}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg,#fffaf0,#fff);border:1px solid #ead9b0;border-radius:10px;padding:14px;height:100%;box-sizing:border-box;">
+        <div class="qr-box">
+          <img th:src="${qrUrl}" alt="Pass verification QR"/>
+        </div>
+        <div class="qr-label">Scan to Verify</div>
+        <div class="qr-sub">Unique QR linked to Pass ID<br/><span th:text="${pass.passId}"></span></div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fas fa-scroll" th:if="${pdfMode != true}"></i> Pass Details</div>
+    <div class="pass-grid">
+      <div class="pass-field"><label>Devotee Name</label><div th:text="${pass.devoteeName != null ? pass.devoteeName : '-'}">-</div></div>
+      <div class="pass-field"><label>Pass Type</label><div th:text="${pass.passType != null ? pass.passType : '-'}">-</div></div>
+      <div class="pass-field"><label>Visit Date</label><div th:text="${pass.visitDate != null ? pass.visitDate : '-'}">-</div></div>
+      <div class="pass-field"><label>Visit Time</label><div th:text="${pass.visitTime != null and !#strings.isEmpty(pass.visitTime) ? pass.visitTime : '-'}">-</div></div>
+      <div class="pass-field"><label>No. of Persons</label><div th:text="${pass.noOfPersons != null ? pass.noOfPersons : 1}">1</div></div>
+      <div class="pass-field"><label>Gender</label><div th:text="${pass.gender != null and !#strings.isEmpty(pass.gender) ? pass.gender : '-'}">-</div></div>
+      <div class="pass-field"><label>Phone</label><div th:text="${pass.phone != null and !#strings.isEmpty(pass.phone) ? pass.phone : '-'}">-</div></div>
+      <div class="pass-field"><label>Email</label><div th:text="${pass.email != null and !#strings.isEmpty(pass.email) ? pass.email : '-'}">-</div></div>
+      <div class="pass-field"><label>Aadhar Number</label><div th:text="${pass.aadharNumber != null and !#strings.isEmpty(pass.aadharNumber) ? pass.aadharNumber : '-'}">-</div></div>
+      <div class="pass-field"><label>Amount (Per Person)</label><div th:text="${isFreeEntry ? 'Rs. 0.00 (Free Entry)' : 'Rs. ' + #numbers.formatDecimal(pass.amount != null ? pass.amount : 0, 1, 'COMMA', 2, 'POINT')}" style="font-weight:700">Rs. 0.00</div></div>
+      <div class="pass-field" th:with="persons=${pass.noOfPersons != null and pass.noOfPersons > 0 ? pass.noOfPersons : 1}, amt=${pass.amount != null ? pass.amount : 0}"><label>No. of Persons / Total</label><div th:with="computed=${(amt * persons) > 0 ? (amt * persons) : (pass.totalAmount != null ? pass.totalAmount : 0)}">
+        <span th:text="${persons + ' person(s)'}" style="display:block;color:#475569;font-size:13px"></span>
+        <span th:text="${isFreeEntry ? 'Rs. 0.00 (Free Entry)' : 'Rs. ' + #numbers.formatDecimal(computed, 1, 'COMMA', 2, 'POINT')}" th:style="${isFreeEntry ? 'color:#166534;font-weight:800' : 'font-weight:800'}">Rs. 0.00</span>
+        <span th:if="${!isFreeEntry and persons > 1}" style="display:block;font-size:12px;color:#64748b;font-weight:600;margin-top:2px" th:text="${persons + ' × Rs. ' + #numbers.formatDecimal(amt, 1, 'COMMA', 2, 'POINT') + ' per person'}"></span>
+      </div></div>
+      <div class="pass-field"><label>Payment Method</label><div th:text="${pass.paymentMethod != null ? pass.paymentMethod : '-'}">-</div></div>
+      <div class="pass-field"><label>Payment Status</label><div><span class="badge" th:classappend="${isFreeEntry ? ' free' : (pass.paymentStatus != null ? ' ' + pass.paymentStatus : '')}" th:text="${isFreeEntry ? 'Free / Not Required' : (pass.paymentStatus != null ? pass.paymentStatus : '-')}">-</span></div></div>
+      <div class="pass-field" style="grid-column:1/-1"><label>Address</label><div th:text="${pass.address != null and !#strings.isEmpty(pass.address) ? pass.address : '-'}">-</div></div>
+      <div class="pass-field" th:if="${pass.aadharCard != null and !#strings.isEmpty(pass.aadharCard)}" style="grid-column:1/-1">
+        <label>Aadhar Card Document</label>
+        <div>
+          <a th:if="${pdfMode != true}" th:href="@{'/uploads/passes/' + ${pass.aadharCard}}" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> View uploaded document</a>
+          <span th:if="${pdfMode == true}">Uploaded</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pass-footer">
+    <div class="footer-blessing">ॐ नमः शिवाय &#160;&#183;&#160; Shri Trimbakeshwar Temple, Nashik</div>
+    <div class="no-print" th:if="${pdfMode != true}" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a th:href="@{'/passes/' + (${pass.passId} != null ? ${pass.passId} : ${pass.id}) + '/pdf'}" class="btn-classic" style="background:#0f766e;color:#fff"><i class="fas fa-file-pdf"></i> Download PDF</a>
+      <button type="button" class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <a th:href="@{/passes/history}" class="btn-classic" style="background:#f3e7c3;color:#5b3a0a;border:1px solid #d6bc7a">My Passes</a>
+      <a th:href="@{/passes/new}" class="btn-classic" style="background:#a16207;color:#fff">New Pass</a>
+    </div>
+  </div>
+</div>
+</th:block>
+</body>
+</html>

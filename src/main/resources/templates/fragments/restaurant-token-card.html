@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<th:block th:fragment="restaurantTokenCard">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap');
+  .token-page { padding: 18px 0 36px; background: linear-gradient(180deg,#f6fbf7 0%, #eaf4ee 100%); min-height: calc(100vh - 120px); }
+  .temple-token { max-width: 900px; margin: 0 auto; position: relative; overflow: hidden; background: #fffdf8; border-radius: 12px; box-shadow: 0 22px 60px rgba(16,66,40,.14); border: 2px solid #5fa37a; }
+  .temple-token::before { content: ""; position: absolute; inset: 8px; border: 1px dashed rgba(95,163,122,.45); border-radius: 8px; pointer-events: none; }
+  .token-head { background: linear-gradient(135deg, #14532d 0%, #0f766e 55%, #ca8a04 100%); color: #fff; padding: 22px 26px 18px; text-align: center; position: relative; }
+  .brand-row { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+  .brand-row img { width:62px; height:62px; object-fit:contain; background:rgba(240,253,244,.12); border:1px solid rgba(220,252,231,.45); border-radius:50%; padding:6px; }
+  .token-head h1 { margin:0; font-family:'Cinzel', Georgia, serif; font-size:1.5rem; font-weight:800; letter-spacing:.04em; }
+  .token-head .sub { margin:4px 0 0; font-family:'Cormorant Garamond', Georgia, serif; font-size:1.12rem; color:#dcfce7; }
+  .status-ribbon { margin-top:14px; display:flex; justify-content:center; }
+  .seal { display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:999px; font-weight:800; font-size:.82rem; letter-spacing:.06em; text-transform:uppercase; background:#ecfdf5; color:#065f46; border:1px solid #86efac; }
+  .token-body { padding: 20px 26px 22px; }
+  .identity { display:grid; grid-template-columns: 150px 1fr; gap:18px; align-items:stretch; background: linear-gradient(180deg,#f7fff9,#fff); border:1px solid #cfe3d6; border-radius:10px; padding:16px; margin-bottom:16px; }
+  .photo-frame { background:#fff; border:1px solid #9fc7b0; border-radius:8px; padding:8px; text-align:center; }
+  .photo-frame .label { font-size:10px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; font-family:'Cinzel', Georgia, serif; }
+  .photo-frame img { width:118px; height:132px; object-fit:cover; border-radius:4px; border:1px solid #cfe3d6; background:#f8fafc; display:block; margin:0 auto; }
+  .photo-fallback { width:118px; height:132px; border-radius:4px; border:1px solid #cfe3d6; background:linear-gradient(180deg,#f8fafc,#eef2f7); color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:42px; margin:0 auto; }
+  .id-main { display:flex; flex-direction:column; justify-content:center; }
+  .token-id-label { font-size:11px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.08em; font-family:'Cinzel', Georgia, serif; }
+  .token-id { font-size:1.55rem; font-weight:800; color:#14532d; font-family:'Cinzel', Georgia, serif; margin:2px 0 6px; word-break:break-all; }
+  .id-sub { color:#355a46; font-size:1rem; margin:2px 0; } .id-sub strong { color:#14532d; }
+  .note { margin-top:10px; padding:10px 12px; background:#ecfdf5; border:1px dashed #86efac; border-radius:8px; color:#166534; font-size:.92rem; }
+  .section-title { font-family:'Cinzel', Georgia, serif; color:#14532d; font-size:1rem; margin: 4px 0 10px; display:flex; align-items:center; gap:10px; }
+  .section-title::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,#86efac,transparent); }
+  .items { border:1px solid #cfe3d6; border-radius:10px; overflow:hidden; margin-bottom:14px; background:#fff; }
+  .items table { width:100%; border-collapse:collapse; }
+  .items th, .items td { padding:10px 12px; border-bottom:1px solid #e6f3ec; text-align:left; }
+  .items th { background:#ecfdf5; color:#166534; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
+  .field { background:#fff; border:1px solid #d7e9df; border-radius:8px; padding:11px 13px; }
+  .field label { display:block; font-size:10px; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .field div { font-size:1rem; font-weight:700; color:#16302a; word-break:break-word; }
+  .total-box { margin-top:14px; background:linear-gradient(135deg,#14532d,#0f766e); color:#fff; border-radius:12px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .total-box .amt { font-size:1.6rem; font-weight:800; font-family:'Cinzel', Georgia, serif; }
+  .token-footer { padding:14px 26px 20px; border-top:1px solid #d7e9df; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; color:#355a46; background:linear-gradient(180deg,#fffdf8,#f3fbf6); }
+  .footer-blessing { font-family:'Cormorant Garamond', Georgia, serif; font-size:1.08rem; font-weight:600; }
+  .btn-print { background:#166534; color:#fff; border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer; }
+  .btn-classic { display:inline-flex; align-items:center; gap:6px; text-decoration:none; border-radius:8px; padding:10px 14px; font-weight:700; }
+  @media (max-width: 640px) { .identity { grid-template-columns: 1fr; } }
+  @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } nav, footer, .no-print { display:none !important; } body, .token-page { background:#f4f7f2 !important; } .temple-token { box-shadow:none; max-width:100%; } .container.page { max-width:100%; padding:0; } }
+  .pdf-mode .temple-token { box-shadow:none; }
+</style>
+
+<div th:if="${order == null}" class="alert err" style="max-width:900px;margin:0 auto">Order token not found.</div>
+<div th:if="${order != null}" class="temple-token" th:classappend="${pdfMode == true} ? ' pdf-mode' : ''"
+     th:with="photoRaw=${orderUserProfilePic},
+              photoUrlResolved=${orderPhotoSrc != null ? orderPhotoSrc : (photoRaw != null and !#strings.isEmpty(photoRaw) ? (#strings.startsWith(photoRaw,'/') or #strings.startsWith(photoRaw,'http') or #strings.startsWith(photoRaw,'data:') or #strings.startsWith(photoRaw,'file:') ? photoRaw : '/uploads/profile/' + photoRaw) : null)},
+              displayName=${orderUser != null and orderUser.name != null ? orderUser.name : order.name},
+              s=${order.status != null ? #strings.toLowerCase(order.status) : 'pending'},
+              isApproved=${s=='confirmed' or s=='approved' or s=='preparing' or s=='ready' or s=='completed'},
+              isRejected=${s=='rejected' or s=='cancelled'},
+              logoUrl=${orderLogoSrc != null ? orderLogoSrc : '/images/temple/icon-symbol.webp'}">
+  <div class="token-head">
+    <div class="brand-row">
+      <img th:src="${logoUrl}" alt="Temple Emblem"/>
+      <div>
+        <h1>Shri Trimbakeshwar Temple — Annakshetra</h1>
+        <div class="sub">Restaurant Order Token Pass &#183; Temple ERP</div>
+      </div>
+    </div>
+    <div class="status-ribbon">
+      <div class="seal" th:style="${isRejected} ? 'background:#fef2f2;color:#991b1b;border-color:#fca5a5' : (${!isApproved} ? 'background:#fffbeb;color:#92400e;border-color:#fcd34d' : '')">
+        <i class="fas" th:if="${pdfMode != true}" th:classappend="${isApproved} ? ' fa-check-circle' : (${isRejected} ? ' fa-times-circle' : ' fa-hourglass-half')"></i>
+        <span th:text="${isApproved} ? 'Approved / Token Generated' : (${isRejected} ? 'Rejected by Admin' : 'Pending Admin Approval')">Token</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="token-body">
+    <div th:if="${isRejected}" style="margin:0 0 14px;padding:12px 14px;border-radius:10px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b">
+      <strong><i class="fas fa-times-circle" th:if="${pdfMode != true}"></i> Order rejected:</strong> This order was rejected/cancelled by admin. Please contact administration if needed.
+    </div>
+    <div th:if="${!isApproved and !isRejected}" style="margin:0 0 14px;padding:12px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#92400e">
+      <strong><i class="fas fa-info-circle" th:if="${pdfMode != true}"></i> Token status:</strong> Your order token page is generated, but the order is waiting for admin approval/update. The token will be fully valid after admin approval.
+    </div>
+    <div class="identity">
+      <div class="photo-frame">
+        <div class="label">User Photo</div>
+        <img th:if="${photoUrlResolved != null}" th:src="${photoUrlResolved}" alt="User profile"/>
+        <div class="photo-fallback" th:if="${photoUrlResolved == null}" style="display:flex"><i class="fas fa-user" th:if="${pdfMode != true}"></i><span th:if="${pdfMode == true}">Photo</span></div>
+      </div>
+      <div class="id-main">
+        <div class="token-id-label">Order / Token ID</div>
+        <div class="token-id" th:text="${order.orderId != null ? order.orderId : order.id}">ORDER</div>
+        <div class="id-sub"><strong>Name:</strong> <span th:text="${displayName != null ? displayName : '-'}">-</span></div>
+        <div class="id-sub"><strong>Phone:</strong> <span th:text="${order.phone != null and !#strings.isEmpty(order.phone) ? order.phone : (orderUser != null and orderUser.mobile != null ? orderUser.mobile : '-')}">-</span></div>
+        <div class="note" th:style="${isRejected} ? 'background:#fef2f2;border-color:#fca5a5;color:#991b1b' : ''"><i class="fas fa-ticket-alt" th:if="${pdfMode != true}"></i> <span th:text="${isApproved} ? 'This order has been approved/updated by admin. Show this token at the restaurant counter if required.' : (${isRejected} ? 'This order was rejected by admin.' : 'Order details are shown below. Token becomes valid after admin approval/update.')">Note</span></div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fas fa-utensils" th:if="${pdfMode != true}"></i> Order Items</div>
+    <div class="items">
+      <table>
+        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Line Total</th></tr></thead>
+        <tbody>
+          <tr th:each="i : ${order.items}">
+            <td th:text="${i.name}">Item</td>
+            <td th:text="${i.qty != null ? i.qty : 1}">1</td>
+            <td>&#8377;<span th:text="${i.price != null ? #numbers.formatDecimal(i.price, 1, 'COMMA', 2, 'POINT') : '0.00'}">0.00</span></td>
+            <td>&#8377;<span th:text="${#numbers.formatDecimal((i.price != null ? i.price : 0) * (i.qty != null ? i.qty : 1), 1, 'COMMA', 2, 'POINT')}">0.00</span></td>
+          </tr>
+          <tr th:if="${order.items == null or #lists.isEmpty(order.items)}"><td colspan="4" style="color:#64748b">-</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title"><i class="fas fa-scroll" th:if="${pdfMode != true}"></i> Token Details</div>
+    <div class="grid">
+      <div class="field"><label>Order ID</label><div th:text="${order.orderId != null ? order.orderId : '-'}">-</div></div>
+      <div class="field"><label>Status</label><div><span class="badge" th:classappend="${order.status}" th:text="${order.status != null ? order.status : '-'}">-</span></div></div>
+      <div class="field"><label>Payment Method</label><div th:text="${order.paymentMethod != null ? order.paymentMethod : '-'}">-</div></div>
+      <div class="field"><label>Payment Status</label><div><span class="badge" th:classappend="${order.paymentStatus}" th:text="${order.paymentStatus != null ? order.paymentStatus : '-'}">-</span></div></div>
+      <div class="field"><label>Order Date</label><div th:text="${order.orderDate != null ? order.orderDate : '-'}">-</div></div>
+      <div class="field"><label>Order Time</label><div th:text="${order.orderTime != null ? order.orderTime : '-'}">-</div></div>
+    </div>
+
+    <div class="total-box">
+      <div><div style="font-size:12px;opacity:.9;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Grand Total</div><div>Multi-item restaurant order token</div></div>
+      <div class="amt">&#8377;<span th:text="${order.totalAmount != null ? #numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT') : '0.00'}">0.00</span></div>
+    </div>
+  </div>
+
+  <div class="token-footer">
+    <div class="footer-blessing">ॐ नमः शिवाय &#160;&#183;&#160; Shri Trimbakeshwar Temple, Nashik</div>
+    <div class="no-print" th:if="${pdfMode != true}" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a th:href="@{'/restaurant/token/' + (${order.orderId} != null ? ${order.orderId} : ${order.id}) + '/pdf'}" class="btn-print" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px"><i class="fas fa-file-pdf"></i> Download PDF</a>
+      <button type="button" class="btn-classic" style="background:#f0fdf4;color:#166534;border:1px solid #86efac;cursor:pointer" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <a th:href="@{/restaurant/history}" class="btn-classic" style="background:#dcfce7;color:#166534;border:1px solid #86efac">Order History</a>
+    </div>
+  </div>
+</div>
+</th:block>
+</body>
+</html>

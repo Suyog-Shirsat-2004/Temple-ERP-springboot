@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Restaurant')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('restaurant')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content" th:with="restroImgs=${ {'re1.jpg','re2.jpg','rre3.jpg','re4.jpg','re5.jpg','re7.webp'} }" style="background:linear-gradient(180deg,#fffaf3 0%, #f8fafc 180px);">
+      <div style="background:linear-gradient(135deg,#7c2d12,#ea580c,#f59e0b);color:#fff;border-radius:16px;padding:16px 18px;margin:0 0 18px;box-shadow:0 10px 24px rgba(124,45,18,.14);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:#fff;margin:0"><i class="fas fa-utensils"></i> Restaurant / Annakshetra Management</h1>
+          <div style="color:#ffedd5;margin-top:4px;font-size:13px">Manage menu items (all details), prices, categories, images — with update access. View user orders and how it appears on the user page.</div>
+        </div>
+        <a th:href="@{/restaurant}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:700;display:inline-flex;align-items:center;gap:8px"><i class="fas fa-external-link-alt"></i> View User Page</a>
+      </div>
+      <div th:if="${success}" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:12px;padding:12px 16px;margin-bottom:14px" th:text="${success}"></div>
+      <div th:if="${error}" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;margin-bottom:14px" th:text="${error}"></div>
+
+      <div class="panel" style="margin-bottom:18px;padding:14px 16px;background:linear-gradient(180deg,#fffdf8,#fff7ed);border:1px solid #fde68a">
+        <h2 style="font-size:15px;font-weight:800;color:#7c2d12;margin:0 0 10px"><i class="fas fa-images" style="color:#f59e0b"></i> Restaurant Images — select available or add/upload (admin &amp; user display)</h2>
+        <div style="font-size:12px;font-weight:700;color:#92400e;margin:6px 0 8px">Available (images/restro) — selectable in item forms</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+          <label th:each="img : ${restroImgs}" style="text-align:center;cursor:default">
+            <img th:src="@{'/images/restro/' + ${img}}" th:alt="${img}" style="width:110px;height:78px;object-fit:cover;border-radius:10px;border:2px solid #fcd34d;display:block;box-shadow:0 4px 10px rgba(146,64,14,.08)"/>
+            <span style="font-size:11px;color:#92400e" th:text="${img}"></span>
+          </label>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+          <div style="flex:1;min-width:260px">
+            <div style="font-size:12px;font-weight:700;color:#92400e;margin:6px 0 8px">Added / Uploaded Images</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <div th:each="img : ${uploadedRestroImages}" style="text-align:center">
+                <img th:src="@{'/uploads/restaurant/' + ${img}}" th:alt="${img}" style="width:110px;height:78px;object-fit:cover;border-radius:10px;border:2px solid #86efac;display:block" onerror="this.style.opacity='.35'"/>
+                <span style="font-size:11px;color:#166534;word-break:break-all;max-width:110px;display:block" th:text="${img}"></span>
+              </div>
+              <div th:if="${uploadedRestroImages == null or #lists.isEmpty(uploadedRestroImages)}" style="font-size:13px;color:#92400e">No uploaded images yet. Add one using the upload form.</div>
+            </div>
+          </div>
+          <form th:action="@{/admin/restaurant/image/upload}" method="post" enctype="multipart/form-data" style="background:#fff;border:1px solid #fde68a;border-radius:12px;padding:12px;min-width:240px">
+            <div style="font-size:12px;font-weight:800;color:#7c2d12;margin-bottom:8px"><i class="fas fa-upload"></i> Add Image Option</div>
+            <input type="file" name="image_file" accept="image/jpeg,image/png,image/gif,image/webp" required style="width:100%;font-size:13px;margin-bottom:8px"/>
+            <button type="submit" style="background:#ea580c;color:#fff;border:none;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer;width:100%">Upload &amp; Add</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px;padding:18px">
+        <h2 style="font-size:16px;font-weight:800;color:#1e293b;margin:0 0 12px"><i class="fas fa-utensils" style="color:#f59e0b"></i> Add Menu Item</h2>
+        <form th:action="@{/admin/restaurant/menu/add}" method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Item Name *</label>
+            <input id="item_name_input" name="name" required placeholder="Type item name" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/>
+            <select onchange="var v=this.value; if(v){document.getElementById('item_name_input').value=v;} this.selectedIndex=0;" style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;font-size:13px;color:#475569">
+              <option value="">— Select from added item names —</option>
+              <option th:each="n : ${itemNameOptions}" th:value="${n}" th:text="${n}"></option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Category</label>
+            <select name="category" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px;background:#fff">
+              <option value="">-- Select Category --</option>
+              <option th:each="c : ${categoryOptions}" th:value="${c}" th:text="${c}"></option>
+            </select>
+          </div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Price (₹)</label><input name="price" type="number" step="0.01" min="0" placeholder="0.00" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Select Existing/Added Image</label>
+            <select name="image_select" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px;background:#fff">
+              <option value="">-- No / Use Uploaded --</option>
+              <optgroup label="Available (images/restro)">
+                <option th:each="img : ${restroImageOptions}" th:value="${img}" th:text="${img}"></option>
+              </optgroup>
+              <optgroup label="Added/Uploaded" th:if="${uploadedRestroImages != null and !#lists.isEmpty(uploadedRestroImages)}">
+                <option th:each="img : ${uploadedRestroImages}" th:value="${img}" th:text="${img}"></option>
+              </optgroup>
+            </select>
+          </div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Upload New Image</label><input type="file" name="image_file" accept="image/jpeg,image/png,image/gif,image/webp" style="width:100%;padding:8px 10px;border:1px solid #d8e0ea;border-radius:10px;background:#fff"/></div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Available</label>
+            <select name="available" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px;background:#fff">
+              <option value="true" selected>Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">Description</label><input name="description" placeholder="Short description" style="width:100%;padding:10px 12px;border:1px solid #d8e0ea;border-radius:10px"/></div>
+          <div><button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;width:100%"><i class="fas fa-save"></i> Add Item</button></div>
+        </form>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px;padding:0;overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid #edf2f7"><h2 style="font-size:16px;font-weight:800;color:#1e293b;margin:0">Menu Items (Update Price &amp; All Details)</h2></div>
+        <div style="overflow:auto">
+          <table class="table" style="margin:0;box-shadow:none;border-radius:0;min-width:980px">
+            <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price (₹)</th><th>Available</th><th>Description</th><th>Image (select/upload)</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr th:if="${#lists.isEmpty(menuItems)}"><td colspan="8" style="padding:20px;color:#64748b;text-align:center">No menu items. Add items above (admin access).</td></tr>
+              <tr th:each="m,stat : ${menuItems}">
+                <td>
+                  <img th:if="${m.image != null and !#strings.isEmpty(m.image) and (restroImageOptions != null and restroImageOptions.contains(m.image))}"
+                       th:src="@{'/images/restro/' + ${m.image}}" alt="Menu" style="width:72px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0"/>
+                  <img th:if="${m.image != null and !#strings.isEmpty(m.image) and !(restroImageOptions != null and restroImageOptions.contains(m.image))}"
+                       th:src="@{'/uploads/restaurant/' + ${m.image}}" alt="Menu" style="width:72px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0"
+                       onerror="this.onerror=null;this.src='/images/restro/re1.jpg';"/>
+                  <img th:if="${m.image == null or #strings.isEmpty(m.image)}"
+                       th:src="@{'/images/restro/' + ${restroImgs[stat.index % restroImgs.size()]}}" alt="Menu" style="width:72px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0"/>
+                </td>
+                <td colspan="6" style="padding:8px">
+                  <form th:action="@{'/admin/restaurant/menu/' + ${m.id} + '/update'}" method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:1.2fr .9fr .7fr .7fr 1.4fr 1.1fr auto;gap:6px;align-items:center">
+                    <input name="name" th:value="${m.name}" required style="width:100%;padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px"/>
+                    <select name="category" style="width:100%;padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px;background:#fff">
+                      <option value="">-- Category --</option>
+                      <option th:each="c : ${categoryOptions}" th:value="${c}" th:text="${c}" th:selected="${m.category != null and #strings.equalsIgnoreCase(m.category,c)}"></option>
+                      <option th:if="${m.category != null and !#strings.isEmpty(m.category) and categoryOptions != null and !categoryOptions.contains(m.category)}" th:value="${m.category}" th:text="${m.category}" selected="selected"></option>
+                    </select>
+                    <input name="price" type="number" step="0.01" min="0" th:value="${m.price}" style="width:100%;padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px"/>
+                    <select name="available" style="width:100%;padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px;background:#fff">
+                      <option value="true" th:selected="${m.available == null or m.available}">Yes</option>
+                      <option value="false" th:selected="${m.available != null and !m.available}">No</option>
+                    </select>
+                    <input name="description" th:value="${m.description}" placeholder="Description" style="width:100%;padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px"/>
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      <select name="image_select" style="width:100%;padding:6px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:12px;background:#fff">
+                        <option value="">Keep/No change</option>
+                        <optgroup label="Available">
+                          <option th:each="img : ${restroImageOptions}" th:value="${img}" th:text="${img}" th:selected="${m.image == img}"></option>
+                        </optgroup>
+                        <optgroup label="Added/Uploaded" th:if="${uploadedRestroImages != null and !#lists.isEmpty(uploadedRestroImages)}">
+                          <option th:each="img : ${uploadedRestroImages}" th:value="${img}" th:text="${img}" th:selected="${m.image == img}"></option>
+                        </optgroup>
+                      </select>
+                      <input type="file" name="image_file" accept="image/jpeg,image/png,image/gif,image/webp" style="width:100%;font-size:11px"/>
+                    </div>
+                    <button type="submit" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap"><i class="fas fa-save"></i> Update</button>
+                  </form>
+                </td>
+                <td>
+                  <form th:action="@{'/admin/restaurant/menu/' + ${m.id} + '/delete'}" method="post" onsubmit="return confirm('Delete this menu item?');" style="display:inline">
+                    <button type="submit" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer"><i class="fas fa-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:0;overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid #edf2f7;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+          <div>
+            <h2 style="font-size:16px;font-weight:800;color:#1e293b;margin:0"><i class="fas fa-receipt" style="color:#ea580c"></i> Order Management (Admin Approval)</h2>
+            <div style="font-size:13px;color:#64748b;margin-top:4px">Admin authority: Approve or Reject orders (like room booking). Status updates after action. User sees token after admin approval.</div>
+          </div>
+          <a th:href="@{/restaurant}" target="_blank" rel="noopener" style="font-size:13px;font-weight:700;color:#ea580c;text-decoration:none"><i class="fas fa-external-link-alt"></i> Open user restaurant page</a>
+        </div>
+        <div style="overflow:auto">
+          <table class="table" style="margin:0;box-shadow:none;border-radius:0;min-width:1180px;width:100%">
+            <thead><tr><th>Order ID</th><th>User / Contact</th><th>Items (All Details)</th><th>Total</th><th>Payment</th><th>Date/Time</th><th>Status</th><th>Action / Token</th></tr></thead>
+            <tbody>
+              <tr th:if="${#lists.isEmpty(orders)}"><td colspan="8" style="padding:24px;color:#64748b;text-align:center"><i class="fas fa-receipt" style="font-size:24px;color:#cbd5e1;display:block;margin-bottom:8px"></i>No orders yet. Orders placed by users will appear here for admin management.</td></tr>
+              <tr th:each="o : ${orders}" th:with="s=${o.status != null ? #strings.toLowerCase(o.status) : 'pending'},
+                                                    isPending=${s == 'pending'},
+                                                    isApproved=${s == 'approved' or s == 'confirmed' or s == 'preparing' or s == 'ready' or s == 'completed'},
+                                                    isRejected=${s == 'rejected' or s == 'cancelled'},
+                                                    tokenId=${o.orderId != null ? o.orderId : o.id}" style="vertical-align:top">
+                <td>
+                  <div th:text="${o.orderId}" style="font-weight:800;color:#1e293b"></div>
+                  <div style="font-size:11px;color:#64748b;word-break:break-all" th:text="${o.userId != null ? 'User: ' + o.userId : ''}"></div>
+                </td>
+                <td>
+                  <div style="font-weight:700" th:text="${o.name != null ? o.name : '-'}"></div>
+                  <div style="font-size:12px;color:#475569" th:text="${o.phone != null and !#strings.isEmpty(o.phone) ? o.phone : '-'}"></div>
+                </td>
+                <td>
+                  <div th:if="${o.items != null and !#lists.isEmpty(o.items)}">
+                    <div th:each="i : ${o.items}" style="font-size:13px;margin-bottom:4px;padding:6px 8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px">
+                      <strong th:text="${i.name}">Item</strong>
+                      <span style="color:#9a3412"> × <span th:text="${i.qty != null ? i.qty : 1}">1</span></span>
+                      <span style="color:#166534;font-weight:700"> — ₹<span th:text="${i.price != null ? i.price : 0}">0</span></span>
+                    </div>
+                  </div>
+                  <span th:if="${o.items == null or #lists.isEmpty(o.items)}" style="color:#64748b">-</span>
+                </td>
+                <td style="font-weight:800;color:#166534">₹<span th:text="${o.totalAmount != null ? o.totalAmount : 0}"></span></td>
+                <td>
+                  <div><span style="font-size:11px;color:#64748b">Method:</span> <span th:text="${o.paymentMethod != null ? o.paymentMethod : '-'}"></span></div>
+                  <div style="margin-top:4px"><span class="badge" th:classappend="${o.paymentStatus}" th:text="${o.paymentStatus != null ? o.paymentStatus : '-'}"></span></div>
+                </td>
+                <td style="font-size:13px">
+                  <div th:text="${o.orderDate != null ? o.orderDate : '-'}"></div>
+                  <div style="color:#64748b" th:text="${o.orderTime != null ? o.orderTime : ''}"></div>
+                </td>
+                <td>
+                  <span th:if="${isApproved}" style="display:inline-flex;align-items:center;gap:5px;background:#ecfdf5;color:#065f46;border:1px solid #86efac;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800"><i class="fas fa-check-circle"></i> <span th:text="${s=='approved' ? 'Approved' : (s=='confirmed' ? 'Approved' : #strings.capitalize(s))}">Approved</span></span>
+                  <span th:if="${isRejected}" style="display:inline-flex;align-items:center;gap:5px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800"><i class="fas fa-times-circle"></i> <span th:text="${s=='rejected' ? 'Rejected' : 'Cancelled'}">Rejected</span></span>
+                  <span th:if="${isPending}" style="display:inline-flex;align-items:center;gap:5px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800"><i class="fas fa-hourglass-half"></i> Pending (Admin Action)</span>
+                </td>
+                <td>
+                  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+                    <div th:if="${isPending}" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+                      <form th:action="@{'/admin/restaurant/' + ${o.id} + '/approve'}" method="post" style="display:inline;margin:0" onsubmit="return confirm('Approve this order? Status will change to Approved and token will be available for the user.');">
+                        <button type="submit" style="background:#16a34a;color:#fff;border:1px solid #15803d;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 1px 2px rgba(22,163,74,.2)"><i class="fas fa-check-circle"></i> Approve</button>
+                      </form>
+                      <form th:action="@{'/admin/restaurant/' + ${o.id} + '/reject'}" method="post" style="display:inline;margin:0" onsubmit="return confirm('Reject this order? Status will change to Rejected.');">
+                        <button type="submit" style="background:#ef4444;color:#fff;border:1px solid #dc2626;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 1px 2px rgba(239,68,68,.2)"><i class="fas fa-times-circle"></i> Reject</button>
+                      </form>
+                    </div>
+                    <div th:if="${isPending}" style="font-size:11px;color:#92400e;font-weight:700"><i class="fas fa-hand-pointer"></i> Admin action required: Approve (green) or Reject (red)</div>
+
+                    <div style="display:inline-flex;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden;background:#fff">
+                      <a th:href="@{'/restaurant/token/' + ${tokenId}}" target="_blank" rel="noopener" title="View order/token" style="display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:700;color:#334155;text-decoration:none;background:#f8fafc;border-right:1px solid #cbd5e1"><i class="fas fa-eye"></i> View</a>
+                      <a th:href="@{'/restaurant/token/' + ${tokenId} + '/pdf'}" target="_blank" rel="noopener" title="Download original PDF (same as email)" th:style="${isApproved ? 'display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:700;color:#fff;text-decoration:none;background:#059669' : 'display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:700;color:#334155;text-decoration:none;background:#fff'}"><i class="fas fa-download"></i> Download PDF</a>
+                    </div>
+                    <form th:action="@{'/admin/restaurant/' + ${o.id} + '/send-pdf'}" method="post" style="display:inline;margin:0" th:attr="onsubmit=${'return confirm(&quot;Send restaurant token PDF for ' + tokenId + ' to the user profile email?&quot;);'}">
+                      <button type="submit" style="background:#2563eb;color:#fff;border:1px solid #1d4ed8;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer"><i class="fas fa-envelope"></i> Send Email</button>
+                    </form>
+                    <span th:if="${isRejected}" style="color:#dc2626;font-size:12px;font-weight:700"><i class="fas fa-ban"></i> Rejected by admin</span>
+
+                    <details style="margin-top:2px">
+                      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:#475569">Advanced status update</summary>
+                      <div style="display:flex;flex-direction:column;gap:8px;min-width:170px;margin-top:6px">
+                        <form th:action="@{'/admin/restaurant/' + ${o.id} + '/status'}" method="post" style="display:flex;flex-direction:column;gap:6px;margin:0">
+                          <select name="status" style="padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px" title="Order status">
+                            <option th:selected="${s=='pending'}" value="pending">pending</option>
+                            <option th:selected="${s=='approved'}" value="approved">approved</option>
+                            <option th:selected="${s=='confirmed'}" value="confirmed">confirmed</option>
+                            <option th:selected="${s=='preparing'}" value="preparing">preparing</option>
+                            <option th:selected="${s=='ready'}" value="ready">ready</option>
+                            <option th:selected="${s=='completed'}" value="completed">completed</option>
+                            <option th:selected="${s=='rejected'}" value="rejected">rejected</option>
+                            <option th:selected="${s=='cancelled'}" value="cancelled">cancelled</option>
+                          </select>
+                          <select name="payment_status" style="padding:7px 8px;border:1px solid #d8e0ea;border-radius:8px;font-size:13px" title="Payment status">
+                            <option value="">(keep payment)</option>
+                            <option th:selected="${o.paymentStatus=='pending'}" value="pending">payment: pending</option>
+                            <option th:selected="${o.paymentStatus=='paid'}" value="paid">payment: paid</option>
+                            <option th:selected="${o.paymentStatus=='completed'}" value="completed">payment: completed</option>
+                            <option th:selected="${o.paymentStatus=='failed'}" value="failed">payment: failed</option>
+                            <option th:selected="${o.paymentStatus=='refunded'}" value="refunded">payment: refunded</option>
+                          </select>
+                          <button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Update</button>
+                        </form>
+                        <form th:action="@{'/admin/restaurant/' + ${o.id} + '/send-pdf'}" method="post" style="display:inline;margin:0" th:attr="onsubmit=${'return confirm(&quot;Send restaurant token PDF for ' + tokenId + ' to the user profile email?&quot;);'}">
+                          <button type="submit" style="background:#0ea5e9;color:#fff;border:1px solid #0284c7;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;width:100%"><i class="fas fa-envelope"></i> Send Email</button>
+                        </form>
+                      </div>
+                    </details>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

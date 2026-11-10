@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin - Donations')}"></head>
+<body>
+<div class="admin-shell">
+  <aside th:replace="~{fragments/admin :: sidebar('donations')}"></aside>
+  <main class="admin-main" id="adminMain">
+    <div th:replace="~{fragments/admin :: topbar}"></div>
+    <div class="admin-content">
+      <h1 style="font-size:24px;font-weight:800;color:#1e293b;margin:0 0 18px">Donation Tracking</h1>
+      <div class="panel" style="padding:0;overflow:hidden"><table class="table" style="margin:0;box-shadow:none;border-radius:0">
+        <thead><tr><th>Receipt No</th><th>Donor</th><th>Amount</th><th>Type</th><th>Method</th><th>Status</th><th>Generated Receipt</th></tr></thead>
+        <tbody>
+          <tr th:each="d : ${donations}" th:with="isCompleted=${d.paymentStatus != null and (#strings.equalsIgnoreCase(d.paymentStatus,'completed') or #strings.equalsIgnoreCase(d.paymentStatus,'complete') or #strings.equalsIgnoreCase(d.paymentStatus,'paid') or #strings.equalsIgnoreCase(d.paymentStatus,'success'))}">
+            <td style="font-weight:700" th:text="${d.receiptNo}"></td>
+            <td><div th:text="${d.name}"></div><div style="font-size:12px;color:#64748b" th:text="${d.email}"></div></td>
+            <td>₹<span th:text="${d.amount}"></span></td>
+            <td th:text="${d.donationType}"></td>
+            <td th:text="${d.paymentMethod}"></td>
+            <td><span class="badge" th:classappend="${d.paymentStatus}" th:text="${d.paymentStatus}"></span></td>
+            <td>
+              <div th:if="${isCompleted}" style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+                <span style="display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #86efac;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800"><i class="fas fa-check-circle"></i> Receipt Generated</span>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+                  <a th:href="@{'/donations/receipt/' + ${d.receiptNo != null ? d.receiptNo : d.id}}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#166534;color:#fff;text-decoration:none;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:700"><i class="fas fa-eye"></i> View Receipt</a>
+                  <a th:href="@{'/donations/receipt/' + ${d.receiptNo != null ? d.receiptNo : d.id} + '/pdf'}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#059669;color:#fff;text-decoration:none;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:700"><i class="fas fa-file-pdf"></i> Download PDF</a>
+                </div>
+                <form th:action="@{'/admin/donations/' + ${d.id} + '/send-pdf'}" method="post" style="display:inline;margin:0" th:attr="onsubmit=${'return confirm(&quot;Send donation receipt PDF for ' + (d.receiptNo != null ? d.receiptNo : d.id) + ' to the donor/user email?&quot;);'}">
+                  <button type="submit" style="background:#2563eb;color:#fff;border:1px solid #1d4ed8;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer"><i class="fas fa-envelope"></i> Send Email</button>
+                </form>
+              </div>
+              <div th:if="${!isCompleted}" style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+                <span style="color:#64748b;font-size:12px">Not generated (payment pending)</span>
+                <form th:action="@{'/admin/donations/' + ${d.id} + '/send-pdf'}" method="post" style="display:inline;margin:0" th:attr="onsubmit=${'return confirm(&quot;Send donation receipt/details PDF for ' + (d.receiptNo != null ? d.receiptNo : d.id) + ' to the donor/user email?&quot;);'}">
+                  <button type="submit" style="background:#64748b;color:#fff;border:1px solid #475569;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer"><i class="fas fa-envelope"></i> Send Email</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(donations)}"><td colspan="7" style="padding:24px;color:#64748b">No donations.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

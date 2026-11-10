@@ -1,0 +1,20 @@
+target/
+.git/
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+*.log
+*.tmp
+tmp_*
+check/
+uploads/
+.vscode/
+.idea/
+*.iml
+Dockerfile
+.dockerignore
+README.md
+HOW_TO_RUN.md
+java-project-temple-erp.md
+java-project-temple-erp.pdf
+suyog project (original).pdf
+suyog project.pdf

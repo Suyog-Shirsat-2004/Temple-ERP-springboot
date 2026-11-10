@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My Order History - Temple ERP')}"></head>
+<body>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+  .oh-page{padding:22px 0 40px;background:radial-gradient(900px 340px at 10% 0%, rgba(255,220,150,.18), transparent 60%),linear-gradient(180deg,#f8f5ef,#f2eadc);min-height:calc(100vh - 120px);font-family:'Poppins',system-ui,sans-serif}
+  .oh-wrap{max-width:1040px;margin:0 auto}
+  .oh-hero{position:relative;overflow:hidden;border-radius:18px;padding:20px 22px;margin:0 0 16px;background:linear-gradient(135deg,#7a1f1f 0%,#8b2323 38%,#b45309 100%);color:#fff;box-shadow:0 14px 34px rgba(122,31,31,.16);border:1px solid rgba(255,236,179,.22)}
+  .oh-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,236,179,.9) 1px,transparent 1px);background-size:18px 18px}
+  .oh-hero-row{position:relative;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .oh-hero h1{margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.65rem;font-weight:800;letter-spacing:.02em}
+  .oh-hero p{margin:6px 0 0;color:#ffefc2;font-size:.98rem}
+  .oh-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .oh-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:11px;text-decoration:none;font-weight:700;font-size:13px;border:1px solid transparent;transition:transform .15s ease,box-shadow .15s ease}
+  .oh-btn:hover{transform:translateY(-1px)}
+  .oh-btn-light{background:#fff;color:#7a1f1f;border-color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+  .oh-btn-ghost{background:rgba(255,253,248,.14);color:#fff8e6;border-color:rgba(255,236,179,.28)}
+  .oh-card{background:#fffdf8;border:1px solid #e6d8bd;border-radius:16px;box-shadow:0 12px 30px rgba(62,39,10,.07);overflow:hidden}
+  .oh-body{padding:16px 18px}
+  .note{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:linear-gradient(180deg,#fff8e8,#fffdf5);border:1px solid #ead9b0;color:#6b5316;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #eadfca;border-radius:14px;background:#fff}
+  table{width:100%;min-width:860px;border-collapse:separate;border-spacing:0}
+  th,td{padding:13px 12px;border-bottom:1px solid #eee3cd;text-align:left;vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6b5316;background:linear-gradient(180deg,#fff8e8,#f7ecd2);font-weight:800}
+  td{color:#2c2416;font-size:14px}
+  tbody tr:hover{background:rgba(255,247,230,.55)}
+  tbody tr:last-child td{border-bottom:none}
+  .oid{font-weight:800;color:#5b2a0a;font-family:'Cinzel',Georgia,serif;font-size:13px}
+  .amt{font-weight:800;color:#166534}
+  .status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;font-weight:700;font-size:12px;text-transform:capitalize;border:1px solid #e2e8f0;background:#f8fafc;color:#334155;white-space:nowrap}
+  .st-pending{background:#fffbeb;color:#92400e;border-color:#fde68a}
+  .st-approved{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}
+  .st-preparing{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+  .st-ready{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+  .st-completed{background:#ecfeff;color:#155e75;border-color:#a5f3fc}
+  .st-rejected{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+  .token-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;text-decoration:none;font-weight:700;font-size:12px;background:#ecfdf5;color:#166534;border:1px solid #86efac}
+  .token-btn:hover{background:#dcfce7}
+  .muted{color:#64748b;font-size:12px}
+  .sub{font-size:12px;margin-top:4px}
+  .sub-ok{color:#166534}
+  .sub-warn{color:#92400e}
+  .empty{padding:34px 18px;text-align:center;color:#6b5316;background:linear-gradient(180deg,#fffdf8,#fff8e8)}
+  .empty i{display:block;font-size:30px;color:#d6bc7a;margin-bottom:10px}
+  .alert-ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+  @media (max-width:640px){.oh-hero h1{font-size:1.35rem}.oh-body{padding:12px}}
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page oh-page">
+  <div class="oh-wrap">
+    <section class="oh-hero">
+      <div class="oh-hero-row">
+        <div>
+          <h1><i class="fas fa-receipt" style="margin-right:8px;color:#ffefc2"></i>My Restaurant Orders</h1>
+          <p>Track your order, admin approval, and token pass in one place.</p>
+        </div>
+        <div class="oh-actions">
+          <a class="oh-btn oh-btn-light" th:href="@{/restaurant}"><i class="fas fa-arrow-left"></i> Back to Menu</a>
+          <a class="oh-btn oh-ghost oh-btn-ghost" th:href="@{/dashboard}"><i class="fas fa-th-large"></i> Dashboard</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="oh-card">
+      <div class="oh-body">
+        <div class="alert-ok" th:if="${success}" th:text="${success}"></div>
+        <div class="note"><i class="fas fa-info-circle" style="color:#b45309;margin-top:2px"></i><div><strong>Status updates:</strong> when an admin approves or updates your order, the latest status appears below. Refresh this page to see changes. Your token is available after admin approval.</div></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Approval / Status</th>
+                <th>Token Pass</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+                <td colspan="6" class="empty"><i class="fas fa-utensils"></i>No orders found yet. Place an order from the restaurant menu.</td>
+              </tr>
+
+              <th:block th:if="${orders != null and !#lists.isEmpty(orders)}">
+                <tr th:each="o : ${orders}"
+                    th:with="s=${o != null and o.status != null ? #strings.toLowerCase(o.status) : 'pending'},
+                             isApproved=${s=='approved' or s=='confirmed' or s=='preparing' or s=='ready' or s=='completed'},
+                             isRejected=${s=='rejected' or s=='cancelled'},
+                             oid=${o != null and o.orderId != null ? o.orderId : (o != null ? o.id : '')}">
+                  <td class="oid" th:text="${oid != null and !#strings.isEmpty(oid) ? oid : '-'}">-</td>
+                  <td>
+                    <th:block th:if="${o != null and o.items != null and !#lists.isEmpty(o.items)}">
+                      <span th:each="i,st : ${o.items}">
+                        <span th:text="${(i != null and i.name != null ? i.name : 'Item') + ' ×' + (i != null and i.qty != null ? i.qty : 1)}">Item</span><span th:if="${!st.last}">, </span>
+                      </span>
+                    </th:block>
+                    <span th:if="${o == null or o.items == null or #lists.isEmpty(o.items)}" class="muted">-</span>
+                  </td>
+                  <td class="amt">₹<span th:text="${o != null and o.totalAmount != null ? #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 2, 'POINT') : '0.00'}">0.00</span></td>
+                  <td>
+                    <div th:text="${o != null and o.orderDate != null ? o.orderDate : '-'}">-</div>
+                    <div class="muted" th:if="${o != null and o.orderTime != null and !#strings.isEmpty(o.orderTime)}" th:text="${o.orderTime}"></div>
+                  </td>
+                  <td>
+                    <span class="status-badge"
+                          th:classappend="${isRejected} ? ' st-rejected' : (${isApproved and (s=='preparing')} ? ' st-preparing' : (${isApproved and (s=='ready')} ? ' st-ready' : (${isApproved and (s=='completed')} ? ' st-completed' : (${isApproved} ? ' st-approved' : ' st-pending'))))">
+                      <i class="fas"
+                         th:classappend="${isRejected} ? ' fa-times-circle' : (${isApproved} ? ' fa-check-circle' : ' fa-hourglass-half')"></i>
+                      <span th:text="${isRejected and s=='rejected'} ? 'Rejected by Admin' : (${isRejected} ? 'Cancelled' : (${s=='pending'} ? 'Pending Admin Approval' : (${s=='approved' or s=='confirmed'} ? 'Approved by Admin' : (${s=='preparing'} ? 'Preparing' : (${s=='ready'} ? 'Ready' : (${s=='completed'} ? 'Completed' : (o != null and o.status != null ? o.status : 'Pending')))))))">Status</span>
+                    </span>
+                    <div class="sub sub-ok" th:if="${isApproved}">Approved/updated by admin. Token pass is available.</div>
+                    <div class="sub sub-warn" th:if="${!isApproved and !isRejected}">Waiting for admin approval/update.</div>
+                    <div class="sub" style="color:#991b1b" th:if="${isRejected}">Rejected/cancelled by admin.</div>
+                  </td>
+                  <td>
+                    <a th:if="${isApproved and oid != null and !#strings.isEmpty(oid)}"
+                       th:href="@{'/restaurant/token/' + ${oid}}"
+                       class="token-btn"><i class="fas fa-ticket-alt"></i> View Token</a>
+                    <span th:if="${!(isApproved and oid != null and !#strings.isEmpty(oid))}" class="muted">Token after approval</span>
+                  </td>
+                </tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

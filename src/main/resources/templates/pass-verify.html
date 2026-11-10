@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Pass Verification - Temple ERP')}"></head>
+<body>
+<style>
+  .verify-page { padding: 24px 0 40px; background: linear-gradient(180deg,#f8f3ea 0%, #f3ece0 100%); min-height: calc(100vh - 120px); }
+  .verify-card { max-width: 760px; margin: 0 auto; background:#fffdf8; border:2px solid #c8a24a; border-radius:12px; box-shadow:0 18px 40px rgba(62,39,10,.12); overflow:hidden; }
+  .verify-head { padding:18px 20px; color:#fff; text-align:center; }
+  .verify-head.ok { background: linear-gradient(135deg,#166534,#15803d); }
+  .verify-head.pending { background: linear-gradient(135deg,#92400e,#b45309); }
+  .verify-head.bad { background: linear-gradient(135deg,#991b1b,#b91c1c); }
+  .verify-head h1 { margin:0; font-size:1.4rem; }
+  .verify-head p { margin:6px 0 0; opacity:.95; }
+  .verify-body { padding:18px 20px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+  .field { background:#fff; border:1px solid #eadfca; border-radius:8px; padding:10px 12px; }
+  .field label { display:block; font-size:10px; font-weight:800; color:#8a6a24; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .field div { font-size:1rem; font-weight:700; color:#2c2416; word-break:break-word; }
+  .status-pill { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; font-weight:800; font-size:.9rem; border:1px solid transparent; }
+  .status-pill.ok { background:#ecfdf5; color:#065f46; border-color:#86efac; }
+  .status-pill.pending { background:#fffbeb; color:#92400e; border-color:#fcd34d; }
+  .status-pill.bad { background:#fef2f2; color:#991b1b; border-color:#fca5a5; }
+  .note { margin-top:14px; padding:12px 14px; border-radius:10px; font-size:.95rem; }
+  .note.ok { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .note.pending { background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+  .note.bad { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .qr { margin-top:14px; text-align:center; }
+  .qr img { width:140px; height:140px; border:1px solid #ead9b0; border-radius:8px; background:#fff; padding:6px; }
+</style>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container page verify-page">
+  <div th:if="${pass == null}" class="verify-card">
+    <div class="verify-head bad">
+      <h1><i class="fas fa-times-circle"></i> Pass Not Found</h1>
+      <p>This QR code/token is invalid or the pass could not be found.</p>
+    </div>
+    <div class="verify-body">
+      <div class="note bad"><strong>Verification failed.</strong> No darshan pass matches this QR token. Please contact temple administration.</div>
+    </div>
+  </div>
+
+  <div th:if="${pass != null}" class="verify-card"
+       th:with="st=${pass.status != null ? #strings.toLowerCase(pass.status) : 'pending'},
+                isApproved=${st == 'approved'},
+                isRejected=${st == 'rejected' or st == 'cancelled'},
+                headClass=${isApproved ? 'ok' : (isRejected ? 'bad' : 'pending')}">
+    <div class="verify-head" th:classappend="${' ' + headClass}">
+      <h1>
+        <i class="fas" th:classappend="${isApproved ? ' fa-check-circle' : (isRejected ? ' fa-times-circle' : ' fa-hourglass-half')}"></i>
+        <span th:text="${isApproved ? 'Valid Pass — Entry Permitted' : (isRejected ? 'Invalid Pass — Not Permitted' : 'Pass Pending Approval')}">Status</span>
+      </h1>
+      <p th:text="${'Pass ID: ' + (pass.passId != null ? pass.passId : pass.id)}">Pass</p>
+    </div>
+    <div class="verify-body">
+      <div style="margin-bottom:12px">
+        <span class="status-pill" th:classappend="${' ' + headClass}"
+              th:text="${isApproved ? 'APPROVED / VERIFIED' : (isRejected ? ('NOT VALID (' + #strings.toUpperCase(st) + ')') : 'PENDING / NOT YET APPROVED')}">STATUS</span>
+      </div>
+
+      <div class="note" th:classappend="${' ' + headClass}">
+        <strong th:text="${isApproved ? 'Verification successful.' : (isRejected ? 'Verification result: not valid for entry.' : 'Verification result: pending.')}">Result</strong>
+        <span th:if="${isApproved}"> This darshan pass is approved as per temple administration records. Verify devotee details and allow entry as per rules.</span>
+        <span th:if="${isRejected}"> This pass is <span th:text="${st}">rejected</span>. <strong>You do not have entry on temple</strong> with this pass.</span>
+        <span th:if="${!isApproved and !isRejected}"> This pass request exists but is awaiting admin approval. Entry is not permitted until approved.</span>
+      </div>
+
+      <h3 style="margin:16px 0 10px;color:#7a1f1f;font-size:1rem">Pass Details</h3>
+      <div class="grid">
+        <div class="field"><label>Pass ID</label><div th:text="${pass.passId != null ? pass.passId : pass.id}">-</div></div>
+        <div class="field"><label>Devotee Name</label><div th:text="${pass.devoteeName != null ? pass.devoteeName : (passOwner != null ? passOwner.name : '-')}">-</div></div>
+        <div class="field"><label>Pass Type</label><div th:text="${pass.passType != null ? pass.passType : '-'}">-</div></div>
+        <div class="field"><label>Visit Date</label><div th:text="${pass.visitDate != null ? pass.visitDate : '-'}">-</div></div>
+        <div class="field"><label>Visit Time</label><div th:text="${pass.visitTime != null and !#strings.isEmpty(pass.visitTime) ? pass.visitTime : '-'}">-</div></div>
+        <div class="field"><label>No. of Persons</label><div th:text="${pass.noOfPersons != null ? pass.noOfPersons : 1}">1</div></div>
+        <div class="field"><label>Status</label><div th:text="${pass.status != null ? pass.status : '-'}">-</div></div>
+        <div class="field"><label>Payment Status</label><div th:text="${pass.paymentStatus != null ? pass.paymentStatus : '-'}">-</div></div>
+      </div>
+
+      <div class="qr" th:if="${passQrImageUrl != null}">
+        <img th:src="${passQrImageUrl}" alt="Pass QR"/>
+        <div style="font-size:12px;color:#6b5316;margin-top:6px">QR linked to this pass (permanent)</div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
