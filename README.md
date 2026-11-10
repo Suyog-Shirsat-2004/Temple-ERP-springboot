@@ -1,6 +1,8 @@
 ﻿# Temple-ERP-Java
 
-**Live Project:** [Add Live Demo Link Here](#deploy--live-link) *(deploy to Render/Railway/Koyeb/Fly.io/Azure with MongoDB Atlas to generate the live URL)*
+**Live Project (1st link):** [https://smile-costume-salaries-himself.trycloudflare.com](https://smile-costume-salaries-himself.trycloudflare.com) *(live via temporary Cloudflare tunnel from local app `http://localhost:5000`; link works while the app and tunnel are running. For a permanent public live URL, deploy to Render/Railway/Koyeb/Fly.io/Azure with MongoDB Atlas — see [Deploy / Live Link](#deploy--live-link).)*
+
+**Local Live:** [http://localhost:5000/](http://localhost:5000/) (running locally)
 
 Java Spring Boot based Temple ERP System for managing Darshan Passes, Room Bookings, Donations, Restaurant Orders, Payments, and Admin Operations.
 
@@ -130,7 +132,9 @@ docker run -p 5000:5000 -e MONGO_URI="mongodb://..." temple-erp-java
 
 ## Deploy / Live Link
 
-**Live Project (1st link):** _Publish your deployed URL here after hosting._
+**Current Live (temporary tunnel):** [https://smile-costume-salaries-himself.trycloudflare.com](https://smile-costume-salaries-himself.trycloudflare.com) (requires local app + tunnel to remain running)
+
+**Permanent Live Project:** _Deploy and publish a stable URL here (recommended)._
 
 1. Create MongoDB database (e.g. **MongoDB Atlas**) and set `MONGO_URI`.
 2. Deploy to a Java/Docker platform (**Render / Railway / Koyeb / Fly.io / Azure App Service**):
