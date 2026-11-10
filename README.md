@@ -10,17 +10,12 @@ Java Spring Boot based Temple ERP System for managing Darshan Passes, Room Booki
 
 > **Project basis:** Developed from the *Temple ERP System* academic project specification (2025–2026). The original specification/sample stack referenced PHP/MySQL/WAMP; this repository is a **complete Java-based implementation** of the same Temple ERP concept and modules, extended with additional UI, PDF, email, and performance improvements.
 
-## Academic / Project Details
+## Project Details
 
 | Item | Details |
 |---|---|
 | Project | Temple ERP System (Java Project) |
-| Submitted to | Savitribai Phule Pune University — Bachelor of Computer Science |
-| Institute | K.K. Wagh Arts, Science and Commerce College, Pimpalgaon (Baswant) |
-| Academic Year | 2025–2026 |
 | Developed By | Shirsat Suyog Madhav; Shinde Kiran Uttam |
-| Guided By | Prof. A. S. Mokat Mam |
-| HOD | Mrs. M. B. Sonawane Mam |
 
 ## Overview
 
@@ -156,7 +151,7 @@ docker run -p 5000:5000 -e MONGO_URI="mongodb://..." temple-erp-java
 - **GitHub:** [https://github.com/suyog-shirsat2004/Temple-ERP-Java](https://github.com/suyog-shirsat2004/Temple-ERP-Java)
 - **Report:** [`java-project-temple-erp.pdf`](java-project-temple-erp.pdf)
 - **Docs:** [`java-project-temple-erp.md`](java-project-temple-erp.md)
-- Savitribai Phule Pune University — B.Sc. (Computer Science), 2025–2026
+- Temple ERP System — Java Spring Boot, Thymeleaf, MongoDB implementation
 
 ## License / Usage
 
