@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Temple ERP – Enterprise Resource Planning System</title>
+  <meta name="description" content="Temple ERP is a Java Spring Boot-based system for managing darshan passes, room bookings, donations, restaurant orders, payments, and admin operations." />
+  <style>
+    :root {
+      --bg: #fffaf5;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #5b6472;
+      --primary: #d97706;
+      --primary-dark: #b45309;
+      --accent: #7c2d12;
+      --border: #eadfce;
+      --shadow: 0 10px 30px rgba(124,45,18,.08);
+      --radius: 16px;
+      --max: 1100px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #fff7ed 0%, var(--bg) 220px);
+      line-height: 1.6;
+    }
+    a { color: var(--primary-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+    .hero {
+      padding: 56px 0 28px;
+    }
+    .badge {
+      display: inline-block;
+      background: #ffedd5;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.15;
+      margin: 0 0 12px;
+      color: #3f1d0d;
+    }
+    .lead {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 800px;
+      margin: 0 0 22px;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 8px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 18px; border-radius: 10px; font-weight: 600; border: 1px solid transparent;
+      text-decoration: none; transition: .2s ease; min-height: 44px;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); text-decoration: none; }
+    .btn-secondary { background: #fff; color: var(--accent); border-color: var(--border); }
+    .btn-secondary:hover { background: #fff7ed; text-decoration: none; }
+    .notice {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid #f3d2a5;
+      border-left: 5px solid var(--primary);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #6b3a12;
+      box-shadow: 0 2px 10px rgba(124,45,18,.04);
+    }
+    .grid { display: grid; gap: 18px; }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    section { padding: 22px 0; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    h2 { margin: 0 0 12px; font-size: 1.5rem; color: #3f1d0d; }
+    h3 { margin: 0 0 8px; font-size: 1.05rem; color: #7c2d12; }
+    p { margin: 0 0 10px; }
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    li { margin: 6px 0; }
+    .muted { color: var(--muted); }
+    .pill-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .pill {
+      background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;
+      padding: 7px 12px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    }
+    .links a { display: inline-block; margin: 6px 14px 6px 0; font-weight: 600; }
+    .footer {
+      padding: 28px 0 40px; color: var(--muted); font-size: 14px;
+    }
+    code { background: #fff7ed; border: 1px solid #fed7aa; padding: 2px 6px; border-radius: 6px; }
+    @media (max-width: 900px) {
+      .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .hero { padding-top: 36px; }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .container { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div class="badge">Academic Project 2026–27</div>
+      <h1>Temple ERP – Enterprise Resource Planning System</h1>
+      <p class="lead">
+        A Java Spring Boot-based web application designed to digitize and simplify temple management operations,
+        including darshan passes, room bookings, donations, restaurant orders, payments, and administrative workflows.
+      </p>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="https://github.com/suyog-shirsat2004/Temple-ERP-Java" target="_blank" rel="noopener noreferrer">View GitHub Repository</a>
+        <a class="btn btn-secondary" href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.pdf" target="_blank" rel="noopener noreferrer">Project Report (PDF)</a>
+        <a class="btn btn-secondary" href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.md" target="_blank" rel="noopener noreferrer">Detailed Documentation</a>
+      </div>
+
+      <div class="notice">
+        <strong>Live Backend App:</strong> The fully working Temple ERP application requires a Java backend server and MongoDB
+        (it cannot run entirely on GitHub Pages).
+        <br />
+        <strong>Live App URL:</strong> <em>Add the verified backend deployment URL here after deployment</em>
+        (e.g. Railway/Koyeb/Cloud Run/Render URL).
+      </div>
+    </header>
+
+    <section>
+      <div class="grid grid-3">
+        <div class="card">
+          <h3>Darshan & Bookings</h3>
+          <p class="muted">Manage devotee services digitally with streamlined workflows.</p>
+          <ul>
+            <li>Darshan pass booking and verification</li>
+            <li>QR code generation and pass validation</li>
+            <li>Room booking management and tokens</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Donations & Restaurant</h3>
+          <p class="muted">Support temple operations with transparent records.</p>
+          <ul>
+            <li>Donation management and receipts</li>
+            <li>Restaurant menu and multi-item orders</li>
+            <li>Billing, order tokens, and history</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Admin & Automation</h3>
+          <p class="muted">Centralized administration and automated outputs.</p>
+          <ul>
+            <li>Admin dashboard and user management</li>
+            <li>PDF generation and downloads</li>
+            <li>Email notifications with attachments (configurable)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>Project Features</h2>
+          <ul>
+            <li>User registration/login and admin login/dashboard</li>
+            <li>Darshan pass booking, approval flow, QR verification</li>
+            <li>Room booking and booking history/tokens</li>
+            <li>Donation management and receipt PDFs</li>
+            <li>Restaurant orders, billing, and order tokens</li>
+            <li>Payment/transaction tracking (as implemented)</li>
+            <li>PDF downloads, email notifications, profile and admin management</li>
+            <li>Responsive UI for mobile, tablet, and desktop</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>Technology Stack</h2>
+          <div class="pill-list" aria-label="Technology stack">
+            <span class="pill">Java 17</span>
+            <span class="pill">Spring Boot 3.3</span>
+            <span class="pill">Spring Security</span>
+            <span class="pill">Spring Data MongoDB</span>
+            <span class="pill">Thymeleaf</span>
+            <span class="pill">HTML</span>
+            <span class="pill">CSS</span>
+            <span class="pill">JavaScript</span>
+            <span class="pill">MongoDB Atlas (production)</span>
+            <span class="pill">Docker</span>
+            <span class="pill">Maven</span>
+          </div>
+          <p class="muted" style="margin-top:14px;">
+            Backend-capable hosting is required for full functionality (e.g. Railway, Koyeb, Cloud Run, Render).
+            GitHub Pages hosts this static project page only.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Project Links</h2>
+        <p class="links">
+          <a href="https://github.com/suyog-shirsat2004/Temple-ERP-Java" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+          <a href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.pdf" target="_blank" rel="noopener noreferrer">Project Report (PDF)</a>
+          <a href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.md" target="_blank" rel="noopener noreferrer">Detailed Documentation</a>
+          <a href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/HOW_TO_RUN.md" target="_blank" rel="noopener noreferrer">How to Run Locally</a>
+        </p>
+        <p class="muted">
+          Local development URL (not public): <code>http://localhost:5000/</code>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>How to Enable This GitHub Pages Site</h2>
+        <ol>
+          <li>Open the repository on GitHub: <strong>Settings → Pages</strong>.</li>
+          <li>Under <strong>Build and deployment</strong>, choose <strong>Deploy from a branch</strong>.</li>
+          <li>Select branch <strong>main</strong> and folder <strong>/docs</strong>, then save.</li>
+          <li>After publishing, the page URL will be: <code>https://suyog-shirsat2004.github.io/Temple-ERP-Java/</code></li>
+        </ol>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Temple ERP – Enterprise Resource Planning System</strong></p>
+      <p>Developed by: Shirsat Suyog Madhav; Shinde Kiran Uttam</p>
+      <p class="muted">This GitHub Pages page is a static project landing page. For the full working application, deploy the Spring Boot backend to a server platform with MongoDB Atlas.</p>
+    </footer>
+  </main>
+</body>
+</html>
