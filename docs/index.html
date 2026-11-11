@@ -136,7 +136,7 @@
         (it cannot run entirely on GitHub Pages).
         <br />
         <strong>Live App URL:</strong> <em>Add the verified backend deployment URL here after deployment</em>
-        (e.g. Railway/Koyeb/Cloud Run/Render URL).
+        (e.g. Railway/Koyeb/Cloud Run or another Java/Docker hosting platform).
       </div>
     </header>
 
@@ -203,9 +203,65 @@
             <span class="pill">Maven</span>
           </div>
           <p class="muted" style="margin-top:14px;">
-            Backend-capable hosting is required for full functionality (e.g. Railway, Koyeb, Cloud Run, Render).
-            GitHub Pages hosts this static project page only.
+            Backend-capable hosting is required for full functionality (e.g. Railway, Koyeb, Cloud Run).
+            GitHub Pages hosts this static project showcase page only.
           </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Application Pages (Full Project)</h2>
+        <p class="muted">This GitHub Pages site is a static showcase. The routes below are available in the full Spring Boot application when run locally or deployed on a backend host.</p>
+        <div class="grid grid-2" style="margin-top:12px;">
+          <div>
+            <h3>Public Pages</h3>
+            <ul>
+              <li><code>/</code>, <code>/home</code> — Home</li>
+              <li><code>/about</code> — About</li>
+              <li><code>/services</code> — Services</li>
+              <li><code>/events</code> — Events</li>
+              <li><code>/festivals</code> — Festivals</li>
+              <li><code>/news</code> — News</li>
+              <li><code>/temple-updates</code> — Temple updates</li>
+              <li><code>/login</code>, <code>/register</code>, <code>/forgot-password</code></li>
+              <li><code>/admin/login</code> — Admin login</li>
+              <li><code>/passes/verify/{token}</code> — Pass verification</li>
+            </ul>
+          </div>
+          <div>
+            <h3>User Pages</h3>
+            <ul>
+              <li><code>/dashboard</code>, <code>/profile</code>, <code>/notifications</code></li>
+              <li><code>/passes/new</code>, <code>/passes/history</code>, <code>/passes/{id}</code></li>
+              <li><code>/bookings/new</code>, <code>/bookings/history</code>, <code>/bookings/token/{id}</code></li>
+              <li><code>/donations</code>, <code>/donations/receipt/{id}</code></li>
+              <li><code>/restaurant</code>, <code>/restaurant/history</code>, <code>/restaurant/token/{id}</code></li>
+              <li>PDF downloads for pass, booking token, donation receipt, and order token</li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid grid-2" style="margin-top:12px;">
+          <div>
+            <h3>Admin Pages</h3>
+            <ul>
+              <li><code>/admin/dashboard</code></li>
+              <li><code>/admin/users</code>, <code>/admin/devotees</code></li>
+              <li><code>/admin/passes</code>, <code>/admin/bookings</code>, <code>/admin/rooms</code></li>
+              <li><code>/admin/donations</code>, <code>/admin/restaurant</code></li>
+              <li><code>/admin/reports</code>, <code>/admin/events</code>, <code>/admin/festivals</code>, <code>/admin/news</code></li>
+              <li><code>/admin/mail-settings</code></li>
+            </ul>
+          </div>
+          <div>
+            <h3>API / System</h3>
+            <ul>
+              <li><code>/api/health</code> — Health check</li>
+              <li><code>/api/**</code> — REST API endpoints (auth, passes, bookings, donations, restaurant, admin, content)</li>
+            </ul>
+            <p class="muted" style="margin-top:10px;">Local development URL (not public): <code>http://localhost:5000/</code></p>
+          </div>
         </div>
       </div>
     </section>
@@ -219,20 +275,17 @@
           <a href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.md" target="_blank" rel="noopener noreferrer">Detailed Documentation</a>
           <a href="https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/HOW_TO_RUN.md" target="_blank" rel="noopener noreferrer">How to Run Locally</a>
         </p>
-        <p class="muted">
-          Local development URL (not public): <code>http://localhost:5000/</code>
-        </p>
       </div>
     </section>
 
     <section>
       <div class="card">
-        <h2>How to Enable This GitHub Pages Site</h2>
+        <h2>GitHub Pages Deployment</h2>
         <ol>
           <li>Open the repository on GitHub: <strong>Settings → Pages</strong>.</li>
-          <li>Under <strong>Build and deployment</strong>, choose <strong>Deploy from a branch</strong>.</li>
-          <li>Select branch <strong>main</strong> and folder <strong>/docs</strong>, then save.</li>
-          <li>After publishing, the page URL will be: <code>https://suyog-shirsat2004.github.io/Temple-ERP-Java/</code></li>
+          <li>Under <strong>Build and deployment</strong>, set <strong>Source</strong> to <strong>GitHub Actions</strong>.</li>
+          <li>Run/verify the <strong>Deploy GitHub Pages (docs)</strong> workflow on <strong>main</strong>.</li>
+          <li>Live URL: <code>https://suyog-shirsat2004.github.io/Temple-ERP-Java/</code></li>
         </ol>
       </div>
     </section>

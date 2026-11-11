@@ -17,13 +17,6 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
-import org.apache.pdfbox.util.Matrix;
 import com.temple.erp.model.DarshanPass;
 import com.temple.erp.model.Donation;
 import com.temple.erp.model.RestaurantOrder;
@@ -59,18 +52,15 @@ public class PdfService {
     private final FileStorageService fileStorageService;
     private final QrCodeService qrCodeService;
     private final UserRepository userRepository;
-    private final String uploadDir;
 
     public PdfService(SpringTemplateEngine templateEngine,
                       FileStorageService fileStorageService,
                       QrCodeService qrCodeService,
-                      UserRepository userRepository,
-                      @Value("${app.upload.dir:${UPLOAD_DIR:uploads}}") String uploadDir) {
+                      UserRepository userRepository) {
         this.templateEngine = templateEngine;
         this.fileStorageService = fileStorageService;
         this.qrCodeService = qrCodeService;
         this.userRepository = userRepository;
-        this.uploadDir = uploadDir;
     }
 
     // Temple theme colors (matched to pass-detail.html, extra vibrant for PDF)
@@ -81,7 +71,6 @@ public class PdfService {
     private static final Color GOLD = new Color(212, 175, 55);
     private static final Color GOLD_BRIGHT = new Color(255, 215, 0);
     private static final Color GOLD_DARK = new Color(161, 98, 7);
-    private static final Color CREAM = new Color(255, 253, 248);
     private static final Color CREAM_WARM = new Color(255, 246, 220);
     private static final Color CREAM_BORDER = new Color(234, 217, 176);
     private static final Color TEXT_DARK = new Color(44, 36, 22);
@@ -187,11 +176,11 @@ public class PdfService {
     }
 
     /**
-     * Registers Unicode-capable fonts (including Devanagari for ॐ) so symbols do not render as '#'.
+     * Registers Unicode-capable fonts (including Devanagari for à¥) so symbols do not render as '#'.
      * Tries bundled/classpath fonts first, then common OS font locations. Best-effort: missing fonts are skipped.
      */
     private void registerUnicodeFonts(PdfRendererBuilder builder) {
-        // Register Unicode/Devanagari-capable fonts so symbols like ॐ render instead of '#'.
+        // Register Unicode/Devanagari-capable fonts so symbols like à¥ render instead of '#'.
         // Use common family aliases so CSS font-family matches even when renderer resolves by name.
         registerFontIfExists(builder, "fonts/NotoSansDevanagari-Regular.ttf", "Noto Sans Devanagari", "Nirmala UI", "Mangal");
         registerFontIfExists(builder, "static/fonts/NotoSansDevanagari-Regular.ttf", "Noto Sans Devanagari", "Nirmala UI", "Mangal");
@@ -232,74 +221,6 @@ public class PdfService {
             }
         } catch (Exception e) {
             log.debug("Unicode font registration skipped for {}: {}", path, e.toString());
-        }
-    }
-
-    private byte[] stampPassWatermark(byte[] pdfBytes, DarshanPass pass) {
-        try (PDDocument doc = PDDocument.load(pdfBytes); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            String statusRaw = pass != null && pass.getStatus() != null ? pass.getStatus() : "pending";
-            boolean isApproved = "approved".equalsIgnoreCase(statusRaw);
-            boolean isRejected = "rejected".equalsIgnoreCase(statusRaw);
-            String line1;
-            String line2;
-            java.awt.Color color;
-            if (isRejected) {
-                line1 = "INVALID PASS";
-                line2 = "YOU DO NOT HAVE ENTRY ON TEMPLE";
-                color = new java.awt.Color(185, 28, 28);
-            } else if (isApproved) {
-                line1 = "VALID PASS";
-                line2 = "ENTRY PERMITTED";
-                color = new java.awt.Color(22, 101, 52);
-            } else {
-                line1 = "PENDING APPROVAL";
-                line2 = "AWAITING ADMIN";
-                color = new java.awt.Color(161, 98, 7);
-            }
-            for (PDPage page : doc.getPages()) {
-                PDRectangle media = page.getMediaBox();
-                float cx = media.getWidth() / 2f;
-                float cy = media.getHeight() / 2f;
-                try (PDPageContentStream cs = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
-                    PDExtendedGraphicsState gs = new PDExtendedGraphicsState();
-                    gs.setNonStrokingAlphaConstant(0.16f);
-                    gs.setStrokingAlphaConstant(0.18f);
-                    cs.setGraphicsStateParameters(gs);
-                    cs.setNonStrokingColor(color);
-                    cs.setStrokingColor(color);
-
-                    // border box (rotated)
-                    cs.saveGraphicsState();
-                    cs.transform(Matrix.getRotateInstance(Math.toRadians(28), cx, cy));
-                    float bw = Math.min(430, media.getWidth() * 0.78f);
-                    float bh = 92;
-                    cs.setLineWidth(3f);
-                    cs.addRect(cx - bw / 2f, cy - bh / 2f, bw, bh);
-                    cs.stroke();
-                    cs.restoreGraphicsState();
-
-                    cs.saveGraphicsState();
-                    cs.transform(Matrix.getRotateInstance(Math.toRadians(28), cx, cy));
-                    cs.beginText();
-                    cs.setFont(PDType1Font.HELVETICA_BOLD, 30);
-                    float w1 = PDType1Font.HELVETICA_BOLD.getStringWidth(line1) / 1000f * 30f;
-                    cs.newLineAtOffset(cx - w1 / 2f, cy + 8);
-                    cs.showText(line1);
-                    cs.endText();
-                    cs.beginText();
-                    cs.setFont(PDType1Font.HELVETICA_BOLD, 13);
-                    float w2 = PDType1Font.HELVETICA_BOLD.getStringWidth(line2) / 1000f * 13f;
-                    cs.newLineAtOffset(cx - w2 / 2f, cy - 20);
-                    cs.showText(line2);
-                    cs.endText();
-                    cs.restoreGraphicsState();
-                }
-            }
-            doc.save(out);
-            return out.toByteArray();
-        } catch (Exception e) {
-            log.warn("Pass watermark stamp failed, returning rendered PDF without stamp: {}", e.toString());
-            return pdfBytes;
         }
     }
 
@@ -678,7 +599,7 @@ public class PdfService {
         header.setWidthPercentage(100);
         header.setSpacingAfter(0);
 
-        PdfPCell topBand = new PdfPCell(new Phrase("à¥¥ SHRI TRIMBAKESHWAR JYOTIRLINGA TEMPLE à¥¥",
+        PdfPCell topBand = new PdfPCell(new Phrase("Ã Â¥Â¥ SHRI TRIMBAKESHWAR JYOTIRLINGA TEMPLE Ã Â¥Â¥",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, MAROON_DARK)));
         topBand.setBackgroundColor(GOLD_BRIGHT);
         topBand.setBorderColor(SAFFRON);
@@ -704,13 +625,13 @@ public class PdfService {
         Font mantra = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10.5f, SAFFRON_LIGHT);
         Paragraph p1 = new Paragraph("Shri Trimbakeshwar Jyotirlinga Temple", title);
         p1.setAlignment(Element.ALIGN_CENTER);
-        Paragraph p2 = new Paragraph("OFFICIAL DARSHAN PASS  â€¢  TEMPLE ERP", sub);
+        Paragraph p2 = new Paragraph("OFFICIAL DARSHAN PASS  Ã¢â‚¬Â¢  TEMPLE ERP", sub);
         p2.setAlignment(Element.ALIGN_CENTER);
         p2.setSpacingBefore(3);
-        Paragraph p3 = new Paragraph("à¥ à¤¨à¤®à¤ƒ à¤¶à¤¿à¤µà¤¾à¤¯  |  Trimbak, Nashik, Maharashtra", mantra);
+        Paragraph p3 = new Paragraph("Ã Â¥Â Ã Â¤Â¨Ã Â¤Â®Ã Â¤Æ’ Ã Â¤Â¶Ã Â¤Â¿Ã Â¤ÂµÃ Â¤Â¾Ã Â¤Â¯  |  Trimbak, Nashik, Maharashtra", mantra);
         p3.setAlignment(Element.ALIGN_CENTER);
         p3.setSpacingBefore(5);
-        Paragraph orn = new Paragraph("âœ¦  âœ¦  âœ¦  âœ¦  âœ¦", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, GOLD_BRIGHT));
+        Paragraph orn = new Paragraph("Ã¢Å“Â¦  Ã¢Å“Â¦  Ã¢Å“Â¦  Ã¢Å“Â¦  Ã¢Å“Â¦", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, GOLD_BRIGHT));
         orn.setAlignment(Element.ALIGN_CENTER);
         orn.setSpacingBefore(4);
         cell.addElement(p1);
@@ -735,9 +656,9 @@ public class PdfService {
         banner.setWidthPercentage(100);
         banner.setSpacingBefore(8);
         banner.setSpacingAfter(8);
-        String statusLabel = isApproved ? "âœ”  APPROVED / VALID PASS  â€”  ENTRY PERMITTED"
-                : (isRejected ? "âœ˜  REJECTED â€” INVALID PASS  (NO ENTRY ON TEMPLE)"
-                : "â³  PENDING ADMIN APPROVAL");
+        String statusLabel = isApproved ? "Ã¢Å“â€  APPROVED / VALID PASS  Ã¢â‚¬â€  ENTRY PERMITTED"
+                : (isRejected ? "Ã¢Å“Ëœ  REJECTED Ã¢â‚¬â€ INVALID PASS  (NO ENTRY ON TEMPLE)"
+                : "Ã¢ÂÂ³  PENDING ADMIN APPROVAL");
         Color bg = isRejected ? RED_BG : (isApproved ? GREEN_BG : YELLOW_BG);
         Color border = isRejected ? RED_BORDER : (isApproved ? GREEN_BORDER : YELLOW_BORDER);
         Color fg = isRejected ? RED_TEXT : (isApproved ? GREEN_TEXT : YELLOW_TEXT);
@@ -831,7 +752,7 @@ public class PdfService {
         String visit = (pass != null && pass.getVisitDate() != null ? pass.getVisitDate().format(DateTimeFormatter.ISO_LOCAL_DATE) : "-");
         if (pass != null && pass.getVisitTime() != null && !pass.getVisitTime().isBlank()) visit += " | " + pass.getVisitTime();
         int persons = pass != null && pass.getNoOfPersons() != null && pass.getNoOfPersons() > 0 ? pass.getNoOfPersons() : 1;
-        infoCell.addElement(infoLine("Visit: ", visit + "   â€¢   Persons: " + persons));
+        infoCell.addElement(infoLine("Visit: ", visit + "   Ã¢â‚¬Â¢   Persons: " + persons));
         Paragraph idNote = new Paragraph("Present this pass with a valid photo ID at temple entry.",
                 FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 8.5f, new Color(107, 83, 22)));
         idNote.setSpacingBefore(6);
@@ -873,7 +794,7 @@ public class PdfService {
         double amt = pass != null && pass.getAmount() != null ? pass.getAmount() : 0.0;
         double computed = (!isFreeEntry && amt * persons > 0) ? (amt * persons) : (pass != null && pass.getTotalAmount() != null ? pass.getTotalAmount() : 0.0);
         if (!isFreeEntry && computed <= 0) computed = amt * persons;
-        String totalText = isFreeEntry ? "₹0.00 (Free Entry)" : "₹" + MONEY.format(computed);
+        String totalText = isFreeEntry ? "â‚¹0.00 (Free Entry)" : "â‚¹" + MONEY.format(computed);
 
         Paragraph lbl = new Paragraph("PAYMENT STATUS", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, fgDark));
         lbl.setSpacingAfter(3);
@@ -903,7 +824,7 @@ public class PdfService {
         double amt = pass != null && pass.getAmount() != null ? pass.getAmount() : 0.0;
         double computed = (!isFreeEntry && amt * persons > 0) ? (amt * persons) : (pass != null && pass.getTotalAmount() != null ? pass.getTotalAmount() : 0.0);
         if (!isFreeEntry && computed <= 0) computed = amt * persons;
-        String totalText = isFreeEntry ? "₹0.00 (Free Entry / Not Required)" : "₹" + MONEY.format(computed) + (persons > 1 ? " (" + persons + " Ã— ₹" + MONEY.format(amt) + " per person)" : "");
+        String totalText = isFreeEntry ? "â‚¹0.00 (Free Entry / Not Required)" : "â‚¹" + MONEY.format(computed) + (persons > 1 ? " (" + persons + " Ãƒâ€” â‚¹" + MONEY.format(amt) + " per person)" : "");
         String payStatus = isFreeEntry ? "Free / Not Required" : safe(pass != null ? pass.getPaymentStatus() : null);
         Color statusColor = isRejected ? RED_TEXT : (isApproved ? GREEN_TEXT : YELLOW_TEXT);
 
@@ -1104,7 +1025,7 @@ public class PdfService {
             Color stBorder = approved ? GREEN_BORDER : (rejected ? RED_BORDER : YELLOW_BORDER);
             Color stFg = approved ? GREEN_TEXT : (rejected ? RED_TEXT : YELLOW_TEXT);
 
-            PdfPTable header = simpleTempleHeader("Shri Trimbakeshwar Temple - Guest House", "Room Booking Token / Confirmation Pass  ·  Temple ERP", MAROON, new Color(37, 99, 235));
+            PdfPTable header = simpleTempleHeader("Shri Trimbakeshwar Temple - Guest House", "Room Booking Token / Confirmation Pass  Â·  Temple ERP", MAROON, new Color(37, 99, 235));
             header.setSpacingAfter(8);
             doc.add(header);
             doc.add(statusBanner(statusLabel, stBg, stBorder, stFg));
@@ -1207,7 +1128,7 @@ public class PdfService {
             Color stBorder = approved ? GREEN_BORDER : (rejected ? RED_BORDER : YELLOW_BORDER);
             Color stFg = approved ? GREEN_TEXT : (rejected ? RED_TEXT : YELLOW_TEXT);
 
-            PdfPTable header = simpleTempleHeader("Shri Trimbakeshwar Temple - Annakshetra", "Restaurant Order Token Pass  ·  Temple ERP", new Color(20, 83, 45), new Color(15, 118, 110));
+            PdfPTable header = simpleTempleHeader("Shri Trimbakeshwar Temple - Annakshetra", "Restaurant Order Token Pass  Â·  Temple ERP", new Color(20, 83, 45), new Color(15, 118, 110));
             header.setSpacingAfter(8);
             doc.add(header);
             doc.add(statusBanner(statusLabel, stBg, stBorder, stFg));
@@ -1234,8 +1155,8 @@ public class PdfService {
                     double p = it != null && it.getPrice() != null ? it.getPrice() : 0.0;
                     PdfPCell c1 = new PdfPCell(new Phrase(iname, val)); c1.setPadding(6); c1.setBorderColor(CREAM_BORDER); items.addCell(c1);
                     PdfPCell c2 = new PdfPCell(new Phrase(String.valueOf(q), val)); c2.setPadding(6); c2.setBorderColor(CREAM_BORDER); c2.setHorizontalAlignment(Element.ALIGN_CENTER); items.addCell(c2);
-                    PdfPCell c3 = new PdfPCell(new Phrase("₹" + MONEY.format(p), val)); c3.setPadding(6); c3.setBorderColor(CREAM_BORDER); c3.setHorizontalAlignment(Element.ALIGN_RIGHT); items.addCell(c3);
-                    PdfPCell c4 = new PdfPCell(new Phrase("₹" + MONEY.format(p * q), val)); c4.setPadding(6); c4.setBorderColor(CREAM_BORDER); c4.setHorizontalAlignment(Element.ALIGN_RIGHT); items.addCell(c4);
+                    PdfPCell c3 = new PdfPCell(new Phrase("â‚¹" + MONEY.format(p), val)); c3.setPadding(6); c3.setBorderColor(CREAM_BORDER); c3.setHorizontalAlignment(Element.ALIGN_RIGHT); items.addCell(c3);
+                    PdfPCell c4 = new PdfPCell(new Phrase("â‚¹" + MONEY.format(p * q), val)); c4.setPadding(6); c4.setBorderColor(CREAM_BORDER); c4.setHorizontalAlignment(Element.ALIGN_RIGHT); items.addCell(c4);
                 }
                 items.setSpacingAfter(8);
                 doc.add(items);
@@ -1325,7 +1246,7 @@ public class PdfService {
             Color stBorder = completed ? GREEN_BORDER : (failed ? RED_BORDER : YELLOW_BORDER);
             Color stFg = completed ? GREEN_TEXT : (failed ? RED_TEXT : YELLOW_TEXT);
 
-            PdfPTable header = simpleTempleHeader("Shri Trimbakeshwar Jyotirlinga Temple", "Official Donation Receipt  ·  Temple ERP", new Color(20, 83, 45), new Color(15, 118, 110));
+            PdfPTable header = simpleTempleHeader("Shri Trimbakeshwar Jyotirlinga Temple", "Official Donation Receipt  Â·  Temple ERP", new Color(20, 83, 45), new Color(15, 118, 110));
             header.setSpacingAfter(8);
             doc.add(header);
             doc.add(statusBanner(statusLabel, stBg, stBorder, stFg));
@@ -1375,7 +1296,7 @@ public class PdfService {
     private PdfPTable simpleTempleHeader(String title, String subtitle, Color accent1, Color accent2) {
         PdfPTable header = new PdfPTable(1);
         header.setWidthPercentage(100);
-        PdfPCell band = new PdfPCell(new Phrase("à¥¥ SHRI TRIMBAKESHWAR JYOTIRLINGA TEMPLE à¥¥",
+        PdfPCell band = new PdfPCell(new Phrase("Ã Â¥Â¥ SHRI TRIMBAKESHWAR JYOTIRLINGA TEMPLE Ã Â¥Â¥",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f, MAROON_DARK)));
         band.setBackgroundColor(GOLD_BRIGHT);
         band.setBorderColor(SAFFRON);
@@ -1391,7 +1312,7 @@ public class PdfService {
         p1.setAlignment(Element.ALIGN_CENTER);
         Paragraph p2 = new Paragraph(subtitle == null ? "" : subtitle, FontFactory.getFont(FontFactory.HELVETICA, 10.5f, new Color(255, 236, 179)));
         p2.setAlignment(Element.ALIGN_CENTER); p2.setSpacingBefore(3);
-        Paragraph p3 = new Paragraph("à¥ à¤¨à¤®à¤ƒ à¤¶à¤¿à¤µà¤¾à¤¯  |  Trimbak, Nashik, Maharashtra", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 9.5f, SAFFRON_LIGHT));
+        Paragraph p3 = new Paragraph("Ã Â¥Â Ã Â¤Â¨Ã Â¤Â®Ã Â¤Æ’ Ã Â¤Â¶Ã Â¤Â¿Ã Â¤ÂµÃ Â¤Â¾Ã Â¤Â¯  |  Trimbak, Nashik, Maharashtra", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 9.5f, SAFFRON_LIGHT));
         p3.setAlignment(Element.ALIGN_CENTER); p3.setSpacingBefore(4);
         cell.addElement(p1); cell.addElement(p2); cell.addElement(p3);
         header.addCell(cell);
@@ -1525,7 +1446,7 @@ public class PdfService {
     }
 
     private Paragraph templeFooterNote() {
-        Paragraph footer = new Paragraph("à¥ à¤¨à¤®à¤ƒ à¤¶à¤¿à¤µà¤¾à¤¯  |  Shri Trimbakeshwar Jyotirlinga Temple, Trimbak, Nashik",
+        Paragraph footer = new Paragraph("\u0950 \u0928\u092E\u0903 \u0936\u093F\u0935\u093E\u092F  |  Shri Trimbakeshwar Jyotirlinga Temple, Trimbak, Nashik",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9.5f, GOLD_DARK));
         footer.setAlignment(Element.ALIGN_CENTER);
         footer.setSpacingBefore(8);
@@ -1550,8 +1471,8 @@ public class PdfService {
     }
 
     private String formatMoney(Double v) {
-        if (v == null) return "₹0.00";
-        return "₹" + MONEY.format(v);
+        if (v == null) return "\u20B90.00";
+        return "\u20B9" + MONEY.format(v);
     }
 
     private String safe(String... vals) {

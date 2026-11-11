@@ -2,9 +2,9 @@
 
 ## 🚀 Live Project
 
-**Live URL (Render):** _Add the actual Render deployment URL here after successful deployment and verification (for example: `https://temple-erp.onrender.com`)._
+**GitHub Pages (Project Showcase):** https://suyog-shirsat2004.github.io/Temple-ERP-Java/
 
-> **Status:** Permanent public hosting is configured for **Render** (see [Deployment Instructions](#deployment-instructions-render)). Do not treat this README as confirmation that deployment is complete until the Render URL above is added and tested.
+> **Note:** GitHub Pages hosts a **static project landing/showcase page** only. The full Temple ERP application is a **Java Spring Boot + MongoDB** backend app (authentication, bookings, donations, restaurant orders, PDFs, QR, email, uploads, admin operations) and requires a Java server/database to run all features. You can run it locally using the instructions below or deploy the backend to a Java/Docker hosting platform with MongoDB Atlas.
 
 ## Project Overview
 
@@ -32,7 +32,7 @@ Temple ERP is a Java Spring Boot-based web application designed to digitize and 
 - **Frontend:** Thymeleaf, HTML, CSS, JavaScript, Bootstrap (selected pages), Font Awesome
 - **Database:** MongoDB (local for development, MongoDB Atlas for production)
 - **PDF / QR:** openhtmltopdf, OpenPDF, PDFBox, ZXing
-- **Build / Deployment:** Maven (wrapper included), Docker, Render
+- **Build / Deployment:** Maven (wrapper included), Docker, GitHub Pages (static showcase)
 
 ## Screenshots
 
@@ -110,76 +110,98 @@ Minimum for local development:
 java -jar target/temple-erp-java-1.0.0.jar
 ```
 
-## Deployment Instructions (Render)
+## GitHub Pages (Static Showcase)
 
-This project is prepared for deployment on **Render** as a Docker-based web service with **MongoDB Atlas**.
+This repository includes a static showcase site in `docs/` for GitHub Pages:
+- **Live URL:** https://suyog-shirsat2004.github.io/Temple-ERP-Java/
+- **Source:** `main` branch, `/docs` folder (deployed via GitHub Actions workflow: `.github/workflows/pages.yml`)
 
-### 1. Prepare MongoDB Atlas (production database)
-1. Create a MongoDB Atlas account/project and cluster: https://www.mongodb.com/atlas
-2. Create a database user with a strong password.
-3. Configure **Network Access** to allow Render to connect (for testing you may allow access from anywhere, but restrict in production as appropriate).
-4. Get the connection string (SRV URI), e.g.:
-   `mongodb+srv://<username>:<password>@<cluster>.mongodb.net/temple_erp?retryWrites=true&w=majority&appName=TempleERP`
-5. Set this value as `MONGO_URI` in Render (do not commit it).
+To publish/update:
+1. Go to **Settings → Pages** and set **Source** to **GitHub Actions**.
+2. Run or wait for the **Deploy GitHub Pages (docs)** workflow on `main`.
+3. Open the live URL above.
 
-### 2. Deploy to Render
-You can deploy using the included [`render.yaml`](render.yaml) blueprint or configure manually.
+> GitHub Pages shows the project showcase/pages overview only. It does not run the Spring Boot backend, MongoDB, authentication, payments, PDF/QR generation, or email services.
 
-#### Option A: Blueprint (`render.yaml`)
-1. Push your code to GitHub.
-2. In Render, create a new **Blueprint** and connect the repository.
-3. Render will detect `render.yaml` and propose a web service.
-4. Fill in required secret/sync environment variables (especially `MONGO_URI`, mail credentials, admin credentials if overriding).
-5. Deploy and wait for build/startup logs to complete.
+## Application Pages / Routes (Full Project)
 
-#### Option B: Manual Web Service
-1. In Render, create a **New + > Web Service** from the GitHub repo.
-2. Choose **Docker** runtime (Dockerfile is included).
-3. Set **Health Check Path** to `/api/health`.
-4. Configure environment variables (see below).
-5. (Recommended) Add a **Persistent Disk** and mount it (e.g. `/var/data`) and set `UPLOAD_DIR=/var/data/uploads` so uploaded files persist across restarts/redeploys (plan-dependent).
+### Public pages
+- `/`, `/home` — Home
+- `/about` — About temple
+- `/services` — Services
+- `/events` — Events
+- `/festivals` — Festivals
+- `/news` — News / updates
+- `/temple-updates` — Temple updates
+- `/login` — User login
+- `/register` — User registration
+- `/forgot-password` — Forgot/reset password
+- `/admin/login` — Admin login
+- `/passes/verify/{token}` — Public pass verification (QR/token)
 
-### 3. Required / recommended Render environment variables
-| Variable | Required | Description |
-|---|---|---|
-| `PORT` | Yes (Render provides) | App listens on Render's port (`server.port=${PORT:5000}` already configured) |
-| `MONGO_URI` | Yes | MongoDB Atlas connection string |
-| `JWT_SECRET` | Yes | Long random secret for JWT signing |
-| `APP_ADMIN_USERNAME` | Recommended | Admin login username (override default) |
-| `APP_ADMIN_EMAIL` | Recommended | Admin email (override default) |
-| `APP_ADMIN_PASSWORD` | Recommended | Admin password (override default) |
-| `APP_MAIL_ENABLED` | Optional | `true`/`false` to enable SMTP email notifications |
-| `APP_MAIL_FROM` | Optional | Sender email address |
-| `MAIL_HOST` | Optional | SMTP host (default `smtp.gmail.com`) |
-| `MAIL_PORT` | Optional | SMTP port (default `587`) |
-| `MAIL_USERNAME` | Optional | SMTP username/email |
-| `MAIL_PASSWORD` | Optional | SMTP password/app password (Gmail App Password recommended) |
-| `UPLOAD_DIR` | Recommended | Upload path (use mounted disk path in production, e.g. `/var/data/uploads`) |
-| `THYMELEAF_CACHE` | Optional | `true` recommended in production |
+### User pages (authenticated)
+- `/dashboard` — User dashboard
+- `/profile` — User profile
+- `/change-password` — Change password
+- `/notifications` — Notifications
+- `/passes/new` — Book darshan pass
+- `/passes/history` — My passes
+- `/passes/{id}` — Pass details
+- `/passes/{id}/pdf` — Download pass PDF
+- `/bookings/new` — Room booking
+- `/bookings/history` — My room bookings
+- `/bookings/token/{id}` — Booking token
+- `/bookings/token/{id}/pdf` — Booking token PDF
+- `/donations` — Donations / my donations
+- `/donations/receipt/{id}` — Donation receipt
+- `/donations/receipt/{id}/pdf` — Donation receipt PDF
+- `/restaurant` — Restaurant menu / place order
+- `/restaurant/history` — My restaurant orders
+- `/restaurant/token/{id}` — Order token
+- `/restaurant/token/{id}/pdf` — Order token PDF
 
-> Use Render **Environment** settings (or secret files) for all credentials. Never commit secrets to GitHub.
+### Admin pages (admin role)
+- `/admin/dashboard` — Admin dashboard
+- `/admin/users` — User management
+- `/admin/devotees` — Devotee management
+- `/admin/passes` — Darshan pass management
+- `/admin/bookings` — Room booking management
+- `/admin/rooms` — Room management
+- `/admin/donations` — Donation management
+- `/admin/restaurant` — Restaurant/menu/order management
+- `/admin/reports` — Reports
+- `/admin/events` — Events management
+- `/admin/festivals` — Festivals management
+- `/admin/news` — News management
+- `/admin/mail-settings` — Email settings
 
-### 4. Build/start behavior (Docker)
-- **Docker build:** uses multi-stage Maven build (`Dockerfile`)
-- **Container start:** runs the packaged Spring Boot JAR
-- **Port binding:** app reads `PORT` environment variable (Render-compatible)
-- **Health check:** `/api/health`
+### API / system
+- `/api/health` — Health check endpoint
+- `/api/**` — REST API endpoints (auth/content/passes/bookings/donations/restaurant/admin operations)
 
-### 5. Post-deployment verification checklist
-- Open the Render URL and verify home page loads
-- Test login/registration and admin login/dashboard
-- Test MongoDB-backed operations (bookings, donations, passes, orders)
-- Test PDF downloads and QR verification
-- Test email sending (if SMTP configured)
-- Test all routes/APIs and file uploads
-- Verify the site works without your local PC running
+## Backend Hosting (for full working app)
+
+To run the complete application with all features, deploy the Spring Boot backend to a Java/Docker-capable hosting platform and connect **MongoDB Atlas**.
+
+### Recommended environment variables
+| Variable | Description |
+|---|---|
+| `PORT` | Server port (app supports `${PORT:5000}`) |
+| `MONGO_URI` | MongoDB Atlas connection string (required for production DB) |
+| `JWT_SECRET` | Long random secret for JWT signing |
+| `APP_ADMIN_USERNAME` / `APP_ADMIN_EMAIL` / `APP_ADMIN_PASSWORD` | Bootstrap admin credentials (override defaults) |
+| `APP_MAIL_ENABLED`, `APP_MAIL_FROM`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP/email settings for notifications and PDF attachments |
+| `UPLOAD_DIR` | Upload storage path (use persistent storage path on hosts that support volumes/disks) |
+| `THYMELEAF_CACHE` | Set `true` in production |
+
+> Do not commit secrets to GitHub. Configure credentials as environment variables on your hosting platform or via Admin > Email Settings where applicable.
 
 ## Configuration Notes
 
 - **MongoDB:** Production should use `MONGO_URI` (MongoDB Atlas). Local default is `mongodb://localhost:27017/temple_erp`.
 - **Email:** Can be configured via environment variables and/or Admin > Email Settings (project feature). Use Gmail App Passwords for SMTP.
-- **Uploads:** Stored on local filesystem (`UPLOAD_DIR`). On Render, attach a persistent disk for durability across restarts; otherwise uploads may be lost on redeploy/restart.
-- **Reverse proxy:** `server.forward-headers-strategy` is configurable for correct behavior behind Render's proxy.
+- **Uploads:** Stored on local filesystem (`UPLOAD_DIR`). Use persistent storage on your hosting platform if you need uploaded files to survive restarts/redeploys.
+- **Reverse proxy:** `server.forward-headers-strategy` is configurable for deployments behind a proxy/load balancer.
 
 ## Documentation
 

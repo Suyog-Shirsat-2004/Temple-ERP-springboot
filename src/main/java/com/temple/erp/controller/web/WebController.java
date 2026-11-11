@@ -31,7 +31,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.http.HttpHeaders;
@@ -461,7 +460,6 @@ public class WebController {
         String profilePic = null;
         try { if (pass.getUserId() != null) profilePic = userRepository.findById(pass.getUserId()).map(User::getProfilePic).orElse(null); } catch (Exception ignored) {}
         byte[] pdf = pdfService.generatePassPdf(pass, name, profilePic);
-        String passId = pass.getPassId() != null ? pass.getPassId() : pass.getId();
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Temple Darshan Pass - original pass.pdf\"")
                 .contentType(MediaType.APPLICATION_PDF)
