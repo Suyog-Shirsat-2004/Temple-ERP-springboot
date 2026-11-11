@@ -17,11 +17,14 @@ public class StartupUrlPrinter {
     @EventListener(ApplicationReadyEvent.class)
     public void printUrls() {
         String port = env.getProperty("local.server.port", env.getProperty("server.port", "5000"));
-        String base = "http://localhost:" + port;
+        String external = env.getProperty("RENDER_EXTERNAL_URL");
+        String base = (external != null && !external.isBlank())
+                ? external.replaceAll("/+$", "")
+                : "http://localhost:" + port;
         log.info("\n----------------------------------------------------------\n"
                 + "\tTemple ERP is running! Access URLs:\n"
                 + "\tHome:            " + base + "/\n"
-                + "\tAdmin Dashboard: " + base + "/admin/dashboard  (Ctrl+Click to open)\n"
+                + "\tAdmin Dashboard: " + base + "/admin/dashboard\n"
                 + "\tAdmin Login:     " + base + "/admin/login\n"
                 + "\tUser Login:      " + base + "/login\n"
                 + "\tRegister:        " + base + "/register\n"
