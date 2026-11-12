@@ -2,6 +2,7 @@
 
 ## 🚀 Live Project
 
+- **Live App (Railway):** [https://temple-erp-springboot-production.up.railway.app/](https://temple-erp-springboot-production.up.railway.app/)
 - **Deployed Page (GitHub Pages):** [https://suyog-shirsat-2004.github.io/Temple-ERP-springboot/](https://suyog-shirsat-2004.github.io/Temple-ERP-springboot/)
 - **Project Showcase:** Static landing page for the Temple ERP project (hosted from `docs/` via GitHub Actions)
 
