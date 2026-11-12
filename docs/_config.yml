@@ -1,0 +1,8 @@
+title: Temple ERP
+description: Static GitHub Pages site for Temple ERP
+theme: null
+plugins: []
+sass:
+  style: compressed
+exclude:
+  - README.md
