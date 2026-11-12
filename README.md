@@ -2,7 +2,8 @@
 
 ## 🚀 Live Project
 
-**GitHub Pages (Project Showcase):** https://suyog-shirsat2004.github.io/Temple-ERP-Java/
+- **Deployed Page (GitHub Pages):** [https://suyog-shirsat2004.github.io/Temple-ERP-Java/](https://suyog-shirsat2004.github.io/Temple-ERP-Java/)
+- **Project Showcase:** Static landing page for the Temple ERP project (hosted from `docs/` via GitHub Actions)
 
 > **Note:** GitHub Pages hosts a **static project landing/showcase page** only. The full Temple ERP application is a **Java Spring Boot + MongoDB** backend app (authentication, bookings, donations, restaurant orders, PDFs, QR, email, uploads, admin operations) and requires a Java server/database to run all features. You can run it locally using the instructions below or deploy the backend to a Java/Docker hosting platform with MongoDB Atlas.
 

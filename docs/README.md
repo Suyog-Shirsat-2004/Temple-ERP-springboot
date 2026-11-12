@@ -1,5 +1,7 @@
 # Temple ERP – GitHub Pages Landing Page
 
+- **Deployed Page:** [https://suyog-shirsat2004.github.io/Temple-ERP-Java/](https://suyog-shirsat2004.github.io/Temple-ERP-Java/)
+
 This folder contains a **static landing page** for GitHub Pages.
 
 - **Purpose:** Present project overview, features, tech stack, and links.
