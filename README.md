@@ -52,9 +52,9 @@ Suggested locations to capture:
 
 ## Project Links
 
-- **GitHub Repository:** https://github.com/suyog-shirsat2004/Temple-ERP-Java
-- **Project Report (PDF):** [View Project Report](https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.pdf)
-- **Detailed Documentation:** [Read Documentation](https://github.com/suyog-shirsat2004/Temple-ERP-Java/blob/main/java-project-temple-erp.md)
+- **GitHub Repository:** https://github.com/Suyog-Shirsat-2004/Temple-ERP-springboot
+- **Project Report (PDF):** [View Project Report](https://github.com/Suyog-Shirsat-2004/Temple-ERP-springboot/blob/main/java-project-temple-erp.pdf)
+- **Detailed Documentation:** [Read Documentation](https://github.com/Suyog-Shirsat-2004/Temple-ERP-springboot/blob/main/java-project-temple-erp.md)
 - **Local Application (development):** `http://localhost:5000/` (run locally; not a public live link)
 
 ## Academic Project – 2026–27
@@ -70,8 +70,8 @@ This project is developed as an academic project for the **2026–27 academic ye
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/suyog-shirsat2004/Temple-ERP-Java.git
-cd Temple-ERP-Java
+git clone https://github.com/Suyog-Shirsat-2004/Temple-ERP-springboot.git
+cd Temple-ERP-springboot
 ```
 
 ### 2. Configure environment (recommended)
